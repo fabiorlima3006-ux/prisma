@@ -25,7 +25,17 @@ const EXTRA_PAGES: NavItem[] = [
   { label: 'Mercados', href: '/mercados' },
 ];
 
-export async function buildSearchIndex(): Promise<SearchEntry[]> {
+let memo: Promise<SearchEntry[]> | null = null;
+
+export function buildSearchIndex(): Promise<SearchEntry[]> {
+  memo ??= compute().catch((e: unknown) => {
+    memo = null;
+    throw e;
+  });
+  return memo;
+}
+
+async function compute(): Promise<SearchEntry[]> {
   const entries: SearchEntry[] = [];
 
   const routes = Object.keys(CLASS_ROUTES) as (keyof typeof CLASS_ROUTES)[];

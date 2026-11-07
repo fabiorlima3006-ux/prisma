@@ -1,8 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SearchEntry } from '@/lib/search/search';
-import { SearchDialog } from './SearchDialog';
+import { resetSearchIndexCache, SearchDialog } from './SearchDialog';
 
 const push = vi.fn();
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
@@ -61,5 +61,59 @@ describe('SearchDialog', () => {
     await user.type(screen.getByRole('combobox'), 'zzzz');
     expect(screen.getByText(/Nenhum resultado para/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Ver todos os resultados' })).toHaveAttribute('href', '/busca?q=zzzz');
+  });
+});
+
+describe('SearchDialog: carregamento do índice', () => {
+  const fetchMock = vi.fn();
+  beforeEach(() => {
+    resetSearchIndexCache();
+    fetchMock.mockReset();
+    vi.stubGlobal('fetch', fetchMock);
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  const ok = () => Promise.resolve({ ok: true, json: () => Promise.resolve(index) });
+
+  it('mostra Carregando… e depois os resultados', async () => {
+    const user = userEvent.setup();
+    let resolve!: (v: unknown) => void;
+    fetchMock.mockReturnValue(new Promise((r) => (resolve = r)));
+    render(<SearchDialog />);
+    await user.keyboard('{Control>}k{/Control}');
+    expect(await screen.findByText('Carregando…')).toBeInTheDocument();
+    await user.type(screen.getByRole('combobox'), 'petr4');
+    resolve({ ok: true, json: () => Promise.resolve(index) });
+    expect(await screen.findByRole('option', { name: /PETR4/ })).toBeInTheDocument();
+    expect(screen.queryByText('Carregando…')).toBeNull();
+  });
+
+  it('não busca de novo na segunda abertura', async () => {
+    const user = userEvent.setup();
+    fetchMock.mockImplementation(ok);
+    render(<SearchDialog />);
+    await user.keyboard('{Control>}k{/Control}');
+    await user.type(screen.getByRole('combobox'), 'petr4');
+    await screen.findByRole('option', { name: /PETR4/ });
+    await user.keyboard('{Escape}');
+    await user.keyboard('{Control>}k{/Control}');
+    await user.type(screen.getByRole('combobox'), 'petr4');
+    expect(await screen.findByRole('option', { name: /PETR4/ })).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('erro mostra mensagem com link e reabrir tenta de novo', async () => {
+    const user = userEvent.setup();
+    fetchMock.mockRejectedValueOnce(new Error('falhou')).mockImplementation(ok);
+    render(<SearchDialog />);
+    await user.keyboard('{Control>}k{/Control}');
+    expect(await screen.findByText(/Não foi possível carregar a busca\./)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /página de busca/ })).toHaveAttribute('href', '/busca');
+    await waitFor(() => expect(screen.getByRole('combobox')).toHaveFocus());
+    await user.keyboard('{Escape}');
+    await user.keyboard('{Control>}k{/Control}');
+    await user.type(screen.getByRole('combobox'), 'petr4');
+    expect(await screen.findByRole('option', { name: /PETR4/ })).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });

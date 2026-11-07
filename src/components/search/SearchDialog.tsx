@@ -2,11 +2,35 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useId, useMemo, useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { groupByType, search, TYPE_LABELS, type SearchEntry } from '@/lib/search/search';
 
 let cachedIndex: SearchEntry[] | null = null;
+let inflight: Promise<SearchEntry[]> | null = null;
+
+/** Só para testes: limpa o cache do índice. */
+export function resetSearchIndexCache() {
+  cachedIndex = null;
+  inflight = null;
+}
+
+function loadIndex(): Promise<SearchEntry[]> {
+  if (cachedIndex) return Promise.resolve(cachedIndex);
+  inflight ??= fetch('/search-index.json')
+    .then((r) => {
+      if (!r.ok) throw new Error(String(r.status));
+      return r.json() as Promise<SearchEntry[]>;
+    })
+    .then((data) => {
+      cachedIndex = data;
+      return data;
+    })
+    .finally(() => {
+      inflight = null;
+    });
+  return inflight;
+}
 
 type Status = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -26,6 +50,8 @@ export function SearchDialog({ index: indexProp }: { index?: SearchEntry[] }) {
   const router = useRouter();
   const uid = useId();
   const listId = `${uid}-lista`;
+  const mounted = useRef(true);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
@@ -50,31 +76,37 @@ export function SearchDialog({ index: indexProp }: { index?: SearchEntry[] }) {
   }, []);
 
   useEffect(() => {
-    if (!open || loaded || status === 'loading' || status === 'error') return;
-    let cancelled = false;
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    // O Modal chama showModal() depois destes efeitos; focar antes dele não pega.
+    const id = requestAnimationFrame(() => inputRef.current?.focus());
+    return () => cancelAnimationFrame(id);
+  }, [open]);
+
+  useEffect(() => {
+    if (!open || loaded) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- inicia o carregamento sob demanda
     setStatus('loading');
-    fetch('/search-index.json')
-      .then((r) => {
-        if (!r.ok) throw new Error(String(r.status));
-        return r.json() as Promise<SearchEntry[]>;
-      })
+    loadIndex()
       .then((data) => {
-        cachedIndex = data;
-        if (cancelled) return;
+        if (!mounted.current) return;
         setLoaded(data);
         setStatus('ready');
       })
       .catch(() => {
-        if (!cancelled) setStatus('error');
+        if (mounted.current) setStatus('error');
       });
-    return () => {
-      cancelled = true;
-    };
-  }, [open, loaded, status]);
+  }, [open, loaded]);
 
   const close = useCallback(() => {
     setOpen(false);
+    setStatus((st) => (st === 'error' ? 'idle' : st));
     setQuery('');
     setActive(0);
   }, []);
@@ -102,7 +134,7 @@ export function SearchDialog({ index: indexProp }: { index?: SearchEntry[] }) {
     } else if (e.key === 'ArrowUp' && flat.length > 0) {
       e.preventDefault();
       setActive((a) => (a - 1 + flat.length) % flat.length);
-    } else if (e.key === 'Enter') {
+    } else if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
       const entry = flat[active];
       if (entry) {
         e.preventDefault();
@@ -118,7 +150,7 @@ export function SearchDialog({ index: indexProp }: { index?: SearchEntry[] }) {
       {open && (
         <div onKeyDown={onKeyDown}>
           <input
-            autoFocus
+            ref={inputRef}
             type="text"
             role="combobox"
             aria-label="Buscar ativos, ferramentas e artigos"
