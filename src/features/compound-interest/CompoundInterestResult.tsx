@@ -19,11 +19,11 @@ function Stat({ label, value, testId }: { label: string; value: string; testId: 
   );
 }
 
-export function CompoundInterestResult({ input }: { input: CompoundInterestInput }) {
-  const result = compoundInterest(input);
-  const yearly = yearlySummary(result.rows);
-  const monthly = input.months <= 24;
-  const points = (monthly ? result.rows : yearly).map((r) => ({
+export function CompoundInterestResult({ input }: { input: CompoundInterestInput | null }) {
+  const result = input ? compoundInterest(input) : null;
+  const yearly = result ? yearlySummary(result.rows) : [];
+  const monthly = (input?.months ?? 0) <= 24;
+  const points = (result ? (monthly ? result.rows : yearly) : []).map((r) => ({
     label: monthly ? `Mês ${r.month}` : `Ano ${Math.round((r.month / 12) * 10) / 10}`,
     invested: r.invested,
     interest: r.interest,
@@ -31,29 +31,41 @@ export function CompoundInterestResult({ input }: { input: CompoundInterestInput
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Stat
-          label="Patrimônio final"
-          value={formatCurrency(result.finalBalance)}
-          testId="final-balance"
-        />
-        <Stat
-          label="Total investido"
-          value={formatCurrency(result.totalInvested)}
-          testId="total-invested"
-        />
-        <Stat
-          label="Juros acumulados"
-          value={formatCurrency(result.totalInterest)}
-          testId="total-interest"
-        />
+      <div aria-live="polite">
+        {result ? (
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Stat
+              label="Patrimônio final"
+              value={formatCurrency(result.finalBalance)}
+              testId="final-balance"
+            />
+            <Stat
+              label="Total investido"
+              value={formatCurrency(result.totalInvested)}
+              testId="total-invested"
+            />
+            <Stat
+              label="Juros acumulados"
+              value={formatCurrency(result.totalInterest)}
+              testId="total-interest"
+            />
+          </div>
+        ) : (
+          <p className="rounded-xl border border-line bg-surface p-4 text-sm text-muted">
+            Corrija os campos destacados para ver o resultado da simulação.
+          </p>
+        )}
       </div>
-      <StackedAreaChart
-        title="Evolução do patrimônio: total investido e juros acumulados"
-        data={points}
-        formatValue={(v) => formatCurrency(v)}
-      />
-      <YearlyTable rows={yearly} />
+      {result && (
+        <>
+          <StackedAreaChart
+            title="Evolução do patrimônio: total investido e juros acumulados"
+            data={points}
+            formatValue={(v) => formatCurrency(v)}
+          />
+          <YearlyTable rows={yearly} />
+        </>
+      )}
     </div>
   );
 }

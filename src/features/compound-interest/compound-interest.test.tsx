@@ -97,3 +97,60 @@ describe('CompoundInterestForm', () => {
     vi.useRealTimers();
   });
 });
+
+describe('url-state: URL é sempre ponto-decimal', () => {
+  const base = { aporte: 0, ratePeriod: 'month' as const, months: 12 };
+
+  it.each([
+    ['taxa 1.234', { ...base, initial: 1000, rate: 0.01234 }, 'taxa', '1.234', '1,234'],
+    ['taxa 0.123', { ...base, initial: 1000, rate: 0.00123 }, 'taxa', '0.123', '0,123'],
+    ['capital 1000.5', { ...base, initial: 1000.5, rate: 0.01 }, 'capital', '1000.5', '1000,5'],
+  ])('ida e volta: %s', (_n, inp, key, param, shown) => {
+    const input: CompoundInterestInput = {
+      initial: inp.initial,
+      monthlyContribution: inp.aporte,
+      rate: inp.rate,
+      ratePeriod: inp.ratePeriod,
+      months: inp.months,
+    };
+    const sp = toSearchParams(input);
+    expect(sp.get(key)).toBe(param);
+    const back = fromSearchParams(sp);
+    expect(back.values[key as 'taxa' | 'capital']).toBe(shown);
+    expect(back.input).toEqual(input);
+  });
+
+  it('"1.000" na URL significa 1, não mil', () => {
+    const { values, input } = fromSearchParams(new URLSearchParams('capital=1.000'));
+    expect(values.capital).toBe('1');
+    expect(input?.initial).toBe(1);
+  });
+
+  it('nunca emite notação exponencial', () => {
+    const sp = toSearchParams({
+      initial: 0.0000001,
+      monthlyContribution: 0,
+      rate: 1e-9,
+      ratePeriod: 'month',
+      months: 12,
+    });
+    for (const k of ['capital', 'aporte', 'taxa', 'prazo'])
+      expect(sp.get(k)).toMatch(/^-?\d+(\.\d+)?$/);
+    expect(sp.get('capital')).toBe('0.0000001');
+    expect(sp.get('taxa')).toBe('0.0000001');
+  });
+
+  it('texto não numérico na URL é mantido para o campo acusar erro', () => {
+    expect(fromSearchParams(new URLSearchParams('taxa=1e3')).values.taxa).toBe('1e3');
+  });
+});
+
+describe('CompoundInterestForm: montagem', () => {
+  it('não navega na montagem com URL inalterada', () => {
+    vi.useFakeTimers();
+    render(<CompoundInterestForm initial={DEFAULT_VALUES} />);
+    vi.advanceTimersByTime(1000);
+    expect(replace).not.toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+});

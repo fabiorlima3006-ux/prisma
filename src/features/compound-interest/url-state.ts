@@ -67,8 +67,16 @@ export function validateValues(v: FormValues): Validation {
   return { errors };
 }
 
+/** Número em notação decimal simples (nunca exponencial), aceito por /^-?\d+(\.\d+)?$/. */
+function plainNumber(n: number): string {
+  const rounded = Number(n.toPrecision(12));
+  const text = String(rounded);
+  if (!text.includes('e')) return text;
+  return rounded.toFixed(15).replace(/0+$/, '').replace(/\.$/, '');
+}
+
 function numberParam(n: number): string {
-  return String(Number(n.toPrecision(12)));
+  return plainNumber(n);
 }
 
 /** Escreve a URL: números com ponto decimal, taxa em %, prazo em anos quando múltiplo de 12. */
@@ -86,11 +94,14 @@ export function toSearchParams(
   return sp;
 }
 
-/** "1.5" na URL é decimal com ponto (vira "1,5" no campo); "1.000" segue o padrão brasileiro de milhar. */
+/** Parâmetros da URL são sempre ponto-decimal ("1.000" = 1). Inválido: mantém o texto para o campo acusar o erro. */
 function fieldText(raw: string | null, fallback: string): string {
   if (raw === null) return fallback;
   const s = raw.trim();
-  if (/^-?\d+\.\d+$/.test(s) && !/^-?\d{1,3}(\.\d{3})+$/.test(s)) return s.replace('.', ',');
+  if (/^-?\d+(\.\d+)?$/.test(s)) {
+    const text = plainNumber(Number(s));
+    return text.includes('e') ? s : text.replace('.', ',');
+  }
   return s;
 }
 

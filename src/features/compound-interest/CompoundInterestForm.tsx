@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Field, Input, Select } from '@/components/ui';
 import { CompoundInterestResult } from './CompoundInterestResult';
 import { toSearchParams, validateValues, type FormValues } from './url-state';
@@ -47,10 +47,19 @@ export function CompoundInterestForm({ initial }: { initial: FormValues }) {
   const errors = validation.errors ?? {};
   const unidade = values.unidade;
 
+  const lastQuery = useRef<string | null>(null);
+  if (lastQuery.current === null) {
+    const first = validateValues(initial).input;
+    lastQuery.current = first ? toSearchParams(first, initial.unidade).toString() : '';
+  }
+
   useEffect(() => {
     if (!input) return;
+    const query = toSearchParams(input, unidade).toString();
+    if (query === lastQuery.current) return;
     const handle = setTimeout(() => {
-      router.replace(`?${toSearchParams(input, unidade).toString()}`, { scroll: false });
+      lastQuery.current = query;
+      router.replace(`?${query}`, { scroll: false });
     }, DEBOUNCE_MS);
     return () => clearTimeout(handle);
   }, [input, unidade, router]);
@@ -143,14 +152,8 @@ export function CompoundInterestForm({ initial }: { initial: FormValues }) {
           </Field>
         </div>
       </form>
-      <div aria-live="polite" className="min-w-0 space-y-4">
-        {input ? (
-          <CompoundInterestResult input={input} />
-        ) : (
-          <p className="rounded-xl border border-line bg-surface p-4 text-sm text-muted">
-            Corrija os campos destacados para ver o resultado da simulação.
-          </p>
-        )}
+      <div className="min-w-0 space-y-4">
+        <CompoundInterestResult input={input ?? null} />
         <p className="text-xs text-muted">
           Valores nominais, sem descontar a inflação. Aporte considerado no fim de cada mês.
         </p>
