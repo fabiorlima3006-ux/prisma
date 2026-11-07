@@ -14,7 +14,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import type { ChartProps } from './types';
+import type { ChartProps, StackedAreaChartProps } from './types';
 
 const axis = { stroke: 'var(--muted)', fontSize: 11, tickLine: false } as const;
 
@@ -89,6 +89,38 @@ export function BarChartImpl({ data, formatValue }: ChartProps) {
         <Axes formatValue={formatValue} />
         <Bar dataKey="value" fill="var(--accent)" isAnimationActive={false} />
       </RBarChart>
+    </Frame>
+  );
+}
+
+export function StackedAreaChartImpl({ data, formatValue }: StackedAreaChartProps) {
+  return (
+    <Frame>
+      <RAreaChart data={data}>
+        <Axes formatValue={formatValue} />
+        <Area
+          type="monotone"
+          dataKey="invested"
+          name="Total investido"
+          stackId="1"
+          stroke="var(--muted)"
+          fill="var(--muted)"
+          fillOpacity={0.3}
+          strokeWidth={2}
+          isAnimationActive={false}
+        />
+        <Area
+          type="monotone"
+          dataKey="interest"
+          name="Juros acumulados"
+          stackId="1"
+          stroke="var(--accent)"
+          fill="var(--accent)"
+          fillOpacity={0.35}
+          strokeWidth={2}
+          isAnimationActive={false}
+        />
+      </RAreaChart>
     </Frame>
   );
 }

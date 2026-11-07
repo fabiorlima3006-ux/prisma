@@ -8,3 +8,11 @@ export type ChartProps = {
   /** Formata valores no eixo, na dica e na tabela. */
   formatValue?: (v: number) => string;
 };
+
+export type StackedPoint = { label: string; invested: number; interest: number };
+
+export type StackedAreaChartProps = {
+  data: StackedPoint[];
+  title: string;
+  formatValue?: (v: number) => string;
+};
