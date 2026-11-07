@@ -6,7 +6,7 @@ import { PriceChange } from './PriceChange';
 import { unavailableText } from './unavailable';
 
 type StripResult = DataResult<IndicatorValue | Quote>;
-export type IndicatorGroup = { results: StripResult[]; labels: string[] };
+export type IndicatorGroup = { results: StripResult[]; labels: string[]; testId?: string };
 
 function isIndicator(d: IndicatorValue | Quote): d is IndicatorValue {
   return 'unit' in d;
@@ -79,7 +79,12 @@ export function IndicatorStrip({ groups }: { groups: IndicatorGroup[] }) {
       {groups.map((g, i) => {
         const { source, badges } = groupInfo(g.results);
         return (
-          <div key={i} data-source-group={source} className="flex flex-col gap-2">
+          <div
+            key={i}
+            data-source-group={source}
+            data-testid={g.testId}
+            className="flex flex-col gap-2"
+          >
             <ul className="flex flex-wrap gap-x-5 gap-y-2">
               {g.results.map((r, j) => (
                 <Item key={j} result={r} label={g.labels[j] ?? ''} />

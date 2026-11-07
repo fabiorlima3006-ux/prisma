@@ -1,0 +1,20 @@
+/* Barras do simulador: crescem uma vez ao entrar na tela (transform). */
+.gb-bar {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  transform: scaleY(0);
+}
+.gb-in .gb-bar {
+  animation: gb-grow 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  animation-delay: calc(var(--i) * 90ms);
+}
+@keyframes gb-grow {
+  to {
+    transform: scaleY(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gb-bar {
+    transform: none;
+  }
+}
