@@ -35,9 +35,9 @@ describe('bcb provider', () => {
       meta: { source: 'bcb', isDemo: false, attribution: 'Banco Central do Brasil — SGS' },
     });
     if (r.status !== 'ok') throw new Error('esperava ok');
-    expect(r.data.value).toBeCloseTo(Number(selic[0]!.valor) / 100, 10);
+    expect(r.data.value).toBeCloseTo(Number(selic.at(-1)!.valor) / 100, 10);
     expect(r.data.unit).toBe('a.a.');
-    expect(r.data.referenceDate).toBe('2026-12-09');
+    expect(r.data.referenceDate).toBe('2026-11-07');
     expect(r.meta.asOf).toBe('2026-11-07T12:00:00.000Z');
   });
 
@@ -45,18 +45,52 @@ describe('bcb provider', () => {
     const p = createBcbProvider({ baseUrl: 'https://x', fetchImpl: fakeFetch(fixtures[id]) });
     const r = await p.getIndicator!(id);
     if (r.status !== 'ok') throw new Error('esperava ok');
-    const raw = Number(fixtures[id][0]!.valor);
+    const raw = Number(fixtures[id].at(-1)!.valor);
     expect(r.data.id).toBe(id);
     expect(r.data.unit).toBe(BCB_SERIES[id].unit);
     expect(r.data.value).toBeCloseTo(id === 'ptax' ? raw : raw / 100, 10);
   });
 
-  it('monta a URL da série', async () => {
-    const spy = vi.fn(fakeFetch(selic));
-    await createBcbProvider({ baseUrl: 'https://x', fetchImpl: spy }).getIndicator!('selic');
+  it('monta a URL da série e repassa cache e timeout', async () => {
+    const spy = vi.fn(fakeFetch(cdi));
+    await createBcbProvider({ baseUrl: 'https://x', fetchImpl: spy }).getIndicator!('cdi');
     expect(spy.mock.calls[0]![0]).toBe(
-      'https://x/dados/serie/bcdata.sgs.432/dados/ultimos/1?formato=json',
+      'https://x/dados/serie/bcdata.sgs.4389/dados/ultimos/1?formato=json',
     );
+    expect(spy.mock.calls[0]![1]).toMatchObject({
+      next: { revalidate: 3600 },
+      signal: expect.any(AbortSignal),
+    });
+  });
+
+  it('Selic consulta por período (últimos 30 dias até hoje)', async () => {
+    const spy = vi.fn(fakeFetch(selic));
+    await createBcbProvider({ baseUrl: 'https://x', fetchImpl: spy, now }).getIndicator!('selic');
+    expect(spy.mock.calls[0]![0]).toBe(
+      'https://x/dados/serie/bcdata.sgs.432/dados?formato=json&dataInicial=08/10/2026&dataFinal=07/11/2026',
+    );
+  });
+
+  it('Selic ignora linhas com data futura e usa a última até hoje', async () => {
+    const body = [
+      { data: '06/11/2026', valor: '13.65' },
+      { data: '07/11/2026', valor: '13.75' },
+      { data: '09/12/2026', valor: '14.00' },
+    ];
+    const p = createBcbProvider({ baseUrl: 'https://x', fetchImpl: fakeFetch(body), now });
+    const r = await p.getIndicator!('selic');
+    if (r.status !== 'ok') throw new Error('esperava ok');
+    expect(r.data.referenceDate).toBe('2026-11-07');
+    expect(r.data.value).toBeCloseTo(0.1375, 10);
+  });
+
+  it('Selic só com datas futuras é empty', async () => {
+    const body = [{ data: '09/12/2026', valor: '14.00' }];
+    const p = createBcbProvider({ baseUrl: 'https://x', fetchImpl: fakeFetch(body), now });
+    expect(await p.getIndicator!('selic')).toMatchObject({
+      status: 'unavailable',
+      reason: 'empty',
+    });
   });
 
   it('array vazio é unavailable/empty', async () => {

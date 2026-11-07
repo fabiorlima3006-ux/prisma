@@ -94,6 +94,7 @@ export function createDemoProvider(opts: { now?: () => Date } = {}): MarketDataP
             day: pctChange(closes, 1),
             week: pctChange(closes, 5),
             month: pctChange(closes, 21),
+            // Ruling R13: com 252 pontos, "ano" compara com o ponto mais antigo (251 atrás).
             year: pctChange(closes, 251),
           },
           volume: null,

@@ -33,6 +33,11 @@ function parseDate(br: string): string | null {
   return `${m[3]}-${m[2]}-${m[1]}`;
 }
 
+function brDate(d: Date): string {
+  const iso = d.toISOString().slice(0, 10);
+  return `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)}`;
+}
+
 export function createBcbProvider(opts: {
   baseUrl: string;
   fetchImpl?: typeof fetch;
@@ -51,7 +56,17 @@ export function createBcbProvider(opts: {
     id: 'bcb',
     async getIndicator(id): Promise<DataResult<IndicatorValue>> {
       const { code, unit } = BCB_SERIES[id];
-      const url = `${baseUrl}/dados/serie/bcdata.sgs.${code}/dados/ultimos/1?formato=json`;
+      // Datas em UTC (calendário UTC de now()), de forma consistente em todo o provedor.
+      const today = now();
+      const todayIso = today.toISOString().slice(0, 10);
+      // Selic (432) é a meta com data de vigência: ultimos/1 pode vir datado no futuro.
+      // Consulta por período e usa a última linha com data <= hoje (Ruling R12).
+      const base = `${baseUrl}/dados/serie/bcdata.sgs.${code}/dados`;
+      const from = brDate(new Date(today.getTime() - 30 * 86400000));
+      const url =
+        id === 'selic'
+          ? `${base}?formato=json&dataInicial=${from}&dataFinal=${brDate(today)}`
+          : `${base}/ultimos/1?formato=json`;
       let body: unknown;
       try {
         const res = await fetchImpl(url, {
@@ -66,7 +81,15 @@ export function createBcbProvider(opts: {
 
       const parsed = responseSchema.safeParse(body);
       if (!parsed.success) return fail(id, 'invalid-response');
-      const last = parsed.data[parsed.data.length - 1];
+      if (parsed.data.some((r) => parseDate(r.data) === null)) return fail(id, 'invalid-response');
+      const rows =
+        id === 'selic'
+          ? parsed.data.filter((r) => {
+              const d = parseDate(r.data);
+              return d !== null && d <= todayIso;
+            })
+          : parsed.data;
+      const last = rows[rows.length - 1];
       if (!last) return fail(id, 'empty');
 
       const raw = last.valor.trim();
