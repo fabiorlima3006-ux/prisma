@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { SearchDialogLoader } from '@/components/search/SearchDialogLoader';
 import { SkipLink } from '@/components/layout/SkipLink';
 import { ThemeProvider } from '@/components/theme-provider';
 import { siteConfig } from '@/lib/config/site';
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
             {children}
           </main>
           <Footer />
+          <SearchDialogLoader />
         </ThemeProvider>
       </body>
     </html>
