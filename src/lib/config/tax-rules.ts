@@ -7,7 +7,14 @@ export type Sourced = {
 
 export type TaxRules = {
   incomeTaxBrackets: Sourced & { brackets: { upToDays: number | null; rate: number }[] };
-  lciLca: Sourced & { pfExempt: boolean; minHoldingDays: { lci: number; lca: number } };
+  lciLca: Sourced & {
+    pfExempt: boolean;
+    minHoldingDays: { lci: number; lca: number };
+    verification: {
+      lci: { source: string; verifiedAt: string | null };
+      lca: { source: string; verifiedAt: string | null };
+    };
+  };
   tesouroCustody: Sourced & { annualRate: number; selicExemptUpTo: number };
   savings: Sourced & { selicThreshold: number; fixedMonthly: number; selicShare: number };
 };
@@ -25,14 +32,32 @@ export const TAX_RULES: TaxRules = {
       { upToDays: null, rate: 0.15 },
     ],
   },
-  // Isenção: Lei 11.033/2004, art. 3º, II e IV. Prazo mínimo: Res. CMN 4.410/2015 art. 4º (LCI, 6 meses
-  // desde a Res. 5.215/2025) e Res. CMN 5.006/2022 (LCA, 6 meses; confirmado só em fonte secundária).
+  // Isenção: Lei 11.033/2004, art. 3º, II e IV.
+  // Prazo mínimo de 180 dias (6 meses): vale SÓ para LCI/LCA SEM atualização por índice de preços
+  // (pós-fixadas em % do CDI). Títulos indexados a preços têm mínimos maiores (LCI 36 meses se
+  // atualizada mensalmente; LCA 12 meses se anual). O comparador simula apenas títulos em % do CDI,
+  // então LCI/LCA indexadas a preços estão fora de escopo.
+  // O `verifiedAt` de topo só é preenchido se LCI e LCA estiverem ambos verificados.
   lciLca: {
-    effectiveFrom: '2025-05-26',
+    effectiveFrom: '2025-05-23',
     source: 'https://normativos.bcb.gov.br/Lists/Normativos/Attachments/48547/Res_4410_v7_P.pdf',
-    verifiedAt: null,
+    verifiedAt: '2026-11-07',
     pfExempt: true,
     minHoldingDays: { lci: 180, lca: 180 },
+    verification: {
+      lci: {
+        // Res. CMN 4.410/2015, art. 4º, II, redação da Res. CMN 5.215/2025: "seis meses, nos demais casos".
+        source: 'https://normativos.bcb.gov.br/Lists/Normativos/Attachments/48547/Res_4410_v7_P.pdf',
+        verifiedAt: '2026-11-07',
+      },
+      lca: {
+        // B3, Comunicado 016/2025-VPC (23/05/2025): LCI e LCA não atreladas a índice de preços,
+        // prazo mínimo de 6 meses, conforme Res. CMN 5.215/2025.
+        source:
+          'https://www.b3.com.br/data/files/63/43/8C/0B/43FF69106B8BCB69AC094EA8/CE%20016-2025-VPC%20PLATAFORMA%20NOME%20BALCAO%20B3_LCA_LCI.pdf',
+        verifiedAt: '2026-11-07',
+      },
+    },
   },
   tesouroCustody: {
     effectiveFrom: '2022-01-01',

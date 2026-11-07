@@ -40,4 +40,11 @@ describe('TAX_RULES', () => {
   it('tem fonte em toda regra', () => {
     Object.values(TAX_RULES).forEach((r) => expect(r.source).toMatch(/^https:\/\//));
   });
+  it('LCI e LCA têm fonte própria e verificação coerente com o topo', () => {
+    const { verification, verifiedAt } = TAX_RULES.lciLca;
+    expect(verification.lci.source).toMatch(/^https:\/\//);
+    expect(verification.lca.source).toMatch(/^https:\/\//);
+    const both = verification.lci.verifiedAt !== null && verification.lca.verifiedAt !== null;
+    expect(verifiedAt !== null).toBe(both);
+  });
 });
