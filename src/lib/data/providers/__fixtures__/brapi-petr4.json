@@ -1,0 +1,244 @@
+{
+  "_origem": "resposta real de https://brapi.dev/api/quote/PETR4?range=1mo&interval=1d, sem token, 2026-11-07",
+  "results": [
+    {
+      "symbol": "PETR4",
+      "shortName": "PETR4",
+      "longName": "Petroleo Brasileiro SA Pfd",
+      "currency": "BRL",
+      "regularMarketPrice": 45.3,
+      "regularMarketDayHigh": 46.11,
+      "regularMarketDayLow": 44.96,
+      "regularMarketDayRange": "44.96 - 46.11",
+      "regularMarketChange": -0.65,
+      "regularMarketChangePercent": -1.41,
+      "regularMarketTime": "2026-11-07T21:32:40.000Z",
+      "marketCap": 647681842186,
+      "regularMarketVolume": 47084100,
+      "regularMarketPreviousClose": 45.95,
+      "regularMarketOpen": 46,
+      "fiftyTwoWeekRange": "29.53 - 59.79",
+      "fiftyTwoWeekLow": 29.53,
+      "fiftyTwoWeekHigh": 59.79,
+      "priceEarnings": 4.377530608892282,
+      "earningsPerShare": 10.3482633,
+      "logourl": "https://icons.brapi.dev/icons/PETR4.svg",
+      "usedInterval": "1d",
+      "usedRange": "1mo",
+      "historicalDataPrice": [
+        {
+          "date": 1791428400,
+          "open": 55.3,
+          "high": 55.96,
+          "low": 54.73,
+          "close": 55.48,
+          "volume": 51578400,
+          "adjustedClose": 55.48
+        },
+        {
+          "date": 1791514800,
+          "open": 55.45,
+          "high": 56.8,
+          "low": 55.1,
+          "close": 56,
+          "volume": 49809400,
+          "adjustedClose": 56
+        },
+        {
+          "date": 1791860400,
+          "open": 55.65,
+          "high": 56.88,
+          "low": 55.58,
+          "close": 56.85,
+          "volume": 38257100,
+          "adjustedClose": 56.85
+        },
+        {
+          "date": 1791946800,
+          "open": 56.88,
+          "high": 58.11,
+          "low": 56.74,
+          "close": 58.11,
+          "volume": 42367600,
+          "adjustedClose": 58.11
+        },
+        {
+          "date": 1792033200,
+          "open": 57.6,
+          "high": 58.09,
+          "low": 57.09,
+          "close": 57.36,
+          "volume": 37576500,
+          "adjustedClose": 57.36
+        },
+        {
+          "date": 1792119600,
+          "open": 57.66,
+          "high": 59.68,
+          "low": 57.53,
+          "close": 59.68,
+          "volume": 56820400,
+          "adjustedClose": 59.68
+        },
+        {
+          "date": 1792378800,
+          "open": 59.3,
+          "high": 59.3,
+          "low": 57.95,
+          "close": 58,
+          "volume": 35174800,
+          "adjustedClose": 58
+        },
+        {
+          "date": 1792465200,
+          "open": 58.82,
+          "high": 59.1,
+          "low": 56.91,
+          "close": 58.21,
+          "volume": 42491900,
+          "adjustedClose": 58.21
+        },
+        {
+          "date": 1792551600,
+          "open": 58.21,
+          "high": 58.68,
+          "low": 57.75,
+          "close": 57.75,
+          "volume": 37151500,
+          "adjustedClose": 57.75
+        },
+        {
+          "date": 1792638000,
+          "open": 58.39,
+          "high": 58.6,
+          "low": 57.01,
+          "close": 57.83,
+          "volume": 39860200,
+          "adjustedClose": 57.83
+        },
+        {
+          "date": 1792724400,
+          "open": 58.1,
+          "high": 59.79,
+          "low": 58.01,
+          "close": 58.68,
+          "volume": 58347500,
+          "adjustedClose": 58.68
+        },
+        {
+          "date": 1792983600,
+          "open": 51.2,
+          "high": 54.23,
+          "low": 51.17,
+          "close": 53.88,
+          "volume": 141338400,
+          "adjustedClose": 53.88
+        },
+        {
+          "date": 1793070000,
+          "open": 53.6,
+          "high": 53.7,
+          "low": 52.66,
+          "close": 52.79,
+          "volume": 80592800,
+          "adjustedClose": 52.79
+        },
+        {
+          "date": 1793156400,
+          "open": 53.17,
+          "high": 53.21,
+          "low": 52.22,
+          "close": 52.51,
+          "volume": 56654300,
+          "adjustedClose": 52.51
+        },
+        {
+          "date": 1793242800,
+          "open": 52.05,
+          "high": 53.03,
+          "low": 51.75,
+          "close": 52.2,
+          "volume": 51969000,
+          "adjustedClose": 52.2
+        },
+        {
+          "date": 1793329200,
+          "open": 52.45,
+          "high": 53.66,
+          "low": 52.36,
+          "close": 52.71,
+          "volume": 61743200,
+          "adjustedClose": 52.71
+        },
+        {
+          "date": 1793674800,
+          "open": 51.2,
+          "high": 51.21,
+          "low": 49.15,
+          "close": 50.71,
+          "volume": 93496300,
+          "adjustedClose": 50.71
+        },
+        {
+          "date": 1793761200,
+          "open": 50.04,
+          "high": 50.31,
+          "low": 46.64,
+          "close": 47.12,
+          "volume": 94219800,
+          "adjustedClose": 47.12
+        },
+        {
+          "date": 1793847600,
+          "open": 47.9,
+          "high": 48.04,
+          "low": 45.95,
+          "close": 45.95,
+          "volume": 53109700,
+          "adjustedClose": 45.95
+        },
+        {
+          "date": 1793934000,
+          "open": 46,
+          "high": 46.11,
+          "low": 44.96,
+          "close": 45.36,
+          "volume": 47669700,
+          "adjustedClose": 45.36
+        }
+      ],
+      "validRanges": [
+        "1d",
+        "2d",
+        "5d",
+        "7d",
+        "1mo",
+        "3mo",
+        "6mo",
+        "1y",
+        "2y",
+        "5y",
+        "10y",
+        "ytd",
+        "max"
+      ],
+      "validIntervals": [
+        "1m",
+        "2m",
+        "5m",
+        "15m",
+        "30m",
+        "60m",
+        "90m",
+        "1h",
+        "1d",
+        "5d",
+        "1wk",
+        "1mo",
+        "3mo"
+      ]
+    }
+  ],
+  "requestedAt": "2026-11-07T21:43:59.442Z",
+  "took": 0
+}
