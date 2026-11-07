@@ -17,24 +17,29 @@ function uniqueOr(values: string[]): string {
   return set.size === 1 ? (values[0] ?? 'mixed') : 'mixed';
 }
 
-function groupInfo(results: StripResult[]): { source: string; badge: DataMeta | null } {
+function groupInfo(results: StripResult[]): { source: string; badges: DataMeta[] } {
   const oks = results.flatMap((r) => (r.status === 'ok' ? [r.meta] : []));
   if (oks.length === 0) {
     return {
       source: uniqueOr(results.map((r) => (r.status === 'unavailable' ? r.source : 'mixed'))),
-      badge: null,
+      badges: [],
     };
   }
   const source = uniqueOr(oks.map((m) => m.source));
+  const badges: DataMeta[] = [];
   const demo = oks.find((m) => m.isDemo);
-  if (demo) return { source, badge: demo };
-  const attribution = [...new Set(oks.map((m) => m.attribution))].join(' · ');
-  const asOf =
-    oks
-      .map((m) => m.asOf)
-      .sort()
-      .at(-1) ?? '';
-  return { source, badge: { source: oks[0]?.source ?? 'bcb', isDemo: false, asOf, attribution } };
+  if (demo) badges.push(demo);
+  const real = oks.filter((m) => !m.isDemo);
+  if (real.length > 0) {
+    const attribution = [...new Set(real.map((m) => m.attribution))].join(' · ');
+    const asOf =
+      real
+        .map((m) => m.asOf)
+        .sort()
+        .at(-1) ?? '';
+    badges.push({ source: real[0]?.source ?? 'bcb', isDemo: false, asOf, attribution });
+  }
+  return { source, badges };
 }
 
 function Item({ result, label }: { result: StripResult; label: string }) {
@@ -72,7 +77,7 @@ export function IndicatorStrip({ groups }: { groups: IndicatorGroup[] }) {
   return (
     <div className="flex flex-wrap gap-4 rounded-xl border border-line bg-glass p-3 backdrop-blur">
       {groups.map((g, i) => {
-        const { source, badge } = groupInfo(g.results);
+        const { source, badges } = groupInfo(g.results);
         return (
           <div key={i} data-source-group={source} className="flex flex-col gap-2">
             <ul className="flex flex-wrap gap-x-5 gap-y-2">
@@ -80,7 +85,9 @@ export function IndicatorStrip({ groups }: { groups: IndicatorGroup[] }) {
                 <Item key={j} result={r} label={g.labels[j] ?? ''} />
               ))}
             </ul>
-            {badge && <DataSourceBadge meta={badge} />}
+            {badges.map((m, k) => (
+              <DataSourceBadge key={k} meta={m} />
+            ))}
           </div>
         );
       })}

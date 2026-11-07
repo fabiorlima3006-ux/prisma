@@ -12,12 +12,14 @@ export function PriceChange({ value }: { value: number | null }) {
     return <span className="font-mono text-muted">{text}</span>;
   }
   return (
-    <span
-      className={`font-mono font-semibold ${dir === 'up' ? 'text-up' : 'text-down'}`}
-      aria-label={`${dir === 'up' ? 'alta' : 'queda'} de ${formatPercent(Math.abs(value))}`}
-    >
-      {dir === 'up' ? '▲ ' : '▼ '}
-      {text}
+    <span className={`font-mono font-semibold ${dir === 'up' ? 'text-up' : 'text-down'}`}>
+      <span aria-hidden="true">
+        {dir === 'up' ? '▲ ' : '▼ '}
+        {text}
+      </span>
+      <span className="sr-only">
+        {dir === 'up' ? 'alta' : 'queda'} de {formatPercent(Math.abs(value))}
+      </span>
     </span>
   );
 }

@@ -206,7 +206,12 @@ describe('IndicatorStrip', () => {
     );
     const group = container.querySelector('[data-source-group="mixed"]') as HTMLElement;
     expect(within(group).getByText('DADOS DEMONSTRATIVOS')).toBeInTheDocument();
+    expect(within(group).getByText(/Banco Central do Brasil — SGS/)).toBeInTheDocument();
     expect(within(group).getByText('▲ +1,23%')).toBeInTheDocument();
+    expect(within(group).getByText('alta de 1,23%')).toBeInTheDocument();
+    const demoValues = group.querySelectorAll('[data-demo-value]');
+    expect(demoValues).toHaveLength(1);
+    expect(within(group).getByText('10,50% a.a.')).not.toHaveAttribute('data-demo-value');
   });
   it('grupo todo indisponível: sem selo', () => {
     render(
