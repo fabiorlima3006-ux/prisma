@@ -1,0 +1,147 @@
+<style>
+  .mx{--bg:#f6f8fc;--surface:#ffffff;--surface2:#eef2f7;--text:#0d1b2f;--muted:#5b6b82;--line:#e2e8f0;--accent:#1463ff;--up:#0a8f6a;--dn:#d63c4b;--barFill:#d6e4ff;--grid:rgba(13,27,47,.05);--glass:rgba(255,255,255,.72);
+      font-family:Inter,system-ui,Segoe UI,Roboto,sans-serif;border-radius:16px;overflow:hidden;color:var(--text);box-shadow:0 8px 30px rgba(0,0,0,.2);transition:background .3s,color .3s;
+      background:linear-gradient(var(--grid) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,var(--grid) 1px,transparent 1px) 0 0/28px 28px,var(--bg)}
+  .mx.dark{--bg:#050f20;--surface:#0b2140;--surface2:#0f2a50;--text:#e9f1ff;--muted:#9fb3d1;--line:rgba(255,255,255,.09);--accent:#2fd3ff;--up:#19c37d;--dn:#ff5d6c;--barFill:#14406e;--grid:rgba(255,255,255,.035);--glass:rgba(11,33,64,.6)}
+  .mx .mono{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+  .mx .top{position:relative;color:#eaf2ff;
+      background:radial-gradient(60% 70% at 88% 0%,rgba(47,211,255,.28) 0%,transparent 60%),radial-gradient(50% 60% at 0% 100%,rgba(124,92,255,.25) 0%,transparent 60%),
+      linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px) 0 0/28px 28px,linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px) 0 0/28px 28px,#061a36}
+  .mx nav{display:flex;align-items:center;gap:18px;padding:12px 18px;margin:12px;font-size:13px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(14px)}
+  .mx .logo{font-weight:800;font-size:16px}
+  .mx .links{display:flex;gap:16px;opacity:.85}
+  .mx .sp{flex:1}
+  .mx .search{background:rgba(255,255,255,.08);color:#9fb6d8;border-radius:999px;padding:6px 14px;font-size:12px;min-width:140px}
+  .mx .toggle{background:rgba(255,255,255,.1);color:#eaf2ff;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:6px 12px;font-size:12px;cursor:pointer;font-weight:600}
+  .mx .login{background:#2fd3ff;color:#051933;border-radius:8px;padding:6px 14px;font-weight:700;font-size:12px}
+  .mx .hero{display:grid;grid-template-columns:1.1fr 1fr;gap:20px;align-items:center;padding:22px 30px 56px}
+  .mx .eyebrow{font-size:11.5px;color:#2fd3ff;margin-bottom:10px;display:inline-block;letter-spacing:.3px}
+  .mx h1{font-size:28px;line-height:1.12;margin:0 0 12px;font-weight:800;letter-spacing:-.6px}
+  .mx .sub{font-size:13.5px;line-height:1.5;margin:0 0 18px;opacity:.82}
+  .mx .btn{border-radius:10px;padding:11px 18px;font-weight:700;font-size:13px;border:0;margin-right:8px;position:relative;overflow:hidden}
+  .mx .btn.p{background:linear-gradient(135deg,#2fd3ff,#5b8cff);color:#051933;box-shadow:0 0 0 0 rgba(47,211,255,.5);animation:mxglow 2.8s ease-in-out infinite}
+  .mx .btn.p::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.6) 50%,transparent 65%);transform:translateX(-120%);animation:mxshine 3.2s ease-in-out infinite}
+  @keyframes mxshine{60%,100%{transform:translateX(120%)}}
+  @keyframes mxglow{50%{box-shadow:0 0 22px 2px rgba(47,211,255,.45)}}
+  .mx .btn.s{background:rgba(255,255,255,.06);color:#eaf2ff;border:1.5px solid rgba(255,255,255,.3)}
+  .mx .strip{display:flex;gap:10px;padding:14px 18px;flex-wrap:wrap;align-items:center;background:var(--glass);backdrop-filter:blur(16px) saturate(1.3);margin:-32px 22px 22px;border-radius:14px;box-shadow:0 10px 26px rgba(4,15,34,.18);position:relative;border:1px solid var(--line)}
+  .mx .tick{background:var(--surface2);border-radius:10px;padding:8px 12px;font-size:11.5px;min-width:88px;color:var(--muted)}
+  .mx .tick b{display:block;font-size:13px;margin-top:2px;color:var(--text)}
+  .mx .tick b.up{color:var(--up)}.mx .tick b.dn{color:var(--dn)}
+  .mx .demo{font-size:10px;font-weight:800;letter-spacing:.8px;padding:4px 8px;border-radius:6px;background:#fff3cd;color:#7a5600;border:1px solid #f1d68a}
+  .mx .real{font-size:10px;font-weight:800;letter-spacing:.8px;padding:4px 8px;border-radius:6px;background:#d9f7ea;color:#05603f;border:1px solid #9fe3c4}
+  .mx section{padding:8px 24px 22px}
+  .mx .sh .eyebrow{color:var(--accent)}
+  .mx h3{font-size:18px;margin:0 0 4px;font-weight:800;color:var(--text);display:inline-block;border-bottom:3px solid var(--accent);padding-bottom:2px}
+  .mx .hint{font-size:12.5px;color:var(--muted);margin:8px 0 14px}
+  .mx .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:6px}
+  .mx .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+  .mx .stat b{display:block;font-size:24px;font-weight:800;color:var(--accent)}
+  .mx .stat span{font-size:12px;color:var(--muted)}
+  .mx .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .mx .card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:12.5px;color:var(--muted);transition:transform .2s,box-shadow .2s}
+  .mx .card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(4,15,34,.14)}
+  .mx .card h4{margin:6px 0 6px;font-size:14px;color:var(--text)}
+  .mx .more{display:inline-block;margin-top:10px;color:var(--accent);font-weight:700}
+  .mx .badge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.5px;padding:3px 8px;border-radius:999px;text-transform:uppercase}
+  .mx .b1{background:#d9f7ea;color:#05603f}.mx .b2{background:#dbe7ff;color:#0b3fa8}.mx .b3{background:#efe4ff;color:#5b2bb5}
+  .mx .meter{height:6px;background:var(--surface2);border-radius:99px;margin-top:10px;overflow:hidden}
+  .mx .meter i{display:block;height:100%;background:var(--accent);border-radius:99px}
+  .mx .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .mx .chat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:12.5px}
+  .mx .msg{padding:9px 12px;border-radius:12px;margin:6px 0;max-width:88%;line-height:1.45}
+  .mx .msg.u{background:var(--accent);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+  .mx.dark .msg.u{color:#051933}
+  .mx .msg.a{background:var(--surface2);color:var(--text);border-bottom-left-radius:4px}
+  .mx .typing i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--muted);margin-right:3px;animation:mxdot 1.2s infinite}
+  .mx .typing i:nth-child(2){animation-delay:.15s}.mx .typing i:nth-child(3){animation-delay:.3s}
+  @keyframes mxdot{30%{transform:translateY(-4px);opacity:1}0%,60%,100%{opacity:.4}}
+  /* SVG animations */
+  .mx .draw{stroke-dasharray:600;stroke-dashoffset:600;animation:mxdraw 3.4s ease-out infinite}
+  @keyframes mxdraw{0%{stroke-dashoffset:600}55%,100%{stroke-dashoffset:0}}
+  .mx .fade{opacity:0;animation:mxfade 3.4s ease-out infinite}
+  @keyframes mxfade{0%,40%{opacity:0}60%,100%{opacity:1}}
+  .mx .orbit{transform-origin:150px 115px;animation:mxspin 24s linear infinite}
+  .mx .orbit .chip{animation:mxspin 24s linear infinite reverse;transform-box:fill-box;transform-origin:center}
+  @keyframes mxspin{to{transform:rotate(360deg)}}
+  .mx .bar{transform-origin:bottom;transform-box:fill-box;animation:mxgrow 3.4s ease-out infinite}
+  @keyframes mxgrow{0%{transform:scaleY(0)}50%,100%{transform:scaleY(1)}}
+  @media (prefers-reduced-motion:reduce){.mx *{animation:none!important}.mx .draw{stroke-dashoffset:0}.mx .fade{opacity:1}}
+  @media (max-width:820px){.mx .hero,.mx .two{grid-template-columns:1fr}.mx .grid,.mx .stats{grid-template-columns:1fr}.mx .links{display:none}}
+</style>
+
+<h2>Mistura v3: a base anterior com características do ibe.IA</h2>
+<p class="subtitle">Do ibe.IA, entraram: fundo quadriculado com brilhos difusos, menu e faixa de vidro fosco, botão com brilho que passa, títulos com <span class="mono">// rótulo</span> em fonte monoespaçada e sublinhado, uma faixa de números e a demonstração do chat para o Assistente. O botão <b>☀︎/☾</b> continua funcionando.</p>
+
+<div class="mx" id="mx3">
+  <div class="top">
+    <nav><span class="logo">◆ Prisma</span><span class="links"><span>Mercados</span><span>Investimentos</span><span>Opções</span><span>Simuladores</span><span>Educação</span></span><span class="sp"></span><span class="search">🔍 Buscar ativo, tema…</span><button class="toggle" onclick="document.getElementById('mx3').classList.toggle('dark')">☀︎ / ☾</button><span class="login">Entrar</span></nav>
+    <div class="hero">
+      <div>
+        <span class="eyebrow mono">// central de investimentos</span>
+        <h1>Entenda o mercado. Analise seus investimentos. Tome decisões mais conscientes.</h1>
+        <p class="sub">Uma plataforma completa para acompanhar mercados, estudar investimentos, analisar ativos e simular cenários.</p>
+        <button class="btn p">Explorar mercados</button><button class="btn s">Conhecer ferramentas</button>
+      </div>
+      <svg viewBox="0 0 300 230" width="100%" role="img" aria-label="Gráfico animado com classes de ativos orbitando">
+        <defs><linearGradient id="mx3g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2fd3ff" stop-opacity=".3"/><stop offset="1" stop-color="#2fd3ff" stop-opacity="0"/></linearGradient></defs>
+        <circle cx="150" cy="115" r="100" fill="none" stroke="rgba(255,255,255,.12)" stroke-dasharray="3 7"/>
+        <path class="fade" d="M70 160 L95 148 L115 154 L135 128 L155 134 L178 104 L200 110 L228 78 L228 175 L70 175Z" fill="url(#mx3g)"/>
+        <path class="draw" d="M70 160 L95 148 L115 154 L135 128 L155 134 L178 104 L200 110 L228 78" fill="none" stroke="#2fd3ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="fade" cx="228" cy="78" r="5" fill="#2fd3ff"/>
+        <g class="orbit">
+          <g class="chip"><rect x="124" y="2" width="52" height="24" rx="12" fill="rgba(14,52,102,.85)" stroke="#2fd3ff"/><text x="150" y="18" text-anchor="middle" fill="#eaf2ff" font-size="10" font-weight="700">Ações</text></g>
+          <g class="chip"><rect x="224" y="103" width="52" height="24" rx="12" fill="rgba(14,52,102,.85)" stroke="#2fd3ff"/><text x="250" y="119" text-anchor="middle" fill="#eaf2ff" font-size="10" font-weight="700">FIIs</text></g>
+          <g class="chip"><rect x="118" y="204" width="64" height="24" rx="12" fill="rgba(14,52,102,.85)" stroke="#2fd3ff"/><text x="150" y="220" text-anchor="middle" fill="#eaf2ff" font-size="10" font-weight="700">Renda fixa</text></g>
+          <g class="chip"><rect x="24" y="103" width="52" height="24" rx="12" fill="rgba(14,52,102,.85)" stroke="#2fd3ff"/><text x="50" y="119" text-anchor="middle" fill="#eaf2ff" font-size="10" font-weight="700">Cripto</text></g>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="strip">
+    <span class="real" title="Banco Central, dado oficial">BCB · OFICIAL</span><div class="tick">Selic<b>— a.a.</b></div><div class="tick">CDI<b>— a.a.</b></div><div class="tick">IPCA 12m<b>—</b></div><div class="tick">Dólar PTAX<b>—</b></div>
+    <span class="demo">DADOS DEMONSTRATIVOS</span><div class="tick">Ibovespa<b class="up">▲ 0,8%</b></div><div class="tick">S&amp;P 500<b class="up">▲ 0,4%</b></div><div class="tick">Bitcoin<b class="dn">▼ 1,2%</b></div>
+  </div>
+
+  <section>
+    <div class="stats">
+      <div class="stat"><b>8</b><span>classes de ativos</span></div>
+      <div class="stat"><b>10</b><span>simuladores planejados</span></div>
+      <div class="stat"><b>3</b><span>trilhas de estudo</span></div>
+    </div>
+    <p class="hint" style="text-align:center">Números sobre a plataforma, nunca sobre ganhos ou quantidade de usuários.</p>
+  </section>
+
+  <section class="sh">
+    <span class="eyebrow mono">// educação</span><br><h3>Trilhas de estudo</h3>
+    <p class="hint">Cards no estilo da Alura, com o link "Conhecer →" do ibe.IA.</p>
+    <div class="grid">
+      <div class="card"><span class="badge b1">Iniciante</span><h4>Começando a investir</h4>Juros, inflação, risco e liquidez · 12 aulas<div class="meter"><i style="width:40%"></i></div><span class="more">Conhecer →</span></div>
+      <div class="card"><span class="badge b2">Intermediário</span><h4>Analisando ações e FIIs</h4>Indicadores, dividendos e comparação · 18 aulas<div class="meter"><i style="width:10%"></i></div><span class="more">Conhecer →</span></div>
+      <div class="card"><span class="badge b3">Avançado</span><h4>Opções e gestão de risco</h4>Gregas, travas e volatilidade · 15 aulas<div class="meter"><i style="width:0%"></i></div><span class="more">Conhecer →</span></div>
+    </div>
+  </section>
+
+  <section class="sh">
+    <span class="eyebrow mono">// ferramentas</span><br><h3>Simule e pergunte</h3>
+    <p class="hint">À esquerda, a animação de barras da opção B. À direita, a demonstração do chat inspirada no ibe.IA, mostrando o Assistente da Fase 3.</p>
+    <div class="two">
+      <div class="card">
+        <h4>Simulador de juros compostos</h4>Capital inicial, aporte mensal, taxa e prazo
+        <svg viewBox="0 0 300 120" width="100%" style="margin-top:8px" aria-hidden="true">
+          <g fill="var(--barFill)"><rect class="bar" x="10" y="95" width="30" height="20" rx="4"/><rect class="bar" x="52" y="86" width="30" height="29" rx="4" style="animation-delay:.1s"/><rect class="bar" x="94" y="74" width="30" height="41" rx="4" style="animation-delay:.2s"/><rect class="bar" x="136" y="60" width="30" height="55" rx="4" style="animation-delay:.3s"/><rect class="bar" x="178" y="42" width="30" height="73" rx="4" style="animation-delay:.4s"/><rect class="bar" x="220" y="22" width="30" height="93" rx="4" style="animation-delay:.5s"/><rect class="bar" x="262" y="4" width="30" height="111" rx="4" style="animation-delay:.6s"/></g>
+          <path class="draw" d="M25 93 C 80 86, 130 70, 165 56 S 245 20, 277 4" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round" style="animation-delay:.4s"/>
+        </svg>
+        <span class="more">Simular →</span>
+      </div>
+      <div class="chat">
+        <b style="color:var(--text)">Assistente de Investimentos</b> <span class="badge b3" style="margin-left:6px">Em breve</span>
+        <div class="msg u">Como funciona uma trava de alta?</div>
+        <div class="msg a">Você compra uma call de strike menor e vende outra de strike maior. O ganho e a perda máximos ficam limitados…</div>
+        <div class="msg a typing" style="width:46px"><i></i><i></i><i></i></div>
+        <p style="font-size:10.5px;color:var(--muted);margin:6px 0 0">Conteúdo educativo. Não é recomendação de investimento.</p>
+      </div>
+    </div>
+  </section>
+</div>
