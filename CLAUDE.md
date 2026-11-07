@@ -124,7 +124,13 @@ Next.js (App Router) + React + TypeScript estrito · Tailwind CSS v4 com tokens 
 - Sem rolagem horizontal em 375px.
 
 ### Comandos
-Serão preenchidos com o scaffold: `npm run dev`, `npm run build`, `npm run lint`, `npm run test`, `npm run test:e2e`.
+- `npm run dev`: servidor de desenvolvimento.
+- `npm run build` e `npm run start`: build e servidor de produção.
+- `npm run lint`: ESLint.
+- `npm run typecheck`: `next typegen && tsc --noEmit`.
+- `npm test`: testes unitários (Vitest). `npm run test:watch` roda em modo contínuo.
+- `npm run test:e2e`: testes E2E (Playwright; sobe `npm run build && npm run start`).
+- `npm run format`: Prettier.
 
 ### Fluxo de trabalho
 - **Ao final de cada etapa, relate ao Fabio:**
