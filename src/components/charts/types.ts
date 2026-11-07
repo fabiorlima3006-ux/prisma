@@ -5,6 +5,8 @@ export type ChartProps = {
   /** Nome acessível do gráfico (também legenda da tabela equivalente). */
   title: string;
   description?: string;
+  /** Cabeçalho da primeira coluna da tabela equivalente (padrão: 'Data'). */
+  labelHeader?: string;
   /** Formata valores no eixo, na dica e na tabela. */
   formatValue?: (v: number) => string;
 };

@@ -12,6 +12,7 @@ export function ChartFrame({
   title,
   description,
   formatValue,
+  labelHeader = 'Data',
   children,
 }: ChartProps & { children: ReactNode }) {
   const fmt = formatValue ?? ((v: number) => String(v));
@@ -25,7 +26,7 @@ export function ChartFrame({
         <caption>{title}</caption>
         <thead>
           <tr>
-            <th scope="col">Data</th>
+            <th scope="col">{labelHeader}</th>
             <th scope="col">Valor</th>
           </tr>
         </thead>

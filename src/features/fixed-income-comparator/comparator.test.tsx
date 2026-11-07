@@ -3,12 +3,15 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { DataResult, IndicatorValue } from '@/lib/data/types';
 import { TAX_RULES } from '@/lib/config/tax-rules';
+import { ChartFrame } from '@/components/charts/ChartFrame';
+import { compareFixedIncome } from '@/lib/finance/fixed-income';
+import { ComparatorChart } from './ComparatorChart';
 import { ComparatorForm } from './ComparatorForm';
 
 // O gráfico tem testes próprios; sua tabela sr-only duplicaria as linhas da tabela principal.
 vi.mock('@/components/charts', () => ({
-  BarChart: ({ data, title }: { data: { label: string }[]; title: string }) => (
-    <div data-testid="bar-chart" aria-label={title}>
+  BarChart: ({ data, title, labelHeader }: { data: { label: string }[]; title: string; labelHeader?: string }) => (
+    <div data-testid="bar-chart" aria-label={title} data-label-header={labelHeader}>
       {data.map((d) => d.label).join('|')}
     </div>
   ),
@@ -28,6 +31,31 @@ function ok(id: IndicatorValue['id'], value: number, unit: IndicatorValue['unit'
     meta: { source: 'bcb', isDemo: false, asOf: '2026-11-06T12:00:00Z', attribution: 'Banco Central do Brasil' },
   };
 }
+
+describe('ChartFrame', () => {
+  it('usa Data por padrão e o labelHeader quando informado', () => {
+    const data = [{ label: 'CDB', value: 1 }];
+    const { unmount } = render(<ChartFrame data={data} title="g1">{null}</ChartFrame>);
+    expect(screen.getByRole('columnheader', { name: 'Data' })).toBeInTheDocument();
+    unmount();
+    render(<ChartFrame data={data} title="g2" labelHeader="Produto">{null}</ChartFrame>);
+    expect(screen.getByRole('columnheader', { name: 'Produto' })).toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'Data' })).not.toBeInTheDocument();
+  });
+});
+
+describe('ComparatorChart', () => {
+  it('passa labelHeader Produto e legenda própria ao gráfico', () => {
+    const rows = compareFixedIncome(
+      { amount: 10000, calendarDays: 365, cdbPctCdi: 1, lciLcaPctCdi: 0.9, rates: { cdiAnnual: 0.1, selicAnnual: 0.105, trMonthly: 0 } },
+      TAX_RULES,
+    );
+    render(<ComparatorChart rows={rows} />);
+    const chart = screen.getByTestId('bar-chart');
+    expect(chart).toHaveAttribute('data-label-header', 'Produto');
+    expect(chart).toHaveAttribute('aria-label', 'Gráfico: valor líquido ao final do prazo, por produto');
+  });
+});
 
 describe('ComparatorForm', () => {
   it('modo manual quando taxas indisponíveis: calcula, destaca e valida prazo', async () => {

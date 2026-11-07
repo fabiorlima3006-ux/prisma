@@ -13,7 +13,8 @@ export function ComparatorChart({ rows }: { rows: ComparisonRow[] }) {
   return (
     <BarChart
       data={data}
-      title="Valor líquido ao final do prazo"
+      title="Gráfico: valor líquido ao final do prazo, por produto"
+      labelHeader="Produto"
       description="Valor líquido de imposto e custos, por produto disponível para este prazo."
       formatValue={formatCurrency}
     />
