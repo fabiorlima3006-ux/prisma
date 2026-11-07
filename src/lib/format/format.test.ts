@@ -45,6 +45,19 @@ describe('datas', () => {
   it('formatDateTime', () => {
     expect(formatDateTime('2026-11-07T14:30:00')).toBe('07/11/2026 14:30');
   });
+  it('converte instantes com Z/offset para America/Sao_Paulo', () => {
+    expect(formatDateTime('2026-11-07T14:30:00Z')).toBe('07/11/2026 11:30');
+    expect(formatDateTime('2026-11-07T14:30:00-03:00')).toBe('07/11/2026 14:30');
+    expect(formatDate('2026-11-07T02:00:00Z')).toBe('06/11/2026');
+  });
+  it('retorna "Data inválida" para entrada inválida', () => {
+    expect(formatDate('abc')).toBe('Data inválida');
+    expect(formatDateTime('')).toBe('Data inválida');
+    expect(formatDate('2026-02-31')).toBe('Data inválida');
+  });
+  it('mantém o dia em datas puras', () => {
+    expect(formatDate('2026-11-07')).toBe('07/11/2026');
+  });
 });
 
 describe('parseBrNumber', () => {
