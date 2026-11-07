@@ -1,0 +1,78 @@
+export const meta = {
+  title: 'Introdução a opções',
+  description: 'Call, put, strike, prêmio e vencimento explicados com o risco em primeiro lugar, e três estratégias básicas com exemplos hipotéticos.',
+  level: 'avancado',
+  readingMinutes: 8,
+  updatedAt: '2026-11-07',
+  terms: ['opção', 'call', 'put', 'strike', 'prêmio', 'vencimento', 'ativo objeto', 'break-even'],
+  relatedTools: ['opcoes', 'juros-compostos'],
+};
+
+## Aviso de risco
+
+Opções são instrumentos complexos. Muitas delas vencem sem valor, e a perda total do prêmio pago é um resultado comum e esperado, não uma exceção. Algumas posições, como a venda de opções sem cobertura, podem gerar perdas maiores que o valor investido. Este texto é educativo, usa apenas valores hipotéticos e não indica estratégia adequada a ninguém, pois isso depende de objetivos, experiência e tolerância a perdas de cada pessoa.
+
+## Os termos básicos
+
+Uma **opção** é um contrato que dá a seu titular um **direito**, e não uma obrigação, sobre um **ativo objeto**, como uma ação. Os elementos de qualquer opção são:
+
+- **Ativo objeto**: o ativo sobre o qual a opção é negociada, por exemplo uma ação.
+- **Call (opção de compra)**: dá o direito de comprar o ativo objeto a um preço combinado.
+- **Put (opção de venda)**: dá o direito de vender o ativo objeto a um preço combinado.
+- **Strike (preço de exercício)**: o preço combinado pelo qual o direito pode ser exercido.
+- **Prêmio**: o preço pago pela opção. Quem compra paga o prêmio; quem lança (vende) a opção o recebe.
+- **Vencimento**: a data em que o direito deixa de existir. Na B3, o vencimento mensal costuma ocorrer na terceira sexta-feira do mês.
+
+Quem compra uma opção é o **titular**: tem o direito. Quem a vende é o **lançador**: assume a **obrigação** de cumprir o contrato se o titular exercer. Essa assimetria explica por que os riscos de cada lado são tão diferentes.
+
+Os exemplos a seguir valem por **ação**; na prática, as opções são negociadas em lotes, cujo tamanho deve ser conferido. Os valores são **exemplos hipotéticos** e redondos, sem custos, emolumentos nem imposto de renda.
+
+## Estratégia 1: compra de call
+
+- **Objetivo**: ter exposição a uma alta do ativo com perda limitada ao prêmio.
+- **Estrutura**: comprar uma call.
+- **Custo**: o prêmio.
+- **Exemplo hipotético**: ação a R$ 30; call com strike de R$ 30 e prêmio de R$ 2.
+- **Risco máximo**: R$ 2 por ação, que é o prêmio inteiro. Ocorre se a ação estiver em R$ 30 ou menos no vencimento.
+- **Ganho máximo**: ilimitado, pois a ação não tem teto de preço.
+- **Break-even (ponto de equilíbrio)**: R$ 32 no vencimento (strike mais prêmio). Entre R$ 30 e R$ 32, ainda há perda parcial.
+- **Cenário desfavorável**: a ação fica parada ou cai; o investidor perde os R$ 2.
+- **Cenário favorável**: a ação sobe a R$ 36; o resultado é R$ 36 menos R$ 30 menos R$ 2, ou seja, R$ 4 por ação.
+- **Riscos**: o tempo trabalha contra o titular (a opção perde valor ao se aproximar do vencimento), e a ação precisa subir o bastante para cobrir o prêmio.
+
+## Estratégia 2: compra de put
+
+- **Objetivo**: obter proteção, ou posição de ganho, em caso de queda do ativo, com perda limitada ao prêmio.
+- **Estrutura**: comprar uma put.
+- **Custo**: o prêmio.
+- **Exemplo hipotético**: ação a R$ 30; put com strike de R$ 30 e prêmio de R$ 2.
+- **Risco máximo**: R$ 2 por ação, se a ação estiver em R$ 30 ou mais no vencimento.
+- **Ganho máximo**: R$ 28 por ação, caso a ação chegue a zero (strike menos prêmio). Esse é um limite teórico.
+- **Break-even**: R$ 28 no vencimento (strike menos prêmio).
+- **Cenário desfavorável**: a ação sobe ou fica estável; a perda é de R$ 2.
+- **Cenário favorável**: a ação cai a R$ 24; o resultado é R$ 30 menos R$ 24 menos R$ 2, ou seja, R$ 4 por ação.
+- **Riscos**: o prêmio pode ser perdido por inteiro, e o custo repetido de proteção reduz o resultado ao longo do tempo.
+
+## Estratégia 3: venda coberta
+
+- **Objetivo**: receber um prêmio sobre uma ação que o investidor já possui, abrindo mão de ganhos acima de certo preço.
+- **Estrutura**: possuir a ação e lançar uma call sobre ela.
+- **Custo**: não há desembolso adicional, pois o investidor recebe o prêmio, mas a ação já precisa estar na carteira.
+- **Exemplo hipotético**: ação a R$ 30; call com strike de R$ 32 vendida por R$ 1.
+- **Risco máximo**: a ação pode cair a zero; a perda é de R$ 30 por ação, reduzida em R$ 1 pelo prêmio recebido, ou R$ 29. Quanto mais a ação cai, maior a perda; o prêmio compensa pouco.
+- **Ganho máximo**: R$ 3 por ação (R$ 2 de valorização até o strike mais R$ 1 de prêmio). Acima de R$ 32, a ação pode ser entregue e o ganho não cresce.
+- **Break-even**: R$ 29 (preço da ação menos prêmio recebido).
+- **Cenário desfavorável**: a ação cai bastante; o prêmio de R$ 1 pouco amortece a perda.
+- **Cenário favorável**: a ação fica entre R$ 29 e R$ 32, e o prêmio melhora o resultado.
+- **Riscos**: renunciar à alta acima do strike, perdas na queda da ação e possibilidade de exercício antecipado em calls americanas, comuns na B3.
+
+## O que estes exemplos não incluem
+
+Os cálculos acima ignoram custos de corretagem e emolumentos, o imposto de renda sobre o resultado, a margem de garantia exigida de lançadores, o exercício automático no vencimento e a liquidez da série, isto é, se há alguém disposto a negociar a opção a um preço razoável. Todos esses fatores alteram o resultado real. Um alerta final: o prêmio de uma opção real depende de vários fatores, como preço, volatilidade e prazo; consulte sempre a cotação e a data na fonte oficial, nunca em exemplos educativos.
+
+## Fato, interpretação, cenário e risco
+
+- **Fato**: uma opção é um contrato com strike, prêmio e vencimento definidos; o titular tem direito e o lançador tem obrigação.
+- **Interpretação**: a compra limita a perda ao prêmio, enquanto a venda transfere o risco para o lançador, que recebe o prêmio em troca.
+- **Cenário**: se o ativo se mover menos do que o necessário para cobrir o prêmio, o comprador perde o valor pago, mesmo que a direção prevista esteja correta.
+- **Risco**: perda total do prêmio, perdas amplas para lançadores sem cobertura, baixa liquidez e custos. Rentabilidade passada não garante resultados futuros.

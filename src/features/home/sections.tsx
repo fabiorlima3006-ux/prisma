@@ -9,7 +9,8 @@ import { Badge, Button, Card } from '@/components/ui';
 import { TOOLS } from '@/lib/config/tools';
 import { CATALOG } from '@/lib/data/catalog';
 import type { Asset, DataResult, IndicatorValue, Quote } from '@/lib/data/types';
-import { TRACKS_COUNT, TRACK_CARDS } from './tracks-placeholder';
+import { LEVEL_LABEL, LEVEL_TONE } from '@/features/education/labels';
+import { TRACKS } from '@/features/education/tracks';
 
 const wrap = 'mx-auto w-full max-w-6xl px-4 sm:px-6';
 const h2 = 'text-2xl font-extrabold tracking-tight text-text';
@@ -91,7 +92,7 @@ export function StatsStrip() {
   const stats = [
     { value: new Set(CATALOG.map((a) => a.class)).size, label: 'classes de ativos' },
     { value: TOOLS.length, label: 'simuladores e ferramentas' },
-    { value: TRACKS_COUNT, label: 'trilhas de educação' },
+    { value: TRACKS.length, label: 'trilhas de educação' },
   ];
   return (
     <section aria-label="A plataforma em números" className={`${wrap} mt-10`}>
@@ -174,12 +175,15 @@ export function TracksSection() {
       <p className={eyebrow}>{'// educação'}</p>
       <h2 className={h2}>Trilhas para aprender no seu ritmo</h2>
       <div className="mt-5 grid gap-3 md:grid-cols-3">
-        {TRACK_CARDS.map((t) => (
-          <Card as="article" interactive key={t.id} className="p-5">
-            <Badge tone={t.level}>{t.levelLabel}</Badge>
+        {TRACKS.map((t) => (
+          <Card as="article" interactive key={t.slug} className="p-5">
+            <Badge tone={LEVEL_TONE[t.slug]}>{LEVEL_LABEL[t.slug]}</Badge>
             <h3 className="mt-3 text-base font-bold text-text">{t.title}</h3>
             <p className="mt-1">{t.description}</p>
-            <Link href="/educacao" className="mt-3 inline-block font-semibold text-accent">
+            <Link
+              href={`/educacao/${t.slug}`}
+              className="mt-3 inline-block font-semibold text-accent"
+            >
               Conhecer →
             </Link>
           </Card>

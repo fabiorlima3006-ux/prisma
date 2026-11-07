@@ -1,0 +1,61 @@
+export const meta = {
+  title: 'Indicadores fundamentalistas',
+  description: 'O que medem P/L, P/VP, ROE, ROIC, margens, dívida líquida/EBITDA, dividend yield e payout, e quais são as limitações de cada um.',
+  level: 'intermediario',
+  readingMinutes: 7,
+  updatedAt: '2026-11-07',
+  terms: ['P/L', 'P/VP', 'ROE', 'ROIC', 'margem líquida', 'margem EBITDA', 'dívida líquida/EBITDA', 'dividend yield', 'payout', 'CAGR'],
+  relatedTools: ['comparador', 'juros-compostos'],
+};
+
+## Para que servem os indicadores
+
+A análise fundamentalista estuda o negócio por trás de uma ação: quanto ele lucra, quanto deve, quanto distribui e como evolui. Os indicadores resumem essas informações em números comparáveis. Eles descrevem a situação, mas não dizem, sozinhos, se um ativo "vale" ou "não vale" o preço: o mesmo número pode ter leituras diferentes conforme o setor, o momento do ciclo econômico e a qualidade dos dados contábeis.
+
+Nesta plataforma, os indicadores seguem definições fixas: fluxos (lucro, receita, EBITDA) em 12 meses (TTM), balanço no último disponível, e proventos considerados brutos pela data-com. Quando um dado não está disponível, a tela mostra "Dado não disponível"; quando o cálculo não faz sentido (por exemplo, P/L com prejuízo), mostra "Não se aplica". Os números deste texto são exemplos hipotéticos e não representam nenhuma empresa real.
+
+## Indicadores de preço
+
+**P/L (preço sobre lucro)** é o preço da ação dividido pelo lucro por ação dos últimos 12 meses. Mostra quantos anos de lucro o preço representa, se o lucro se mantivesse igual. Exemplo hipotético: preço de R$ 20 e lucro por ação de R$ 2 resultam em P/L de 10.
+
+Limitações: um P/L baixo pode refletir lucro temporariamente alto (cíclico ou pontual) ou risco percebido pelo mercado; um P/L alto pode refletir lucro temporariamente deprimido ou expectativa de crescimento. Com prejuízo, o P/L não se aplica.
+
+**P/VP (preço sobre valor patrimonial)** é o preço dividido pelo patrimônio líquido por ação. Exemplo hipotético: preço de R$ 20 e patrimônio de R$ 25 por ação resultam em P/VP de 0,8. Compara o preço ao valor contábil, que pode diferir bastante do valor econômico dos ativos, como marcas, imóveis antigos ou ativos intangíveis. Com patrimônio líquido negativo, não se aplica.
+
+## Indicadores de rentabilidade
+
+**ROE (retorno sobre o patrimônio)** é o lucro dos últimos 12 meses dividido pelo patrimônio líquido médio (início mais fim, dividido por dois). Exemplo hipotético: lucro de R$ 200 e patrimônio médio de R$ 1.000 resultam em ROE de 20%. Mede o retorno gerado sobre o capital dos acionistas. Limitação: endividamento elevado reduz o patrimônio e pode inflar o ROE sem que o negócio seja necessariamente mais eficiente.
+
+**ROIC (retorno sobre o capital investido)** é o resultado operacional (EBIT) após impostos dividido pelo capital investido: patrimônio líquido, mais minoritários, mais dívida bruta, menos caixa. Mede a eficiência do capital total, de acionistas e credores. Para bancos, cuja dívida é a matéria-prima do negócio, o indicador não se aplica da mesma forma.
+
+**Margem líquida** é o lucro líquido dividido pela receita. **Margem EBITDA** é o EBITDA (resultado antes de juros, impostos, depreciação e amortização) dividido pela receita. Exemplo hipotético: receita de R$ 1.000 e lucro de R$ 100 resultam em margem líquida de 10%. As margens variam muito entre setores, então comparar empresas de atividades diferentes costuma enganar. A margem EBITDA ignora os investimentos necessários para manter o negócio funcionando.
+
+## Indicadores de endividamento
+
+**Dívida líquida/EBITDA** é a dívida bruta menos caixa e aplicações, dividida pelo EBITDA de 12 meses. Exemplo hipotético: dívida líquida de R$ 300 e EBITDA de R$ 100 resultam em 3,0, o que sugere cerca de três anos de geração operacional para cobrir a dívida, mantidas as condições. Quando o caixa supera a dívida, a empresa tem caixa líquido, exibido como tal. O indicador não se aplica da mesma forma a bancos, e o prazo e o custo das dívidas importam tanto quanto o total.
+
+## Indicadores de proventos
+
+**Dividend yield** é a soma de dividendos e JCP (juros sobre capital próprio) brutos dos últimos 12 meses dividida pelo preço atual. Exemplo hipotético: R$ 1 de proventos para um preço de R$ 20 resulta em 5%. Descreve o passado e não garante pagamentos futuros. Um yield elevado pode vir de uma queda no preço, de um pagamento extraordinário que não se repetirá ou de uma distribuição incompatível com a geração de caixa.
+
+**Payout** é a parcela do lucro distribuída como proventos. Se o lucro é R$ 2 por ação e os proventos são R$ 1, o payout é 50%. Valores muito altos podem limitar o reinvestimento no negócio; valores muito baixos significam que o lucro permanece na empresa, o que nem sempre se converte em valor para o acionista.
+
+## Indicadores de crescimento
+
+**CAGR (taxa de crescimento anual composta)** mede a taxa média anual de crescimento entre dois pontos. Exemplo hipotético: uma receita que vai de R$ 100 para R$ 161 em cinco anos tem CAGR de cerca de 10% ao ano. Suaviza oscilações e pode esconder anos muito diferentes entre si. Para o lucro, só faz sentido quando é positivo no início e no fim do período.
+
+## Como combinar os indicadores
+
+Um indicador isolado conta pouco. Algumas práticas ajudam a leitura:
+
+- Compare empresas do mesmo setor e olhe vários anos, não apenas o último.
+- Cruze indicadores: um ROE alto com dívida líquida/EBITDA alta merece atenção, pois a rentabilidade pode ter sido ampliada pelo endividamento.
+- Verifique a origem do lucro: resultados pontuais, como venda de ativos, distorcem P/L, ROE e payout.
+- Consulte as demonstrações financeiras oficiais da empresa e a data de cada dado.
+
+## Fato, interpretação, cenário e risco
+
+- **Fato**: cada indicador é um cálculo com fórmula definida, aplicado a dados contábeis e de preço de uma data específica.
+- **Interpretação**: valores mais altos ou mais baixos não são bons ou ruins por si; dependem do setor, do ciclo e da qualidade do resultado.
+- **Cenário**: se o lucro de uma empresa cíclica cair no ano seguinte, o P/L calculado hoje passa a representar uma situação que já mudou.
+- **Risco**: dados contábeis têm defasagem, podem ser revisados e não capturam tudo o que afeta o negócio. Indicadores descrevem o passado e não garantem resultados futuros.

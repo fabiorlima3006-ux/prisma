@@ -8,7 +8,7 @@ export type FundamentalMeta = {
   articleHref?: string;
 };
 
-const ARTICLE = '/educacao';
+const ARTICLE = '/educacao/intermediario/indicadores-fundamentalistas';
 
 export const FUNDAMENTALS_META: FundamentalMeta[] = [
   {

@@ -1,0 +1,64 @@
+export const meta = {
+  title: 'Renda fixa básica',
+  description: 'Como funcionam CDB, Tesouro Direto, LCI e LCA, e o que considerar sobre prazo, imposto e risco de crédito.',
+  level: 'iniciante',
+  readingMinutes: 6,
+  updatedAt: '2026-11-07',
+  terms: ['renda fixa', 'CDB', 'Tesouro Direto', 'LCI', 'LCA', 'CDI', 'FGC'],
+  relatedTools: ['comparador', 'juros-compostos'],
+};
+
+## O que é renda fixa
+
+Em renda fixa, as condições de remuneração são definidas no momento da aplicação: o investidor empresta dinheiro a um emissor, como o governo ou um banco, e recebe de volta o valor aplicado acrescido de juros, conforme regras combinadas. "Fixa" não quer dizer que o resultado seja certo nem que o preço não oscile: significa que a forma de cálculo da remuneração é conhecida de antemão.
+
+## Como a remuneração é definida
+
+Existem três formatos principais:
+
+- **Pós-fixado**: acompanha um indicador, geralmente a taxa Selic ou o CDI. Costuma ser descrito como "100% do CDI" ou "110% do CDI". O valor exato do ganho depende da trajetória futura do indicador.
+- **Prefixado**: a taxa é definida na compra, como "10% ao ano" em um exemplo hipotético. Se o investidor segurar até o vencimento, sabe de antemão o valor bruto a receber.
+- **Híbrido**: combina uma parte prefixada com a variação de um índice de inflação, por exemplo "IPCA mais 5% ao ano" em um exemplo hipotético.
+
+Para conhecer as taxas vigentes, consulte o Banco Central e a página de [mercados](/mercados). Os números deste texto são exemplos hipotéticos.
+
+## Principais produtos
+
+**CDB (Certificado de Depósito Bancário)**: título emitido por bancos para captar dinheiro. Pode ser pós-fixado, prefixado ou híbrido, com resgate diário ou apenas no vencimento. O risco de crédito é o do banco emissor.
+
+**Tesouro Direto**: títulos emitidos pelo governo federal. Os principais tipos são Tesouro Selic (pós-fixado), Tesouro Prefixado e Tesouro IPCA+ (híbrido). Se o investidor vender antes do vencimento, o preço do título é o de mercado naquele dia, que pode ser menor que o valor aplicado, principalmente nos prefixados e híbridos. Há também uma taxa de custódia cobrada pela B3 de 0,20% ao ano, com isenção para o Tesouro Selic até R$ 10 mil. Regras vigentes em 07/11/2026; confira a fonte oficial.
+
+**LCI e LCA (Letras de Crédito Imobiliário e do Agronegócio)**: títulos emitidos por bancos, ligados a financiamentos dos respectivos setores. Para pessoas físicas, os rendimentos são isentos de Imposto de Renda. Para LCI e LCA pós-fixadas, há carência mínima de 6 meses, período em que não é possível resgatar. Regras vigentes em 07/11/2026; confira a fonte oficial.
+
+## Imposto de Renda
+
+Nos produtos de renda fixa tributados, o imposto incide sobre o rendimento (não sobre o valor aplicado), no resgate ou no vencimento, com alíquota regressiva conforme o tempo da aplicação:
+
+- até 180 dias: 22,5%;
+- de 181 a 360 dias: 20%;
+- de 361 a 720 dias: 17,5%;
+- acima de 720 dias: 15%.
+
+Regras vigentes em 07/11/2026; confira a fonte oficial.
+
+Exemplo hipotético, para ilustrar o cálculo: uma aplicação de R$ 10.000 rende R$ 1.000 em 2 anos e meio. Como o prazo passou de 720 dias, a alíquota é 15%, e o imposto é R$ 150, deixando R$ 850 de rendimento líquido. Se o mesmo rendimento ocorresse em 90 dias, a alíquota seria 22,5%, e o imposto seria R$ 225.
+
+## FGC e risco de crédito
+
+O FGC (Fundo Garantidor de Créditos) protege parte do dinheiro aplicado em certos produtos bancários, como CDB, LCI e LCA, caso a instituição emissora enfrente problemas, dentro dos limites vigentes. Os títulos do Tesouro Direto não usam o FGC, pois o emissor é o próprio governo federal. O limite e as regras de cobertura mudam com o tempo, então consulte sempre o site oficial do FGC. Ter proteção não elimina a necessidade de avaliar o emissor nem os prazos de resgate.
+
+## Pontos de atenção
+
+- **Liquidez**: confira se o produto permite resgate antes do vencimento e em que condições.
+- **Marcação a mercado**: em títulos negociados antes do vencimento, o preço oscila com os juros do mercado. Taxas mais altas tendem a reduzir o preço de títulos prefixados já emitidos.
+- **Inflação**: um rendimento prefixado pode ficar abaixo da inflação do período, gerando rentabilidade real baixa ou negativa.
+- **Comparação justa**: compare produtos pelo valor líquido, depois do imposto, no mesmo prazo. Um rendimento bruto maior não significa um resultado líquido maior.
+
+## Fato, interpretação, cenário e risco
+
+- **Fato**: a renda fixa tem regras de remuneração definidas na contratação, e o Imposto de Renda segue a tabela regressiva descrita acima.
+- **Interpretação**: produtos isentos como LCI e LCA podem render, após o imposto, resultado próximo ao de produtos tributados com taxa nominal maior; só a conta com o mesmo prazo mostra a diferença.
+- **Cenário**: se os juros de mercado subirem depois da compra de um título prefixado, o investidor que precisar vender antes do vencimento pode receber menos do que esperava.
+- **Risco**: risco de crédito do emissor, risco de liquidez, risco de inflação e, nos títulos negociados antes do vencimento, risco de marcação a mercado.
+
+Use o comparador para simular produtos de renda fixa lado a lado, com prazo e imposto. O resultado depende das taxas que você informar, que devem ser conferidas na fonte do emissor.

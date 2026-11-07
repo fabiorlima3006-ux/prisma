@@ -1,0 +1,80 @@
+export const meta = {
+  title: 'Volatilidade e gregas',
+  description: 'O que é volatilidade e como delta, gamma, theta, vega e rho descrevem a sensibilidade do prêmio de uma opção.',
+  level: 'avancado',
+  readingMinutes: 7,
+  updatedAt: '2026-11-07',
+  terms: ['volatilidade', 'delta', 'gamma', 'theta', 'vega', 'rho', 'Black-Scholes'],
+  relatedTools: ['opcoes'],
+};
+
+## Aviso de risco
+
+As gregas descrevem como o prêmio de uma opção tende a reagir a mudanças de preço, tempo, volatilidade e juros. São estimativas de um modelo, não previsões, e mudam o tempo todo. Este texto é educativo e usa valores hipotéticos e redondos. Opções podem perder todo o valor, e quem as lança sem cobertura pode sofrer perdas superiores ao prêmio recebido.
+
+## O que é volatilidade
+
+**Volatilidade** mede a intensidade das variações de preço de um ativo. Existem duas leituras diferentes:
+
+- **Volatilidade histórica**: calculada a partir das oscilações passadas do preço.
+- **Volatilidade implícita**: a volatilidade que, dentro de um modelo de precificação, justifica o prêmio atualmente negociado. Ela reflete a expectativa embutida no mercado de opções, e não uma previsão de resultado.
+
+Quanto maior a volatilidade, maior a chance de grandes movimentos, para cima ou para baixo, e, por isso, maior tende a ser o prêmio, tanto de calls quanto de puts. A volatilidade é expressa em percentual ao ano, na base de 252 dias úteis.
+
+## O modelo de Black-Scholes-Merton
+
+As gregas costumam ser calculadas com o modelo de Black-Scholes-Merton, que estima o prêmio de uma opção **europeia** (exercida apenas no vencimento) a partir de cinco dados: preço do ativo, strike, prazo, taxa de juros e volatilidade. Algumas convenções comuns: o tempo é contado em dias úteis divididos por 252, e a taxa de juros anual é convertida para a forma contínua.
+
+Limitações importantes: calls de ações na B3 costumam ser americanas (podem ser exercidas antes do vencimento), e o modelo tende a subestimar o valor da put americana; proventos alteram os strikes; e o modelo supõe volatilidade constante, o que não ocorre na prática. Por isso, o resultado é uma referência, não o preço que será praticado.
+
+## As gregas
+
+Cada grega mede o quanto o prêmio muda quando **uma** variável se move e as demais ficam constantes. Na vida real, tudo se move ao mesmo tempo.
+
+### Delta
+
+Mede a variação do prêmio para cada R$ 1 de variação no preço do ativo. Para uma call, o delta fica entre 0 e 1; para uma put, entre -1 e 0. Exemplo hipotético: delta de 0,5 significa que, se a ação subir R$ 1, o prêmio da call tende a subir cerca de R$ 0,50. O delta também é usado, de forma aproximada, como indicação da sensibilidade da posição, mas não é a probabilidade exata de exercício.
+
+### Gamma
+
+Mede a variação do delta para cada R$ 1 de movimento do ativo. É a "aceleração": com gamma alto, o delta muda rapidamente. Costuma ser maior perto do strike e perto do vencimento, quando pequenas variações de preço mudam muito o valor da opção.
+
+### Theta
+
+Mede a perda de valor do prêmio com a passagem do tempo, por dia útil. Para quem compra opções, o theta é em geral negativo: o tempo corrói o prêmio. Exemplo hipotético: theta de -R$ 0,02 significa perda de cerca de R$ 0,02 por dia útil, mantidas as demais variáveis constantes. Para quem lança opções, o efeito do tempo tende a ser favorável, mas o risco de preço permanece e pode superar o ganho do tempo.
+
+### Vega
+
+Mede a variação do prêmio para cada alteração de 1 ponto percentual na volatilidade. Exemplo hipotético: vega de R$ 0,05 indica que, se a volatilidade subir de 20% para 21%, o prêmio tende a subir cerca de R$ 0,05. Um comprador de opções se beneficia, em geral, de aumento da volatilidade; mas a queda da volatilidade, comum após eventos esperados, pode reduzir o prêmio mesmo com o preço do ativo indo na direção prevista.
+
+### Rho
+
+Mede a variação do prêmio para cada alteração de 1 ponto percentual na taxa de juros. Costuma ser a grega de menor importância para opções de curto prazo, e é maior em prazos longos. Calls tendem a ter rho positivo e puts, negativo.
+
+## Quadro-resumo
+
+- **Delta**: sensibilidade ao preço do ativo.
+- **Gamma**: sensibilidade do delta ao preço.
+- **Theta**: sensibilidade ao tempo, por dia útil.
+- **Vega**: sensibilidade à volatilidade, por ponto percentual.
+- **Rho**: sensibilidade aos juros, por ponto percentual.
+
+## Um exemplo conceitual hipotético
+
+Considere o modelo com ação a R$ 100, strike de R$ 100, prazo de 1 ano, juros de 5% ao ano e volatilidade de 20%. Nessas condições, o modelo resulta em prêmio de cerca de R$ 10,45 para a call e R$ 5,57 para a put. Esses números ilustram o modelo e não representam nenhuma opção negociada.
+
+Agora, mantendo tudo igual, suponha que a volatilidade aumente. O modelo atribuiria um prêmio maior às duas opções. Se a volatilidade cair, ocorre o inverso. Isso mostra que o comprador pode perder dinheiro mesmo acertando a direção do ativo, se a volatilidade implícita cair o suficiente, ou se o tempo passar sem que o movimento ocorra.
+
+## Como usar as gregas com cautela
+
+- Trate-as como um mapa de sensibilidades, não como previsão.
+- Lembre que os valores mudam a cada movimento de preço, passagem de tempo e variação da volatilidade.
+- Combine a leitura das gregas com o gráfico de payoff no vencimento, que mostra perda máxima, ganho máximo e break-even.
+- Verifique a liquidez da série: uma grega calculada sobre um prêmio sem negociação real pouco informa.
+
+## Fato, interpretação, cenário e risco
+
+- **Fato**: as gregas são derivadas matemáticas do modelo de precificação, calculadas com os dados informados.
+- **Interpretação**: elas indicam a direção e a intensidade aproximadas da reação do prêmio, em condições específicas.
+- **Cenário**: com o passar do tempo e sem mudança no preço, o theta reduz o valor do prêmio de quem comprou a opção.
+- **Risco**: erro de modelo, volatilidade que muda, liquidez baixa e movimentos bruscos. Resultados passados não garantem resultados futuros.

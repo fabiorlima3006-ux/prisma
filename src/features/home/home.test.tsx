@@ -16,7 +16,7 @@ import {
   ToolsSection,
   TracksSection,
 } from './sections';
-import { TRACKS_COUNT } from './tracks-placeholder';
+import { TRACKS } from '@/features/education/tracks';
 
 const demo: DataMeta = {
   source: 'demo',
@@ -100,13 +100,13 @@ describe('Home', () => {
     expect(TOOLS).toHaveLength(10);
     const classes = new Set(CATALOG.map((a) => a.class)).size;
     expect(screen.getByText(String(classes))).toBeInTheDocument();
-    expect(TRACKS_COUNT).toBe(3);
+    expect(TRACKS).toHaveLength(3);
   });
 
   it('destaques, trilhas e assistente', () => {
     render(<Page />);
     expect(screen.getByRole('link', { name: /Notícias/ })).toHaveAttribute('href', '/noticias');
-    expect(screen.getAllByRole('link', { name: 'Conhecer →' })).toHaveLength(TRACKS_COUNT);
+    expect(screen.getAllByRole('link', { name: 'Conhecer →' })).toHaveLength(TRACKS.length);
     expect(screen.getByText('Em breve', { selector: 'span' })).toBeInTheDocument();
     expect(
       screen.getByText('Conteúdo educativo. Não é recomendação de investimento.'),

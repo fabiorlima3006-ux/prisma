@@ -1,0 +1,87 @@
+export const meta = {
+  title: 'Gestão de risco',
+  description: 'Princípios para limitar perdas ao investir e ao usar opções, com protective put, trava de alta e collar em exemplos hipotéticos.',
+  level: 'avancado',
+  readingMinutes: 7,
+  updatedAt: '2026-11-07',
+  terms: ['gestão de risco', 'perda máxima', 'protective put', 'trava de alta', 'collar', 'break-even'],
+  relatedTools: ['opcoes', 'comparador'],
+};
+
+## Gestão de risco vem antes da busca por retorno
+
+Gerir risco é decidir, **antes** de investir, quanto se aceita perder e o que fazer se isso acontecer. A pergunta central não é "quanto posso ganhar?", e sim "qual a pior perda plausível e eu suportaria?". Este texto é educativo, usa apenas valores hipotéticos e redondos e não indica qual abordagem serve para cada pessoa; essa resposta depende de objetivos, prazo, experiência e tolerância a perdas.
+
+## Princípios gerais
+
+- **Defina a perda máxima aceitável**: antes de abrir uma posição, saiba o pior resultado possível e se ele cabe nas suas finanças. O princípio é o da perda máxima que a pessoa aceita; este texto não sugere percentuais nem valores de patrimônio a aplicar.
+- **Conheça o risco de cada instrumento**: compradores de opções arriscam o prêmio; lançadores sem cobertura podem ter perdas muito maiores.
+- **Diversifique**: não concentre o resultado em um único ativo, setor ou evento.
+- **Considere a liquidez**: posições difíceis de desfazer podem obrigar a aceitar um preço desfavorável.
+- **Leve em conta os custos e os impostos**: eles reduzem o resultado e não aparecem nos gráficos simplificados.
+- **Registre as premissas**: escreva por que entrou na posição e em que condições ela deixa de fazer sentido. Isso reduz decisões tomadas no calor do momento.
+- **Evite alavancagem que você não compreende**: perdas podem superar o capital depositado.
+
+## Estratégias com opções que limitam risco
+
+Os exemplos usam preço por ação, sem custos, sem imposto e sem margem. Todos são **exemplos hipotéticos**.
+
+### Protective put
+
+- **Objetivo**: limitar a perda de uma ação que já se possui, como uma "apólice" contra quedas.
+- **Estrutura**: possuir a ação e comprar uma put.
+- **Exemplo**: ação a R$ 30; put com strike de R$ 28 e prêmio de R$ 1.
+- **Custo**: R$ 1 por ação, o prêmio.
+- **Risco máximo**: R$ 3 por ação (R$ 2 de queda até o strike mais R$ 1 de prêmio).
+- **Ganho máximo**: ilimitado, menos o prêmio pago.
+- **Break-even**: R$ 31.
+- **Cenário desfavorável**: a ação fica parada ou sobe pouco; o prêmio pago reduz o resultado.
+- **Cenário favorável**: a ação cai a R$ 20; a put limita a perda a R$ 3, em vez de R$ 10.
+- **Riscos**: o custo do prêmio se repete a cada renovação, e a proteção só vale até o vencimento.
+
+### Trava de alta com calls
+
+- **Objetivo**: ter exposição a uma alta moderada com custo e risco menores que os da compra simples de call.
+- **Estrutura**: comprar uma call em um strike e vender outra em um strike maior.
+- **Exemplo**: compra de call com strike de R$ 30 por R$ 2 e venda de call com strike de R$ 35 por R$ 0,50.
+- **Custo**: R$ 1,50 por ação (prêmio pago menos prêmio recebido).
+- **Risco máximo**: R$ 1,50 por ação, se a ação ficar em R$ 30 ou menos.
+- **Ganho máximo**: R$ 3,50 por ação (R$ 5 de diferença entre strikes menos R$ 1,50). Acima de R$ 35, o ganho não cresce.
+- **Break-even**: R$ 31,50.
+- **Cenário desfavorável**: a ação não sobe o suficiente; perda do custo inicial.
+- **Cenário favorável**: a ação chega a R$ 35 ou mais; ganho de R$ 3,50.
+- **Riscos**: o ganho tem teto; liquidez de duas séries; exercício antecipado da opção vendida.
+
+### Collar
+
+- **Objetivo**: limitar perdas e ganhos de uma ação que já se possui, com custo baixo ou nulo.
+- **Estrutura**: possuir a ação, comprar uma put e vender uma call.
+- **Exemplo**: ação a R$ 30; put com strike de R$ 28 comprada por R$ 1; call com strike de R$ 33 vendida por R$ 1.
+- **Custo**: zero em prêmio, já que um compensa o outro neste exemplo.
+- **Risco máximo**: R$ 2 por ação (queda de R$ 30 a R$ 28).
+- **Ganho máximo**: R$ 3 por ação (alta de R$ 30 a R$ 33).
+- **Break-even**: R$ 30.
+- **Cenário desfavorável**: a ação cai abaixo de R$ 28; a perda fica em R$ 2.
+- **Cenário favorável**: a ação sobe a R$ 33; ganho de R$ 3.
+- **Riscos**: renúncia de ganhos acima do strike da call, possibilidade de exercício e liquidez das duas séries.
+
+## Quadro comparativo dos exemplos
+
+Para as visões sobre o preço da ação, as alternativas têm perfis diferentes:
+
+- Protective put: perda limitada, ganho ilimitado menos o custo da proteção.
+- Trava de alta: perda e ganho limitados, custo baixo.
+- Collar: perda e ganho limitados, custo próximo de zero.
+
+Nenhuma é "a melhor": cada uma troca um tipo de risco por outro. A escolha depende de objetivo, experiência e tolerância a perda, que este texto não conhece.
+
+## O que os exemplos não modelam
+
+Custos, emolumentos, Imposto de Renda, margem de garantia, exercício automático e liquidez das séries ficam fora do cálculo e alteram o resultado real. Consulte as regras da B3 e a tributação vigente em fonte oficial.
+
+## Fato, interpretação, cenário e risco
+
+- **Fato**: cada estratégia tem perda máxima, ganho máximo e break-even calculáveis no vencimento, conforme a estrutura.
+- **Interpretação**: limitar a perda geralmente custa algo, seja um prêmio pago, seja a renúncia a ganhos futuros.
+- **Cenário**: em uma queda forte, as estruturas com put limitam a perda ao valor calculado; em uma alta forte, as que vendem call deixam de acompanhar a valorização acima do strike.
+- **Risco**: custos e liquidez, erro de execução, exercício inesperado e a falsa sensação de segurança de uma estrutura mal compreendida. Rentabilidade passada não garante resultados futuros.

@@ -1,0 +1,69 @@
+export const meta = {
+  title: 'Juros compostos e inflação',
+  description: 'Entenda como os juros incidem sobre juros e por que a inflação reduz o poder de compra do dinheiro.',
+  level: 'iniciante',
+  readingMinutes: 5,
+  updatedAt: '2026-11-07',
+  terms: ['juros compostos', 'juros simples', 'inflação', 'rentabilidade real'],
+  relatedTools: ['juros-compostos', 'comparador'],
+};
+
+## A ideia em uma frase
+
+Nos juros compostos, o rendimento de cada período é somado ao capital e passa a render também. Por isso, o mesmo valor investido cresce de forma cada vez mais acelerada com o passar do tempo. A inflação, por outro lado, faz o dinheiro comprar menos coisas ao longo dos anos. Entender os dois efeitos juntos é a base para qualquer decisão financeira.
+
+## Juros simples e juros compostos
+
+Nos **juros simples**, a taxa incide sempre sobre o valor inicial. Nos **juros compostos**, a taxa incide sobre o valor inicial mais os juros já acumulados.
+
+Veja um exemplo hipotético, com números redondos e sem relação com nenhum produto real. Suponha R$ 1.000 aplicados a uma taxa de 10% ao ano:
+
+- Juros simples: o ganho é de R$ 100 por ano, sempre. Depois de 3 anos, o total é R$ 1.300.
+- Juros compostos: no primeiro ano o ganho é R$ 100, e o saldo vai a R$ 1.100. No segundo, os 10% incidem sobre R$ 1.100 e rendem R$ 110, levando o saldo a R$ 1.210. No terceiro, o ganho é R$ 121, e o saldo chega a R$ 1.331.
+
+A diferença de R$ 31 em três anos parece pequena. Ela cresce rápido: quanto maior o prazo e maior a taxa, mais o efeito de "juros sobre juros" pesa no resultado. A fórmula é simples: valor final = capital inicial x (1 + taxa) elevado ao número de períodos.
+
+## O papel do tempo e dos aportes
+
+Três fatores determinam o resultado dos juros compostos:
+
+1. **A taxa**: pequenas diferenças de taxa, repetidas por muitos períodos, geram diferenças grandes no final.
+2. **O prazo**: o crescimento é mais forte nos últimos períodos do que nos primeiros.
+3. **Os aportes**: depositar um valor todo mês aumenta a base sobre a qual os juros incidem.
+
+Na prática, os juros compostos funcionam nos dois sentidos. Em uma aplicação, eles trabalham a seu favor. Em uma dívida, como o saldo do cartão de crédito ou do cheque especial, eles trabalham contra, e o saldo devedor pode crescer rapidamente se nada for pago.
+
+Atenção a um ponto de linguagem: taxas mensais e anuais não se somam nem se multiplicam por 12 de forma direta. Uma taxa de 1% ao mês equivale a um pouco mais de 12% ao ano, justamente por causa da capitalização. Ao comparar produtos, converta tudo para a mesma base de tempo.
+
+## O que é inflação
+
+**Inflação** é a alta geral e contínua dos preços. No Brasil, o índice oficial é o IPCA, calculado pelo IBGE. Quando a inflação é positiva, a mesma quantia compra menos no futuro do que compra hoje.
+
+Exemplo hipotético: se uma cesta de compras custa R$ 1.000 hoje e os preços sobem 5% em um ano, a mesma cesta passa a custar R$ 1.050. Quem deixou R$ 1.000 parados, sem qualquer rendimento, continua com R$ 1.000, mas agora consegue comprar menos do que antes. Houve perda de poder de compra, mesmo sem que o saldo tenha diminuído.
+
+Consulte o valor vigente do IPCA e de outros indicadores na página de [mercados](/mercados), que informa a fonte e a data de cada dado.
+
+## Rentabilidade nominal e rentabilidade real
+
+A **rentabilidade nominal** é o ganho medido em reais, sem descontar a inflação. A **rentabilidade real** é o ganho depois de descontar a alta dos preços. A relação exata é:
+
+(1 + taxa real) = (1 + taxa nominal) dividido por (1 + inflação)
+
+Exemplo hipotético: uma aplicação rende 10% ao ano em termos nominais e a inflação do mesmo período é 4%. A taxa real é 1,10 dividido por 1,04, menos 1, o que resulta em cerca de 5,8% ao ano. Note que não é simplesmente 10% menos 4%, embora a subtração dê uma aproximação razoável quando os números são pequenos.
+
+Se a inflação superar a rentabilidade nominal, a rentabilidade real é negativa: o saldo cresceu em reais, mas o poder de compra encolheu.
+
+## Impostos e custos também contam
+
+Além da inflação, o resultado de uma aplicação pode ser reduzido por impostos e taxas. O Imposto de Renda sobre aplicações de renda fixa segue uma tabela regressiva: as alíquotas diminuem quanto mais tempo o dinheiro permanece investido (22,5%, 20%, 17,5% e 15%, conforme o prazo). Regras vigentes em 07/11/2026; confira a fonte oficial. Para comparar alternativas com imposto e prazo, use o comparador de investimentos.
+
+## Separando fato, interpretação e risco
+
+- **Fato**: juros compostos aplicam a taxa sobre o saldo acumulado; a inflação é medida por índices oficiais.
+- **Interpretação**: manter dinheiro sem rendimento por muito tempo tende a reduzir seu poder de compra, enquanto o tempo e a constância dos aportes ampliam o efeito dos juros compostos.
+- **Cenário**: se a taxa de rendimento ficar abaixo da inflação por vários anos, o patrimônio perde valor real, mesmo crescendo em reais.
+- **Risco**: projeções de juros compostos pressupõem uma taxa constante, o que raramente ocorre. Taxas de produtos reais variam, a inflação futura é incerta e nenhum resultado projetado é uma promessa.
+
+## Para praticar
+
+Experimente o simulador de juros compostos variando a taxa, o prazo e o valor do aporte mensal. Observe como o prazo pesa mais do que se imagina e como uma taxa um pouco menor muda o resultado final. Lembre-se de que os números do simulador são projeções baseadas nas premissas que você digita, não previsões de mercado.
