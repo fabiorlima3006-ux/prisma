@@ -1,5 +1,6 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { GrowthBars } from '@/components/illustrations/GrowthBars';
 import { HeroParticles } from '@/components/illustrations/HeroParticles';
 import { chartPoints, seededRandom } from '@/components/illustrations/particles';
 import { TOOLS } from '@/lib/config/tools';
@@ -119,8 +120,26 @@ describe('Home', () => {
   it('não usa linguagem proibida', () => {
     render(<Page />);
     expect(document.body.textContent).not.toMatch(
-      /garantid|melhor investimento|fique rico|barato|oportunidade/i,
+      /garantid|melhor investimento|fique rico|(compre|venda|caro|barato)|oportunidade/i,
     );
+  });
+});
+
+describe('GrowthBars', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('renderiza barras visíveis e arma a animação após montar', async () => {
+    const { container } = render(<GrowthBars />);
+    expect(container.querySelectorAll('.gb-bar')).toHaveLength(6);
+    await waitFor(() => expect(container.querySelector('svg')).toHaveClass('gb-armed'));
+  });
+
+  it('com reduced motion não arma a animação', async () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({ matches: true, media: q }));
+    const { container } = render(<GrowthBars />);
+    await new Promise((r) => setTimeout(r, 20));
+    const svg = container.querySelector('svg');
+    expect(svg).not.toHaveClass('gb-armed');
   });
 });
 

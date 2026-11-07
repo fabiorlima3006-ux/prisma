@@ -163,6 +163,7 @@ export function HeroParticles({ className = '' }: { className?: string }) {
     const setRunning = (on: boolean) => {
       if (on === running) return;
       running = on;
+      if (on && mode === 'sphere') t0 = null;
       if (on) raf = requestAnimationFrame(tick);
       else cancelAnimationFrame(raf);
     };

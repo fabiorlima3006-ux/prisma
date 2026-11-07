@@ -97,9 +97,12 @@ export function StatsStrip() {
     <section aria-label="A plataforma em números" className={`${wrap} mt-10`}>
       <dl className="grid grid-cols-3 gap-3 text-center">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-xl border border-line bg-surface p-4">
-            <dd className="font-mono text-3xl font-bold text-text">{s.value}</dd>
+          <div
+            key={s.label}
+            className="flex flex-col-reverse rounded-xl border border-line bg-surface p-4"
+          >
             <dt className="mt-1 text-xs text-muted">{s.label}</dt>
+            <dd className="font-mono text-3xl font-bold text-text">{s.value}</dd>
           </div>
         ))}
       </dl>
@@ -131,7 +134,15 @@ export function HighlightsSection({ items }: { items: HighlightItem[] }) {
   );
 }
 
+function toolById(id: string) {
+  const t = TOOLS.find((x) => x.id === id && x.status === 'available');
+  if (!t) throw new Error(`Ferramenta indisponível: ${id}`);
+  return t;
+}
+
 export function ToolsSection() {
+  const sim = toolById('juros-compostos');
+  const cmp = toolById('comparador');
   return (
     <section className={`${wrap} mt-14`}>
       <p className={eyebrow}>{'// ferramentas'}</p>
@@ -139,24 +150,16 @@ export function ToolsSection() {
       <div className="mt-5 grid gap-3 md:grid-cols-2">
         <Card as="article" interactive className="p-5">
           <GrowthBars />
-          <h3 className="mt-3 text-base font-bold text-text">Simulador de juros compostos</h3>
-          <p className="mt-1">Veja como aportes mensais e o tempo fazem o patrimônio evoluir.</p>
-          <Link
-            href="/simuladores/juros-compostos"
-            className="mt-3 inline-block font-semibold text-accent"
-          >
+          <h3 className="mt-3 text-base font-bold text-text">{sim.title}</h3>
+          <p className="mt-1">{sim.description}</p>
+          <Link href={sim.href} className="mt-3 inline-block font-semibold text-accent">
             Abrir simulador →
           </Link>
         </Card>
         <Card as="article" interactive className="p-5">
-          <h3 className="text-base font-bold text-text">Comparador de investimentos</h3>
-          <p className="mt-1">
-            Compare alternativas de renda fixa considerando prazo e imposto, lado a lado.
-          </p>
-          <Link
-            href="/ferramentas/comparador"
-            className="mt-3 inline-block font-semibold text-accent"
-          >
+          <h3 className="text-base font-bold text-text">{cmp.title}</h3>
+          <p className="mt-1">{cmp.description}</p>
+          <Link href={cmp.href} className="mt-3 inline-block font-semibold text-accent">
             Abrir comparador →
           </Link>
         </Card>
