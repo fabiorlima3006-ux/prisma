@@ -1,3 +1,5 @@
+import { JsonLd } from '@/components/JsonLd';
+import { breadcrumbJsonLd } from '@/lib/seo/json-ld';
 import { Breadcrumbs, type Crumb } from './Breadcrumbs';
 
 export function PageHeader({
@@ -24,6 +26,7 @@ export function PageHeader({
         {breadcrumbs && breadcrumbs.length > 0 && (
           <div className="mb-4">
             <Breadcrumbs items={breadcrumbs} />
+            <JsonLd data={breadcrumbJsonLd(breadcrumbs)} />
           </div>
         )}
         {eyebrow && (

@@ -4,8 +4,13 @@ import { Disclaimer } from '@/components/layout/Disclaimer';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge, Card } from '@/components/ui';
 import { TOOLS } from '@/lib/config/tools';
+import { buildMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'Simuladores' };
+export const metadata: Metadata = buildMetadata({
+  title: 'Simuladores',
+  description: 'Projete cenários e entenda o efeito do tempo, dos juros e dos aportes.',
+  path: '/simuladores',
+});
 
 // O comparador pertence a /ferramentas (Tarefa 15); aqui entram os demais simuladores.
 const SIMULATORS = TOOLS.filter((t) => t.id !== 'comparador');

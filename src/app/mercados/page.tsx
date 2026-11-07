@@ -8,9 +8,15 @@ import { MarketsTable, type MarketRow } from '@/features/markets/MarketsTables';
 import { marketData } from '@/lib/data';
 import { CATALOG, getAsset } from '@/lib/data/catalog';
 import type { Asset, AssetClass, IndicatorId } from '@/lib/data/types';
+import { buildMetadata } from '@/lib/seo/metadata';
 
 export const revalidate = 900;
-export const metadata: Metadata = { title: 'Mercados' };
+export const metadata: Metadata = buildMetadata({
+  title: 'Mercados',
+  description:
+    'Cotações e indicadores do Brasil, do exterior e de criptomoedas, com a fonte de cada dado.',
+  path: '/mercados',
+});
 
 const INDICATORS: IndicatorId[] = ['selic', 'cdi', 'ipca12m', 'ipcaMonth', 'ptax', 'tr'];
 

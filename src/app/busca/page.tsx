@@ -3,6 +3,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { SearchResults } from '@/components/search/SearchResults';
 import { buildSearchIndex } from '@/lib/search/build-index';
 import { search } from '@/lib/search/search';
+import { buildMetadata } from '@/lib/seo/metadata';
 
 type Props = { searchParams: Promise<{ q?: string | string[] }> };
 
@@ -13,7 +14,10 @@ async function readQuery(searchParams: Props['searchParams']): Promise<string> {
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const q = await readQuery(searchParams);
-  return q ? { title: `Busca: ${q}` } : { title: 'Busca', robots: { index: false } };
+  const description = 'Busque ativos, ferramentas, artigos e páginas da plataforma.';
+  return q
+    ? buildMetadata({ title: `Busca: ${q}`, description, path: '/busca', noindex: true })
+    : buildMetadata({ title: 'Busca', description, path: '/busca', noindex: true });
 }
 
 export default async function BuscaPage({ searchParams }: Props) {

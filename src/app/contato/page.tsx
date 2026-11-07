@@ -1,8 +1,13 @@
 import type { Metadata } from 'next';
 import { LegalPage } from '@/features/legal/LegalPage';
 import { siteConfig } from '@/lib/config/site';
+import { buildMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'Contato' };
+export const metadata: Metadata = buildMetadata({
+  title: 'Contato',
+  description: 'Este é um projeto de estudo; o canal de contato é o repositório do projeto.',
+  path: '/contato',
+});
 
 export default function ContatoPage() {
   return (

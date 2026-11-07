@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
 import { LegalPage } from '@/features/legal/LegalPage';
+import { buildMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'Privacidade' };
+export const metadata: Metadata = buildMetadata({
+  title: 'Privacidade',
+  description: 'Esta plataforma não coleta dados pessoais.',
+  path: '/privacidade',
+});
 
 export default function PrivacidadePage() {
   return (

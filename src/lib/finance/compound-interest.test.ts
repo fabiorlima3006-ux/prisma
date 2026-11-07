@@ -10,7 +10,13 @@ describe('rates', () => {
 });
 
 describe('compoundInterest', () => {
-  const r1 = compoundInterest({ initial: 1000, monthlyContribution: 100, rate: 0.01, ratePeriod: 'month', months: 12 });
+  const r1 = compoundInterest({
+    initial: 1000,
+    monthlyContribution: 100,
+    rate: 0.01,
+    ratePeriod: 'month',
+    months: 12,
+  });
 
   it('calcula com aporte mensal', () => {
     expect(r1.finalBalance).toBeCloseTo(2395.08, 2);
@@ -19,18 +25,36 @@ describe('compoundInterest', () => {
   });
 
   it('calcula sem aporte', () => {
-    const r2 = compoundInterest({ initial: 10000, monthlyContribution: 0, rate: 0.005, ratePeriod: 'month', months: 120 });
+    const r2 = compoundInterest({
+      initial: 10000,
+      monthlyContribution: 0,
+      rate: 0.005,
+      ratePeriod: 'month',
+      months: 120,
+    });
     expect(r2.finalBalance).toBeCloseTo(18193.97, 2);
   });
 
   it('trata taxa zero', () => {
-    const r3 = compoundInterest({ initial: 1000, monthlyContribution: 100, rate: 0, ratePeriod: 'month', months: 12 });
+    const r3 = compoundInterest({
+      initial: 1000,
+      monthlyContribution: 100,
+      rate: 0,
+      ratePeriod: 'month',
+      months: 12,
+    });
     expect(r3.finalBalance).toBe(2200);
     expect(r3.totalInterest).toBe(0);
   });
 
   it('converte taxa anual', () => {
-    const r4 = compoundInterest({ initial: 1000, monthlyContribution: 0, rate: 0.12, ratePeriod: 'year', months: 12 });
+    const r4 = compoundInterest({
+      initial: 1000,
+      monthlyContribution: 0,
+      rate: 0.12,
+      ratePeriod: 'year',
+      months: 12,
+    });
     expect(r4.finalBalance).toBeCloseTo(1120, 6);
   });
 
@@ -40,14 +64,25 @@ describe('compoundInterest', () => {
   });
 
   it('extremos continuam finitos', () => {
-    const big = compoundInterest({ initial: 1e12, monthlyContribution: 1e12, rate: 1, ratePeriod: 'month', months: 600 });
+    const big = compoundInterest({
+      initial: 1e12,
+      monthlyContribution: 1e12,
+      rate: 1,
+      ratePeriod: 'month',
+      months: 600,
+    });
     expect(Number.isFinite(big.finalBalance)).toBe(true);
     expect(yearlySummary(big.rows).length).toBeLessThanOrEqual(50);
   });
 });
 
 describe('yearlySummary', () => {
-  const base = { initial: 1000, monthlyContribution: 100, rate: 0.01, ratePeriod: 'month' as const };
+  const base = {
+    initial: 1000,
+    monthlyContribution: 100,
+    rate: 0.01,
+    ratePeriod: 'month' as const,
+  };
   it('uma linha por ano completo', () => {
     const rows = compoundInterest({ ...base, months: 24 }).rows;
     expect(yearlySummary(rows).map((r) => r.month)).toEqual([12, 24]);
@@ -82,8 +117,13 @@ describe('compoundInterestInputSchema', () => {
   });
   it('recusa taxa acima do limite', () => {
     expect(compoundInterestInputSchema.safeParse({ ...ok, rate: 1.01 }).success).toBe(false);
-    expect(compoundInterestInputSchema.safeParse({ ...ok, rate: 10001, ratePeriod: 'year' }).success).toBe(false);
-    expect(compoundInterestInputSchema.safeParse({ ...ok, rate: 10000, ratePeriod: 'year', months: 12 }).success).toBe(true);
+    expect(
+      compoundInterestInputSchema.safeParse({ ...ok, rate: 10001, ratePeriod: 'year' }).success,
+    ).toBe(false);
+    expect(
+      compoundInterestInputSchema.safeParse({ ...ok, rate: 10000, ratePeriod: 'year', months: 12 })
+        .success,
+    ).toBe(true);
   });
   it('recusa NaN e Infinity', () => {
     expect(compoundInterestInputSchema.safeParse({ ...ok, rate: Number.NaN }).success).toBe(false);

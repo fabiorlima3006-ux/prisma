@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
 import { ComingSoon } from '@/components/ComingSoon';
+import { buildMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'Fundos de investimento' };
+export const metadata: Metadata = buildMetadata({
+  title: 'Fundos de investimento',
+  description: 'Área em construção sobre fundos de investimento.',
+  path: '/fundos',
+});
 
 export default function Page() {
   return (

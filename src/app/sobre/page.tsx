@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
 import { LegalPage } from '@/features/legal/LegalPage';
+import { buildMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'Sobre' };
+export const metadata: Metadata = buildMetadata({
+  title: 'Sobre',
+  description:
+    'Um projeto de estudo para acompanhar mercados, aprender sobre investimentos e simular cenários.',
+  path: '/sobre',
+});
 
 export default function SobrePage() {
   return (

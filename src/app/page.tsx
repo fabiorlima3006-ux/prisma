@@ -1,3 +1,7 @@
+import type { Metadata } from 'next';
+import { JsonLd } from '@/components/JsonLd';
+import { buildMetadata } from '@/lib/seo/metadata';
+import { websiteJsonLd } from '@/lib/seo/json-ld';
 import { marketData } from '@/lib/data';
 import { getAsset } from '@/lib/data/catalog';
 import type { Asset, AssetClass } from '@/lib/data/types';
@@ -14,6 +18,13 @@ import {
 } from '@/features/home/sections';
 
 export const revalidate = 900;
+export const metadata: Metadata = buildMetadata({
+  title: 'Prisma — central de investimentos',
+  absoluteTitle: true,
+  description:
+    'Acompanhe mercados, estude investimentos, analise ativos e simule cenários em uma só plataforma.',
+  path: '/',
+});
 
 function need(cls: AssetClass, slug: string): Asset {
   const a = getAsset(cls, slug);
@@ -46,6 +57,7 @@ export default async function Home() {
   ]);
   return (
     <>
+      <JsonLd data={websiteJsonLd()} />
       <HeroSection />
       <MarketStrip bcb={bcb} market={market} />
       <StatsStrip />

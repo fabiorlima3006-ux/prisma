@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
 import { ComingSoon } from '@/components/ComingSoon';
+import { buildMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'Assistente' };
+export const metadata: Metadata = buildMetadata({
+  title: 'Assistente',
+  description:
+    'Área em construção para um assistente educacional que explica conceitos e indicadores.',
+  path: '/assistente',
+});
 
 export default function Page() {
   return (

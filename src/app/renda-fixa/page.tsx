@@ -2,8 +2,14 @@ import type { Metadata } from 'next';
 import { Disclaimer } from '@/components/layout/Disclaimer';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Button, Card } from '@/components/ui';
+import { buildMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'Renda fixa' };
+export const metadata: Metadata = buildMetadata({
+  title: 'Renda fixa',
+  description:
+    'Conceitos básicos para entender como funcionam os principais títulos de renda fixa.',
+  path: '/renda-fixa',
+});
 
 const TOPICS = [
   {

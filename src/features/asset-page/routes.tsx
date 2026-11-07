@@ -6,6 +6,7 @@ import { AssetCard } from '@/components/market/AssetCard';
 import { marketData } from '@/lib/data';
 import { getAsset, listByClass } from '@/lib/data/catalog';
 import type { AssetClass } from '@/lib/data/types';
+import { buildMetadata } from '@/lib/seo/metadata';
 import { AssetPage } from './AssetPage';
 import { CLASS_PATHS } from './class-info';
 
@@ -19,7 +20,12 @@ export function makeAssetRoute(assetClass: AssetClass) {
     async generateMetadata({ params }: SlugProps): Promise<Metadata> {
       const { slug } = await params;
       const asset = getAsset(assetClass, slug.toLowerCase());
-      return asset ? { title: `${asset.ticker} — ${asset.name}` } : {};
+      if (!asset) return {};
+      return buildMetadata({
+        title: `${asset.ticker} — ${asset.name}`,
+        description: `Cotação, histórico e indicadores de ${asset.name} (${asset.ticker}), com a fonte de cada dado.`,
+        path: `${CLASS_PATHS[assetClass]}/${asset.slug}`,
+      });
     },
     async Page({ params }: SlugProps) {
       const { slug } = await params;
@@ -44,6 +50,14 @@ export function makeAssetRoute(assetClass: AssetClass) {
       );
     },
   };
+}
+
+export function classListMetadata(
+  assetClass: AssetClass,
+  title: string,
+  description: string,
+): Metadata {
+  return buildMetadata({ title, description, path: CLASS_PATHS[assetClass] ?? '/' });
 }
 
 export function makeClassListPage(assetClass: AssetClass, title: string, description: string) {

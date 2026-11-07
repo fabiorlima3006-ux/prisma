@@ -49,15 +49,31 @@ export const comparatorInputSchema: z.ZodType<ComparatorInput> = z.object({
   cdbPctCdi: pct,
   lciLcaPctCdi: pct,
   rates: z.object({
-    cdiAnnual: z.number({ error: 'Informe um número válido' }).min(0, 'A taxa não pode ser negativa').max(1, 'A taxa máxima é 100% a.a.'),
-    selicAnnual: z.number({ error: 'Informe um número válido' }).min(0, 'A taxa não pode ser negativa').max(1, 'A taxa máxima é 100% a.a.'),
-    trMonthly: z.number({ error: 'Informe um número válido' }).min(0, 'A taxa não pode ser negativa').max(0.1, 'A TR máxima é 10% a.m.'),
+    cdiAnnual: z
+      .number({ error: 'Informe um número válido' })
+      .min(0, 'A taxa não pode ser negativa')
+      .max(1, 'A taxa máxima é 100% a.a.'),
+    selicAnnual: z
+      .number({ error: 'Informe um número válido' })
+      .min(0, 'A taxa não pode ser negativa')
+      .max(1, 'A taxa máxima é 100% a.a.'),
+    trMonthly: z
+      .number({ error: 'Informe um número válido' })
+      .min(0, 'A taxa não pode ser negativa')
+      .max(0.1, 'A TR máxima é 10% a.m.'),
   }),
 });
 
 const ORDER: ProductId[] = ['savings', 'cdb', 'tesouro-selic', 'lci', 'lca'];
 
-function row(product: ProductId, amount: number, du: number, gross: number, tax: number, costs: number): ComparisonRow {
+function row(
+  product: ProductId,
+  amount: number,
+  du: number,
+  gross: number,
+  tax: number,
+  costs: number,
+): ComparisonRow {
   const net = gross - tax - costs;
   const ratio = net / amount;
   return {
@@ -85,7 +101,10 @@ export function compareFixedIncome(input: ComparatorInput, rules: TaxRules): Com
   // Poupança: meses completos, isenta de IR.
   const s = rules.savings;
   const months = Math.floor(calendarDays / 30);
-  const base = rates.selicAnnual > s.selicThreshold ? s.fixedMonthly : Math.pow(1 + s.selicShare * rates.selicAnnual, 1 / 12) - 1;
+  const base =
+    rates.selicAnnual > s.selicThreshold
+      ? s.fixedMonthly
+      : Math.pow(1 + s.selicShare * rates.selicAnnual, 1 / 12) - 1;
   const savingsGross = amount * Math.pow((1 + base) * (1 + rates.trMonthly), months);
 
   const cdbGross = amount * cdiFactor(input.cdbPctCdi, rates.cdiAnnual, du);
@@ -97,7 +116,11 @@ export function compareFixedIncome(input: ComparatorInput, rules: TaxRules): Com
   const exempt = (product: 'lci' | 'lca'): ComparisonRow => {
     const min = rules.lciLca.minHoldingDays[product];
     if (calendarDays < min) {
-      return { product, available: false, reason: `não disponível para este prazo (carência mínima de ${min} dias)` };
+      return {
+        product,
+        available: false,
+        reason: `não disponível para este prazo (carência mínima de ${min} dias)`,
+      };
     }
     const gross = amount * cdiFactor(input.lciLcaPctCdi, rates.cdiAnnual, du);
     const tax = rules.lciLca.pfExempt ? 0 : (gross - amount) * taxRate;

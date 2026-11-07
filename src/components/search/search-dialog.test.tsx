@@ -8,8 +8,19 @@ const push = vi.fn();
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 
 const index: SearchEntry[] = [
-  { type: 'asset', title: 'PETR4', subtitle: 'Petrobras PN', href: '/acoes/petr4', keywords: ['petrobras', 'acoes'] },
-  { type: 'tool', title: 'Simulador de juros compostos', href: '/simuladores/juros-compostos', keywords: ['juros'] },
+  {
+    type: 'asset',
+    title: 'PETR4',
+    subtitle: 'Petrobras PN',
+    href: '/acoes/petr4',
+    keywords: ['petrobras', 'acoes'],
+  },
+  {
+    type: 'tool',
+    title: 'Simulador de juros compostos',
+    href: '/simuladores/juros-compostos',
+    keywords: ['juros'],
+  },
 ];
 
 describe('SearchDialog', () => {
@@ -60,7 +71,10 @@ describe('SearchDialog', () => {
     await user.keyboard('{Control>}k{/Control}');
     await user.type(screen.getByRole('combobox'), 'zzzz');
     expect(screen.getByText(/Nenhum resultado para/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Ver todos os resultados' })).toHaveAttribute('href', '/busca?q=zzzz');
+    expect(screen.getByRole('link', { name: 'Ver todos os resultados' })).toHaveAttribute(
+      'href',
+      '/busca?q=zzzz',
+    );
   });
 });
 

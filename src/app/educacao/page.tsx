@@ -3,8 +3,14 @@ import { Disclaimer } from '@/components/layout/Disclaimer';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { TrackCard } from '@/features/education/TrackCard';
 import { TRACKS } from '@/features/education/registry';
+import { buildMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'Educação' };
+export const metadata: Metadata = buildMetadata({
+  title: 'Educação financeira',
+  description:
+    'Trilhas de estudo do básico aos derivativos, em linguagem simples e com foco em risco.',
+  path: '/educacao',
+});
 
 export default function EducacaoPage() {
   return (

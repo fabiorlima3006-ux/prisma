@@ -3,8 +3,13 @@ import { Disclaimer } from '@/components/layout/Disclaimer';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { CompoundInterestForm } from '@/features/compound-interest/CompoundInterestForm';
 import { fromSearchParams } from '@/features/compound-interest/url-state';
+import { buildMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'Simulador de juros compostos' };
+export const metadata: Metadata = buildMetadata({
+  title: 'Simulador de juros compostos',
+  description: 'Veja como aportes mensais e o tempo fazem o patrimônio evoluir.',
+  path: '/simuladores/juros-compostos',
+});
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 

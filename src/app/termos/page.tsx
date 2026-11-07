@@ -1,8 +1,13 @@
 import type { Metadata } from 'next';
 import { DISCLAIMER_TEXT } from '@/components/layout/Disclaimer';
 import { LegalPage } from '@/features/legal/LegalPage';
+import { buildMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'Termos de uso' };
+export const metadata: Metadata = buildMetadata({
+  title: 'Termos de uso',
+  description: 'Regras simples para o uso desta plataforma de estudo.',
+  path: '/termos',
+});
 
 export default function TermosPage() {
   return (

@@ -47,10 +47,7 @@ describe('brapi provider', () => {
 
   it('mapeia o histórico com datas YYYY-MM-DD e o intervalo pedido', async () => {
     const f = fakeFetch(fixture);
-    const h = await createBrapiProvider({ token: 't', fetchImpl: f, now }).getHistory!(
-      petr4,
-      '6m',
-    );
+    const h = await createBrapiProvider({ token: 't', fetchImpl: f, now }).getHistory!(petr4, '6m');
     expect(f).toHaveBeenCalledWith(expect.stringContaining('range=6mo'), expect.anything());
     expect(f).toHaveBeenCalledWith(expect.stringContaining('interval=1d'), expect.anything());
     if (h.status !== 'ok') throw new Error('esperava ok');

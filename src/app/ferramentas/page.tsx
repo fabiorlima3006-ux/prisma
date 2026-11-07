@@ -4,8 +4,13 @@ import { Disclaimer } from '@/components/layout/Disclaimer';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Card } from '@/components/ui';
 import { TOOLS } from '@/lib/config/tools';
+import { buildMetadata } from '@/lib/seo/metadata';
 
-export const metadata: Metadata = { title: 'Ferramentas' };
+export const metadata: Metadata = buildMetadata({
+  title: 'Ferramentas',
+  description: 'Ferramentas para comparar alternativas e entender o efeito de prazo e imposto.',
+  path: '/ferramentas',
+});
 
 export default function FerramentasPage() {
   const comparador = TOOLS.find((t) => t.id === 'comparador');

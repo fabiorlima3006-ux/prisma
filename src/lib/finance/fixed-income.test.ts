@@ -30,8 +30,21 @@ const R: TaxRules = {
     minHoldingDays: { lci: 270, lca: 270 },
     verification: { lci: V, lca: V },
   },
-  tesouroCustody: { effectiveFrom: '2022-01-01', source: 'x', verifiedAt: null, annualRate: 0.002, selicExemptUpTo: 10000 },
-  savings: { effectiveFrom: '2012-08-08', source: 'x', verifiedAt: null, selicThreshold: 0.085, fixedMonthly: 0.005, selicShare: 0.7 },
+  tesouroCustody: {
+    effectiveFrom: '2022-01-01',
+    source: 'x',
+    verifiedAt: null,
+    annualRate: 0.002,
+    selicExemptUpTo: 10000,
+  },
+  savings: {
+    effectiveFrom: '2012-08-08',
+    source: 'x',
+    verifiedAt: null,
+    selicThreshold: 0.085,
+    fixedMonthly: 0.005,
+    selicShare: 0.7,
+  },
 };
 
 const base = {
@@ -81,7 +94,10 @@ describe('compareFixedIncome', () => {
       available: false,
       reason: expect.stringContaining('270'),
     });
-    expect(compareFixedIncome({ ...base, calendarDays: 270 }, R).find((r) => r.product === 'lci')!.available).toBe(true);
+    expect(
+      compareFixedIncome({ ...base, calendarDays: 270 }, R).find((r) => r.product === 'lci')!
+        .available,
+    ).toBe(true);
   });
   it('retornos líquidos', () => {
     const cdb = get(rows, 'cdb');
@@ -111,7 +127,9 @@ describe('comparatorInputSchema', () => {
   it('rejeita valores inválidos', () => {
     expect(comparatorInputSchema.safeParse({ ...base, amount: 0 }).success).toBe(false);
     expect(comparatorInputSchema.safeParse({ ...base, cdbPctCdi: 6 }).success).toBe(false);
-    expect(comparatorInputSchema.safeParse({ ...base, rates: { ...base.rates, cdiAnnual: -1 } }).success).toBe(false);
+    expect(
+      comparatorInputSchema.safeParse({ ...base, rates: { ...base.rates, cdiAnnual: -1 } }).success,
+    ).toBe(false);
   });
 });
 

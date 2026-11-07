@@ -5,6 +5,7 @@ import { Disclaimer } from '@/components/layout/Disclaimer';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui';
 import { LEVEL_LABEL, LEVEL_TONE } from '@/features/education/labels';
+import { buildMetadata } from '@/lib/seo/metadata';
 import { TRACKS, getTrack, loadArticle } from '@/features/education/registry';
 
 export const dynamicParams = false;
@@ -17,7 +18,12 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const track = getTrack((await params).trilha);
-  return { title: track ? track.title : 'Educação' };
+  if (!track) return {};
+  return buildMetadata({
+    title: track.title,
+    description: track.description,
+    path: `/educacao/${track.slug}`,
+  });
 }
 
 export default async function TrilhaPage({ params }: { params: Params }) {
