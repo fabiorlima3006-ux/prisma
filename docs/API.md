@@ -34,7 +34,8 @@ Respostas 200 trazem `Cache-Control: public, s-maxage=900, stale-while-revalidat
 ### Rate limit
 
 - 60 requisições por minuto por IP, compartilhadas pelas três rotas (um único limitador).
-- A chave é o primeiro IP do cabeçalho `x-forwarded-for`; sem o cabeçalho, todos os clientes caem em `unknown` e dividem o mesmo contador.
+- A chave é o cabeçalho `x-real-ip`; se ausente, o primeiro IP de `x-forwarded-for`; sem nenhum, todos os clientes caem em `unknown` e dividem o mesmo contador. Na Vercel esses cabeçalhos são definidos pela plataforma; em outros hospedeiros podem ser forjados, então o limitador em memória é de melhor esforço.
+- O mapa guarda no máximo 10.000 chaves: ao atingir o teto, remove as janelas expiradas e, se preciso, as mais antigas.
 - Janela fixa de 60 s. O `Retry-After` indica o tempo até o fim da janela.
 - **Limitação:** o contador fica em memória, **por instância** do servidor. Em ambiente serverless ou com várias instâncias, cada uma conta separadamente (o limite efetivo é maior que 60) e o contador zera a cada cold start. É uma proteção básica contra abuso, não uma garantia. Para um limite global, será preciso um armazenamento compartilhado (por exemplo, Redis), previsto para a Fase 2.
 

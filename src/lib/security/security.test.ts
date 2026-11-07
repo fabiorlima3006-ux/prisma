@@ -15,11 +15,32 @@ describe('createRateLimiter', () => {
   });
 });
 
+describe('createRateLimiter maxKeys', () => {
+  it('nunca passa do teto de chaves', () => {
+    let t = 0;
+    const rl = createRateLimiter({ limit: 5, windowMs: 1000, maxKeys: 3, now: () => t });
+    for (let i = 0; i < 20; i++) {
+      rl.check(`ip${i}`);
+      expect(rl.size()).toBeLessThanOrEqual(3);
+    }
+    // despeja as mais antigas: ip0 foi removida e começa de novo
+    expect(rl.size()).toBe(3);
+    t = 5000;
+    rl.check('novo');
+    expect(rl.size()).toBe(1);
+  });
+});
+
 describe('clientIp', () => {
-  it('usa o primeiro x-forwarded-for ou unknown', () => {
-    const h = { 'x-forwarded-for': '1.2.3.4, 5.6.7.8' };
-    expect(clientIp(new Request('http://x', { headers: h }))).toBe('1.2.3.4');
-    expect(clientIp(new Request('http://x'))).toBe('unknown');
+  const ip = (h: Record<string, string>) => clientIp(new Request('http://x', { headers: h }));
+  it('prefere x-real-ip', () => {
+    expect(ip({ 'x-real-ip': ' 9.9.9.9 ', 'x-forwarded-for': '1.2.3.4' })).toBe('9.9.9.9');
+  });
+  it('senão usa o primeiro x-forwarded-for, sem espaços', () => {
+    expect(ip({ 'x-forwarded-for': ' 1.2.3.4 , 5.6.7.8' })).toBe('1.2.3.4');
+  });
+  it('senão unknown', () => {
+    expect(ip({})).toBe('unknown');
   });
 });
 
@@ -36,6 +57,8 @@ describe('SECURITY_HEADERS', () => {
   });
   it('só usa unsafe-eval fora de produção', () => {
     expect(process.env.NODE_ENV).not.toBe('production');
-    expect(get('Content-Security-Policy')).toContain("'unsafe-eval'");
+    expect(get('Content-Security-Policy')).toBe(
+      "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'",
+    );
   });
 });
