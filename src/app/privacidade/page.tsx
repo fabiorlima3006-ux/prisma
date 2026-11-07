@@ -13,9 +13,9 @@ export default function PrivacidadePage() {
           heading: 'Dados pessoais',
           body: (
             <p>
-              Não há cadastro e não coletamos nem armazenamos dados pessoais. Os valores digitados
-              em simuladores e ferramentas são processados no seu navegador e não são enviados a
-              nenhum servidor.
+              Não há cadastro e não coletamos nem armazenamos dados pessoais. Os valores informados
+              nos simuladores podem aparecer na URL, para que a simulação possa ser compartilhada, e
+              são usados apenas para calcular a página exibida; não são armazenados.
             </p>
           ),
         },
