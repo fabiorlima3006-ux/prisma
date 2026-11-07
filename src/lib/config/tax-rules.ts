@@ -47,8 +47,7 @@ export const TAX_RULES: TaxRules = {
     verification: {
       lci: {
         // Res. CMN 4.410/2015, art. 4º, II, redação da Res. CMN 5.215/2025: "seis meses, nos demais casos".
-        source:
-          'https://normativos.bcb.gov.br/Lists/Normativos/Attachments/48547/Res_4410_v7_P.pdf',
+        source: 'https://normativos.bcb.gov.br/Lists/Normativos/Attachments/48547/Res_4410_v7_P.pdf',
         verifiedAt: '2026-11-07',
       },
       lca: {

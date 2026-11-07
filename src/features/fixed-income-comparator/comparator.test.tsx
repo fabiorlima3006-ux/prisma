@@ -10,15 +10,7 @@ import { ComparatorForm } from './ComparatorForm';
 
 // O gráfico tem testes próprios; sua tabela sr-only duplicaria as linhas da tabela principal.
 vi.mock('@/components/charts', () => ({
-  BarChart: ({
-    data,
-    title,
-    labelHeader,
-  }: {
-    data: { label: string }[];
-    title: string;
-    labelHeader?: string;
-  }) => (
+  BarChart: ({ data, title, labelHeader }: { data: { label: string }[]; title: string; labelHeader?: string }) => (
     <div data-testid="bar-chart" aria-label={title} data-label-header={labelHeader}>
       {data.map((d) => d.label).join('|')}
     </div>
@@ -32,38 +24,21 @@ const unavailable: DataResult<IndicatorValue> = {
   attribution: 'Banco Central do Brasil',
 };
 
-function ok(
-  id: IndicatorValue['id'],
-  value: number,
-  unit: IndicatorValue['unit'],
-): DataResult<IndicatorValue> {
+function ok(id: IndicatorValue['id'], value: number, unit: IndicatorValue['unit']): DataResult<IndicatorValue> {
   return {
     status: 'ok',
     data: { id, value, unit, referenceDate: '2026-11-06' },
-    meta: {
-      source: 'bcb',
-      isDemo: false,
-      asOf: '2026-11-06T12:00:00Z',
-      attribution: 'Banco Central do Brasil',
-    },
+    meta: { source: 'bcb', isDemo: false, asOf: '2026-11-06T12:00:00Z', attribution: 'Banco Central do Brasil' },
   };
 }
 
 describe('ChartFrame', () => {
   it('usa Data por padrão e o labelHeader quando informado', () => {
     const data = [{ label: 'CDB', value: 1 }];
-    const { unmount } = render(
-      <ChartFrame data={data} title="g1">
-        {null}
-      </ChartFrame>,
-    );
+    const { unmount } = render(<ChartFrame data={data} title="g1">{null}</ChartFrame>);
     expect(screen.getByRole('columnheader', { name: 'Data' })).toBeInTheDocument();
     unmount();
-    render(
-      <ChartFrame data={data} title="g2" labelHeader="Produto">
-        {null}
-      </ChartFrame>,
-    );
+    render(<ChartFrame data={data} title="g2" labelHeader="Produto">{null}</ChartFrame>);
     expect(screen.getByRole('columnheader', { name: 'Produto' })).toBeInTheDocument();
     expect(screen.queryByRole('columnheader', { name: 'Data' })).not.toBeInTheDocument();
   });
@@ -72,22 +47,13 @@ describe('ChartFrame', () => {
 describe('ComparatorChart', () => {
   it('passa labelHeader Produto e legenda própria ao gráfico', () => {
     const rows = compareFixedIncome(
-      {
-        amount: 10000,
-        calendarDays: 365,
-        cdbPctCdi: 1,
-        lciLcaPctCdi: 0.9,
-        rates: { cdiAnnual: 0.1, selicAnnual: 0.105, trMonthly: 0 },
-      },
+      { amount: 10000, calendarDays: 365, cdbPctCdi: 1, lciLcaPctCdi: 0.9, rates: { cdiAnnual: 0.1, selicAnnual: 0.105, trMonthly: 0 } },
       TAX_RULES,
     );
     render(<ComparatorChart rows={rows} />);
     const chart = screen.getByTestId('bar-chart');
     expect(chart).toHaveAttribute('data-label-header', 'Produto');
-    expect(chart).toHaveAttribute(
-      'aria-label',
-      'Gráfico: valor líquido ao final do prazo, por produto',
-    );
+    expect(chart).toHaveAttribute('aria-label', 'Gráfico: valor líquido ao final do prazo, por produto');
   });
 });
 
@@ -95,10 +61,7 @@ describe('ComparatorForm', () => {
   it('modo manual quando taxas indisponíveis: calcula, destaca e valida prazo', async () => {
     const user = userEvent.setup();
     render(
-      <ComparatorForm
-        rates={{ cdi: unavailable, selic: unavailable, tr: unavailable }}
-        rules={TAX_RULES}
-      />,
+      <ComparatorForm rates={{ cdi: unavailable, selic: unavailable, tr: unavailable }} rules={TAX_RULES} />,
     );
     expect(screen.getByText('Taxas informadas pelo usuário')).toBeInTheDocument();
     expect(screen.getByText('TR indisponível; considerada 0')).toBeInTheDocument();
@@ -121,34 +84,23 @@ describe('ComparatorForm', () => {
 
   it('campos manuais vazios geram erro e nenhum resultado', () => {
     render(
-      <ComparatorForm
-        rates={{ cdi: unavailable, selic: unavailable, tr: unavailable }}
-        rules={TAX_RULES}
-      />,
+      <ComparatorForm rates={{ cdi: unavailable, selic: unavailable, tr: unavailable }} rules={TAX_RULES} />,
     );
     expect(screen.getByLabelText('CDI (% a.a.)')).toHaveAttribute('aria-invalid', 'true');
-    expect(
-      screen.queryByRole('table', { name: 'Comparação de renda fixa' }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('table', { name: 'Comparação de renda fixa' })).not.toBeInTheDocument();
   });
 
   it('com taxas reais mostra valores somente leitura e permite alternar para manual', async () => {
     const user = userEvent.setup();
     render(
       <ComparatorForm
-        rates={{
-          cdi: ok('cdi', 0.1065, 'a.a.'),
-          selic: ok('selic', 0.105, 'a.a.'),
-          tr: ok('tr', 0, 'a.m.'),
-        }}
+        rates={{ cdi: ok('cdi', 0.1065, 'a.a.'), selic: ok('selic', 0.105, 'a.a.'), tr: ok('tr', 0, 'a.m.') }}
         rules={TAX_RULES}
       />,
     );
     expect(screen.queryByLabelText('CDI (% a.a.)')).not.toBeInTheDocument();
     expect(screen.getByText(/10,65%/)).toBeInTheDocument();
-    expect(
-      await screen.findByRole('table', { name: 'Comparação de renda fixa' }),
-    ).toBeInTheDocument();
+    expect(await screen.findByRole('table', { name: 'Comparação de renda fixa' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Informar taxas manualmente' }));
     expect(screen.getByLabelText('CDI (% a.a.)')).toHaveValue('10,65');
     expect(screen.getByText('Taxas informadas pelo usuário')).toBeInTheDocument();
@@ -158,11 +110,7 @@ describe('ComparatorForm', () => {
     const user = userEvent.setup();
     render(
       <ComparatorForm
-        rates={{
-          cdi: ok('cdi', 0.1, 'a.a.'),
-          selic: ok('selic', 0.105, 'a.a.'),
-          tr: ok('tr', 0, 'a.m.'),
-        }}
+        rates={{ cdi: ok('cdi', 0.1, 'a.a.'), selic: ok('selic', 0.105, 'a.a.'), tr: ok('tr', 0, 'a.m.') }}
         rules={TAX_RULES}
       />,
     );

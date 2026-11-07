@@ -77,7 +77,9 @@ export function compoundInterest(input: CompoundInterestInput): CompoundInterest
   const totalInvested = initial + monthlyContribution * months;
   const growth = Math.pow(1 + i, months);
   const finalBalance =
-    i === 0 ? totalInvested : initial * growth + (monthlyContribution * (growth - 1)) / i;
+    i === 0
+      ? totalInvested
+      : initial * growth + (monthlyContribution * (growth - 1)) / i;
 
   return {
     finalBalance,
