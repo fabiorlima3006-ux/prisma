@@ -1,16 +1,25 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useRef } from 'react';
 import { siteConfig } from '@/lib/config/site';
 
 export function MobileNav({ id, onNavigate }: { id: string; onNavigate: () => void }) {
+  const root = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    root.current?.querySelector<HTMLElement>('a')?.focus();
+  }, []);
   const link = 'block rounded-lg px-3 py-2.5 text-sm text-white hover:bg-white/10';
   return (
     <div
+      ref={root}
       id={id}
-      className="fixed inset-x-0 top-[72px] bottom-0 z-40 overflow-y-auto bg-hero p-4 text-white lg:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Menu principal"
+      className="fixed inset-x-0 top-[var(--header-h)] bottom-0 z-40 overflow-y-auto bg-hero p-4 text-white lg:hidden"
     >
-      <nav aria-label="Menu principal">
+      <nav aria-label="Navegação">
         <ul className="space-y-1">
           {siteConfig.nav.map((item) => (
             <li key={item.href}>

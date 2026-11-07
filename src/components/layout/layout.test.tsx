@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -70,7 +70,7 @@ describe('Header', () => {
     render(<Header />);
     expect(screen.queryByRole('link', { name: 'Investimentos' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Investimentos/ })).toBeInTheDocument();
-    const search = screen.getByRole('button', { name: 'Buscar (Ctrl+K)' });
+    const search = screen.getByRole('button', { name: 'Buscar ativo, tema (Ctrl+K)' });
     expect(search).toHaveAttribute('aria-keyshortcuts', 'Control+K Meta+K');
     await user.click(search);
     expect(onOpen).toHaveBeenCalledTimes(1);
@@ -106,5 +106,59 @@ describe('Footer', () => {
       'href',
       '/privacidade',
     );
+  });
+});
+
+describe('Header: gaveta móvel', () => {
+  function Page() {
+    return (
+      <>
+        <Header />
+        <main id="conteudo">conteúdo</main>
+        <footer id="rodape">rodapé</footer>
+      </>
+    );
+  }
+
+  it('trava a rolagem, isola a página e move o foco para dentro', async () => {
+    const user = userEvent.setup();
+    document.body.style.overflow = 'scroll';
+    const { unmount } = render(<Page />);
+    await user.click(screen.getByRole('button', { name: 'Abrir menu' }));
+    const dialog = screen.getByRole('dialog', { name: 'Menu principal' });
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog).toContainElement(document.activeElement as HTMLElement);
+    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.getElementById('conteudo')).toHaveAttribute('inert');
+    expect(document.getElementById('rodape')).toHaveAttribute('inert');
+    await user.keyboard('{Escape}');
+    expect(document.body.style.overflow).toBe('scroll');
+    expect(document.getElementById('conteudo')).not.toHaveAttribute('inert');
+    await user.click(screen.getByRole('button', { name: 'Abrir menu' }));
+    unmount();
+    expect(document.body.style.overflow).toBe('scroll');
+    document.body.style.overflow = '';
+  });
+
+  it('fecha ao passar para desktop e devolve o foco ao clicar em link', async () => {
+    const user = userEvent.setup();
+    const original = window.matchMedia;
+    let listener: ((e: { matches: boolean }) => void) | undefined;
+    window.matchMedia = ((query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: (_: string, fn: (e: { matches: boolean }) => void) => (listener = fn),
+      removeEventListener: () => {},
+    })) as unknown as typeof window.matchMedia;
+    render(<Page />);
+    const btn = screen.getByRole('button', { name: 'Abrir menu' });
+    await user.click(btn);
+    await user.click(within(screen.getByRole('dialog')).getByRole('link', { name: 'Mercados' }));
+    expect(btn).toHaveFocus();
+    await user.click(btn);
+    act(() => listener?.({ matches: true }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(document.getElementById('conteudo')).not.toHaveAttribute('inert');
+    window.matchMedia = original;
   });
 });

@@ -31,7 +31,7 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-line bg-surface">
+    <footer id="rodape" className="mt-16 border-t border-line bg-surface">
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="grid gap-8 sm:grid-cols-3">
           {columns.map((col) => (

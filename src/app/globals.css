@@ -4,6 +4,7 @@
 
 /* Tokens do spec 6.2. Ajustes de contraste AA no tema claro: accent, up, down. */
 :root {
+  --header-h: 72px;
   --bg: #f6f8fc;
   --surface: #ffffff;
   --surface-2: #eef2f7;

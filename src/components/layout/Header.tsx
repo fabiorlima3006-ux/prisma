@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Button, Dropdown } from '@/components/ui';
 import { siteConfig } from '@/lib/config/site';
@@ -12,12 +13,31 @@ export function Header() {
   const menuId = useId();
   const toggle = useRef<HTMLButtonElement>(null);
 
-  const close = useCallback(() => setOpen(false), []);
+  const pathname = usePathname();
+  const [lastPath, setLastPath] = useState(pathname);
+  if (pathname !== lastPath) {
+    setLastPath(pathname);
+    setOpen(false);
+  }
+
+  const close = useCallback(() => {
+    setOpen(false);
+    toggle.current?.focus();
+  }, []);
 
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    const inerted = ['conteudo', 'rodape']
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    inerted.forEach((el) => el.setAttribute('inert', ''));
+    const mq = window.matchMedia('(min-width: 1024px)');
+    function onChange(e: { matches: boolean }) {
+      if (e.matches) setOpen(false);
+    }
+    mq.addEventListener('change', onChange);
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         setOpen(false);
@@ -27,12 +47,14 @@ export function Header() {
     document.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = prev;
+      inerted.forEach((el) => el.removeAttribute('inert'));
+      mq.removeEventListener('change', onChange);
       document.removeEventListener('keydown', onKey);
     };
   }, [open]);
 
   return (
-    <header className="sticky top-0 z-50 h-[72px] px-3 pt-3 text-white sm:px-4">
+    <header className="sticky top-0 z-50 h-[var(--header-h)] px-3 pt-3 text-white sm:px-4">
       <div className="mx-auto flex h-12 max-w-6xl items-center gap-3 rounded-2xl border border-white/12 bg-white/6 px-3 backdrop-blur-md">
         <Link href="/" className="mr-1 text-lg font-extrabold tracking-tight">
           {siteConfig.name}
@@ -57,7 +79,7 @@ export function Header() {
         <div className="ml-auto flex items-center gap-2">
           <button
             type="button"
-            aria-label="Buscar (Ctrl+K)"
+            aria-label="Buscar ativo, tema (Ctrl+K)"
             aria-keyshortcuts="Control+K Meta+K"
             onClick={() => window.dispatchEvent(new Event('open-search'))}
             className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/15 px-3 text-xs text-white/75 hover:bg-white/10"
