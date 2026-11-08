@@ -59,9 +59,20 @@ export function createBrapiProvider(opts: {
     attribution: ATTRIBUTION,
   });
 
-  function fail<T>(op: string, asset: Asset, reason: UnavailableReason): DataResult<T> {
-    // Nunca inclua o token no log.
-    log('warn', 'provider.unavailable', { provider: 'brapi', op, ticker: asset.ticker, reason });
+  function fail<T>(
+    op: string,
+    asset: Asset,
+    reason: UnavailableReason,
+    httpStatus?: number,
+  ): DataResult<T> {
+    // Nunca inclua o token no log. O status HTTP ajuda a diagnosticar limites do plano.
+    log('warn', 'provider.unavailable', {
+      provider: 'brapi',
+      op,
+      ticker: asset.ticker,
+      reason,
+      ...(httpStatus === undefined ? {} : { httpStatus }),
+    });
     return { status: 'unavailable', reason, source: 'brapi', attribution: ATTRIBUTION };
   }
 
@@ -69,7 +80,9 @@ export function createBrapiProvider(opts: {
   async function load(
     asset: Asset,
     range?: string,
-  ): Promise<{ ok: true; result: unknown } | { ok: false; reason: UnavailableReason }> {
+  ): Promise<
+    { ok: true; result: unknown } | { ok: false; reason: UnavailableReason; httpStatus?: number }
+  > {
     const symbol = encodeURIComponent(asset.brapiSymbol ?? asset.ticker);
     const base = `https://brapi.dev/api/quote/${symbol}`;
     const url = range ? `${base}?range=${range}&interval=1d` : base;
@@ -80,7 +93,7 @@ export function createBrapiProvider(opts: {
         next: { revalidate: 900 },
         signal: AbortSignal.timeout(5000),
       } as RequestInit);
-      if (!res.ok) return { ok: false, reason: 'fetch-failed' };
+      if (!res.ok) return { ok: false, reason: 'fetch-failed', httpStatus: res.status };
       body = await res.json();
     } catch {
       return { ok: false, reason: 'fetch-failed' };
@@ -90,9 +103,9 @@ export function createBrapiProvider(opts: {
     return { ok: true, result: parsed.data.results[0] };
   }
 
-  async function loadHistory(asset: Asset, range: HistoryRange): Promise<DataResult<PricePoint[]>> {
-    const l = await load(asset, RANGE[range]);
-    if (!l.ok) return fail('history', asset, l.reason);
+  async function loadSeries(asset: Asset, range: string): Promise<DataResult<PricePoint[]>> {
+    const l = await load(asset, range);
+    if (!l.ok) return fail('history', asset, l.reason, l.httpStatus);
     const r = resultSchema.safeParse(l.result);
     if (!r.success) return fail('history', asset, 'invalid-response');
     const points = series(r.data);
@@ -100,17 +113,31 @@ export function createBrapiProvider(opts: {
     return { status: 'ok', data: points, meta: meta() };
   }
 
+  const loadHistory = (asset: Asset, range: HistoryRange) => loadSeries(asset, RANGE[range]);
+
+  /**
+   * Fechamentos para semana/mês/ano. O plano gratuito da brapi recusa intervalos longos para
+   * a maioria dos tickers: sem 1 ano, tenta 3 meses (semana e mês) e o ano fica null, porque
+   * comparar com o ponto mais antigo de 3 meses não é variação anual.
+   */
+  async function closesForChange(asset: Asset): Promise<{ closes: number[]; hasYear: boolean }> {
+    const y = await loadSeries(asset, '1y');
+    if (y.status === 'ok') return { closes: y.data.map((p) => p.close), hasYear: true };
+    const q = await loadSeries(asset, '3mo');
+    return { closes: q.status === 'ok' ? q.data.map((p) => p.close) : [], hasYear: false };
+  }
+
   return {
     id: 'brapi',
     async getQuote(asset): Promise<DataResult<Quote>> {
       // A cotação não depende do histórico: se a chamada de 1 ano falhar (ex.: plano sem esse
       // intervalo), semana/mês/ano ficam null e o resto da cotação continua valendo.
-      const [l, h] = await Promise.all([load(asset), loadHistory(asset, '1y')]);
-      if (!l.ok) return fail('quote', asset, l.reason);
+      const [l, h] = await Promise.all([load(asset), closesForChange(asset)]);
+      if (!l.ok) return fail('quote', asset, l.reason, l.httpStatus);
       const r = resultSchema.safeParse(l.result);
       if (!r.success) return fail('quote', asset, 'invalid-response');
       const d = r.data;
-      const closes = h.status === 'ok' ? h.data.map((p) => p.close) : [];
+      const { closes, hasYear } = h;
       const pct = d.regularMarketChangePercent;
       return {
         status: 'ok',
@@ -121,7 +148,7 @@ export function createBrapiProvider(opts: {
             week: pctChange(closes, 5),
             month: pctChange(closes, 21),
             // Mesma convenção do demo: "ano" compara com o ponto mais antigo.
-            year: closes.length > 1 ? pctChange(closes, closes.length - 1) : null,
+            year: hasYear && closes.length > 1 ? pctChange(closes, closes.length - 1) : null,
           },
           volume: d.regularMarketVolume ?? null,
           dayHigh: d.regularMarketDayHigh ?? null,
@@ -135,7 +162,7 @@ export function createBrapiProvider(opts: {
     getHistory: loadHistory,
     async getFundamentals(asset): Promise<DataResult<Fundamentals>> {
       const l = await load(asset);
-      if (!l.ok) return fail('fundamentals', asset, l.reason);
+      if (!l.ok) return fail('fundamentals', asset, l.reason, l.httpStatus);
       const r = fundamentalsSchema.safeParse(l.result);
       if (!r.success) return fail('fundamentals', asset, 'not-provided');
       // P/L negativo = prejuízo em 12 meses: calculável, mas sem significado (skill financial-analysis).

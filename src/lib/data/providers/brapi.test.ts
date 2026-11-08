@@ -66,6 +66,28 @@ describe('brapi provider', () => {
     expect(q.data.change).toMatchObject({ week: null, month: null, year: null });
   });
 
+  it('1 ano recusado (plano gratuito): usa 3 meses para semana/mês e deixa o ano null', async () => {
+    const { historicalDataPrice: hist, ...quoteOnly } = fixture.results[0]!;
+    const f = vi.fn(async (url: string) => {
+      if (url.includes('range=1y'))
+        return { ok: false, status: 400, json: async () => ({}) } as Response;
+      const body = url.includes('range=3mo')
+        ? { ...quoteOnly, historicalDataPrice: hist }
+        : quoteOnly;
+      return { ok: true, status: 200, json: async () => ({ results: [body] }) } as Response;
+    }) as unknown as typeof fetch;
+    const q = await createBrapiProvider({ token: 't', fetchImpl: f, now }).getQuote!(petr4);
+    if (q.status !== 'ok') throw new Error('esperava ok');
+    const closes = hist.map((p) => p.close);
+    expect(q.data.change.week).toBeCloseTo(closes[19]! / closes[14]! - 1, 10);
+    // 3 meses não dizem nada sobre o ano: nunca rotular essa variação como anual.
+    expect(q.data.change.year).toBeNull();
+    expect(f).toHaveBeenCalledWith(
+      'https://brapi.dev/api/quote/PETR4?range=3mo&interval=1d',
+      expect.anything(),
+    );
+  });
+
   it('P/L negativo (prejuízo) vira "não se aplica" com motivo', async () => {
     const body = { results: [{ ...fixture.results[0]!, priceEarnings: -3.2 }] };
     const p = createBrapiProvider({ token: 't', fetchImpl: fakeFetch(body), now });
