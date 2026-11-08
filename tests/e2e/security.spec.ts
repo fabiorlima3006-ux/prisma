@@ -1,4 +1,11 @@
+import { randomUUID } from 'node:crypto';
 import { expect, test } from '@playwright/test';
+
+/** IP aleatório (faixa TEST-NET-2) por teste e por execução: o limitador em memória não vaza entre reruns. */
+function uniqueIp(): string {
+  const b = Buffer.from(randomUUID().replace(/-/g, ''), 'hex');
+  return `198.51.${b[0] ?? 0}.${1 + ((b[1] ?? 0) % 254)}`;
+}
 
 test('cabeçalhos de segurança em /', async ({ request }) => {
   const res = await request.get('/');
@@ -10,21 +17,20 @@ test('cabeçalhos de segurança em /', async ({ request }) => {
 
 test('ticker malformado na API retorna 400', async ({ request }) => {
   const res = await request.get('/api/market/quote/%3Cscript%3E', {
-    headers: { 'x-real-ip': '203.0.113.200' },
+    headers: { 'x-real-ip': uniqueIp() },
   });
   expect(res.status()).toBe(400);
 });
 
 test('ticker desconhecido na API retorna 404', async ({ request }) => {
   const res = await request.get('/api/market/quote/zzzz9', {
-    headers: { 'x-real-ip': '203.0.113.201' },
+    headers: { 'x-real-ip': uniqueIp() },
   });
   expect(res.status()).toBe(404);
 });
 
-test('a 61ª requisição seguida retorna 429', async ({ request }, testInfo) => {
-  // IP exclusivo por projeto: não consome o balde compartilhado dos outros testes.
-  const ip = `203.0.113.${testInfo.project.name === 'desktop' ? 1 : 2}`;
+test('a 61ª requisição seguida retorna 429', async ({ request }) => {
+  const ip = uniqueIp();
   const statuses: number[] = [];
   for (let i = 0; i < 61; i++) {
     const res = await request.get('/api/market/indicators', { headers: { 'x-real-ip': ip } });

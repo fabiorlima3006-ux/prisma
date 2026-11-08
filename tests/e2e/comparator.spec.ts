@@ -7,6 +7,6 @@ test('com o BCB indisponível, taxas manuais calculam o CDB', async ({ page }) =
   await page.getByLabel('Selic meta (% a.a.)').fill('10,5');
   await page.getByLabel('Valor', { exact: true }).fill('10.000');
   await page.getByLabel('Prazo (dias)').fill('365');
-  await expect(page.getByRole('row', { name: /CDB/ }).first()).toContainText('10.825,00');
+  await expect(page.getByRole('table', { name: 'Comparação de renda fixa' }).getByRole('row', { name: /CDB/ })).toContainText('10.825,00');
   await expect(page.locator('body')).not.toContainText('NaN');
 });

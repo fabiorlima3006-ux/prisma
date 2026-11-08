@@ -17,6 +17,7 @@ test('alterar o prazo atualiza a URL', async ({ page }) => {
 test('capital no formato brasileiro não gera NaN', async ({ page }) => {
   await page.goto(URL);
   await page.getByLabel('Capital inicial').fill('1.000,50');
-  await expect(page.getByTestId('final-balance')).toBeVisible();
+  // 1000,50 · 1,01^12 + 100 · (1,01^12 − 1) / 0,01
+  await expect(page.getByTestId('final-balance')).toContainText('2.395,64');
   await expect(page.locator('body')).not.toContainText('NaN');
 });

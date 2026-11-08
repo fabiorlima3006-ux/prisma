@@ -2,9 +2,10 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/e2e',
+  globalSetup: './tests/e2e/global-setup.ts',
   grepInvert: /@live/,
   fullyParallel: true,
-  // O servidor de produção é um único processo; muitos workers estouram o tempo das páginas.
+  // O servidor de produÃ§Ã£o Ã© um Ãºnico processo; muitos workers estouram o tempo das pÃ¡ginas.
   workers: process.env.CI ? 2 : 3,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

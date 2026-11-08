@@ -15,7 +15,11 @@ for (const theme of ['light', 'dark'] as const) {
         }
       }, theme);
       await page.goto(route);
-      await page.waitForLoadState('networkidle'); // gráficos carregam sob demanda
+      // Gráficos carregam sob demanda: espera o svg antes do axe (networkidle não serve,
+      // os prefetches de Link mantêm a rede ocupada).
+      if ((await page.locator('figure[aria-label]').count()) > 0) {
+        await expect(page.locator('figure[aria-label] svg.recharts-surface').first()).toBeAttached();
+      }
       if (theme === 'dark') await expect(page.locator('html')).toHaveClass(/dark/);
       else await expect(page.locator('html')).not.toHaveClass(/dark/);
       const results = await new AxeBuilder({ page })
