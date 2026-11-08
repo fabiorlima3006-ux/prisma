@@ -108,3 +108,18 @@ export function watchSize(el: Element, onResize: () => void): () => void {
   window.addEventListener('resize', onResize);
   return () => window.removeEventListener('resize', onResize);
 }
+
+/**
+ * Agenda `cb` para quando o navegador estiver ocioso (`requestIdleCallback`, com teto de 1,5 s);
+ * sem suporte, usa `setTimeout(cb, 200)`. Retorna a função que cancela o agendamento.
+ */
+export function whenIdle(cb: () => void): () => void {
+  const ric = window.requestIdleCallback;
+  const cic = window.cancelIdleCallback;
+  if (typeof ric === 'function' && typeof cic === 'function') {
+    const id = ric.call(window, cb, { timeout: 1500 });
+    return () => cic.call(window, id);
+  }
+  const t = window.setTimeout(cb, 200);
+  return () => window.clearTimeout(t);
+}

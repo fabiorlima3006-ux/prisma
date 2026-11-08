@@ -2,8 +2,15 @@
 
 import { useEffect, useRef, useState, type RefObject } from 'react';
 
-/** Retorna true (e permanece true) depois que o elemento entra na tela pela primeira vez. */
-export function useInViewOnce<T extends Element>(): [ref: RefObject<T | null>, inView: boolean] {
+/**
+ * Retorna true (e permanece true) depois que o elemento entra na tela pela primeira vez.
+ * `rootMargin` antecipa a entrada (ex.: '200px' carrega um pouco antes de aparecer).
+ * Elementos ocultos (`hidden`, display: none) nunca intersectam: ficam false até aparecerem.
+ */
+export function useInViewOnce<T extends Element>({
+  rootMargin = '0px',
+  threshold = 0.25,
+}: { rootMargin?: string; threshold?: number } = {}): [ref: RefObject<T | null>, inView: boolean] {
   const ref = useRef<T | null>(null);
   const [inView, setInView] = useState(false);
 
@@ -21,11 +28,11 @@ export function useInViewOnce<T extends Element>(): [ref: RefObject<T | null>, i
           io.disconnect();
         }
       },
-      { threshold: 0.25 },
+      { rootMargin, threshold },
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [inView]);
+  }, [inView, rootMargin, threshold]);
 
   return [ref, inView];
 }

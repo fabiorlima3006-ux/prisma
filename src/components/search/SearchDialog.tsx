@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { groupByType, search, TYPE_LABELS, type SearchEntry } from '@/lib/search/search';
+import { isSearchShortcut, OPEN_SEARCH_EVENT } from './shortcut';
 
 let cachedIndex: SearchEntry[] | null = null;
 let inflight: Promise<SearchEntry[]> | null = null;
@@ -34,25 +35,20 @@ function loadIndex(): Promise<SearchEntry[]> {
 
 type Status = 'idle' | 'loading' | 'ready' | 'error';
 
-function isTypingTarget(el: EventTarget | null): boolean {
-  if (!(el instanceof HTMLElement)) return false;
-  if (el.getAttribute('role') === 'combobox') return false;
-  return (
-    el instanceof HTMLInputElement ||
-    el instanceof HTMLTextAreaElement ||
-    el instanceof HTMLSelectElement ||
-    el.isContentEditable ||
-    el.getAttribute('contenteditable') === 'true'
-  );
-}
-
-export function SearchDialog({ index: indexProp }: { index?: SearchEntry[] }) {
+export function SearchDialog({
+  index: indexProp,
+  defaultOpen = false,
+}: {
+  index?: SearchEntry[];
+  /** O loader monta o diálogo já aberto no primeiro atalho/evento. */
+  defaultOpen?: boolean;
+}) {
   const router = useRouter();
   const uid = useId();
   const listId = `${uid}-lista`;
   const mounted = useRef(true);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const [loaded, setLoaded] = useState<SearchEntry[] | null>(indexProp ?? cachedIndex);
@@ -61,16 +57,14 @@ export function SearchDialog({ index: indexProp }: { index?: SearchEntry[] }) {
   useEffect(() => {
     const openDialog = () => setOpen(true);
     const onKey = (e: globalThis.KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-        if (isTypingTarget(e.target)) return;
-        e.preventDefault();
-        openDialog();
-      }
+      if (!isSearchShortcut(e)) return;
+      e.preventDefault();
+      openDialog();
     };
-    window.addEventListener('open-search', openDialog);
+    window.addEventListener(OPEN_SEARCH_EVENT, openDialog);
     window.addEventListener('keydown', onKey);
     return () => {
-      window.removeEventListener('open-search', openDialog);
+      window.removeEventListener(OPEN_SEARCH_EVENT, openDialog);
       window.removeEventListener('keydown', onKey);
     };
   }, []);

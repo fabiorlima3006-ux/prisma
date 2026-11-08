@@ -103,17 +103,19 @@ Regras (detalhes em [docs/API.md](docs/API.md)):
 
 ## Lighthouse
 
-Medição **local** (sem CDN, máquina de desenvolvimento Windows), Lighthouse com o Chromium do Playwright, `--form-factor=mobile` (emulação de celular e CPU 4x mais lenta), contra `npm run build && npm run start`, em 2026-11-08. O Banco Central estava acessível durante a medição (com o BCB fora do ar, a Home mostra "Dado indisponível no momento" nos indicadores e o resultado pode variar). Os valores são a mediana de 3 execuções (entre parênteses, a faixa de Performance).
+Medição **local** (sem CDN, máquina de desenvolvimento Windows 11), em 2026-11-08: Lighthouse 13.6.0 (`npx lighthouse`) com o Chromium 158 do Playwright (`CHROME_PATH`), Node 26.13.0, `--form-factor=mobile` (emulação de celular e CPU 4x mais lenta, throttling simulado), contra `npm run build && npm run start`. Cada página teve 1 execução de aquecimento descartada e **5 execuções**, intercaladas entre as três páginas; a tabela mostra a **mediana** (entre parênteses, a faixa de Performance). O Banco Central estava acessível.
 
-| Página                         | Performance  | Acessibilidade | Boas práticas | SEO |
-| ------------------------------ | ------------ | -------------- | ------------- | --- |
-| `/`                            | 91 (86 a 97) | 100            | 100           | 100 |
-| `/acoes/petr4`                 | 89 (87 a 91) | 100            | 100           | 100 |
-| `/simuladores/juros-compostos` | 89 (87 a 90) | 100            | 100           | 100 |
+| Página                         | Performance  | Acessibilidade | Boas práticas | SEO | TBT (mediana) | LCP    | CLS |
+| ------------------------------ | ------------ | -------------- | ------------- | --- | ------------- | ------ | --- |
+| `/`                            | 85 (83 a 98) | 100            | 100           | 100 | 583 ms        | 0,96 s | 0   |
+| `/acoes/petr4`                 | 91 (89 a 92) | 100            | 100           | 100 | 380 ms        | 0,96 s | 0   |
+| `/simuladores/juros-compostos` | 92 (90 a 93) | 100            | 100           | 100 | 359 ms        | 0,81 s | 0   |
 
-Metas: Performance 90 ou mais; demais 95 ou mais. **Acessibilidade, Boas práticas e SEO atendem.** Performance oscila em torno da meta: o LCP fica em 0,8 a 1,0 s e o CLS é 0; o que pesa é o Total Blocking Time (350 a 500 ms), vindo do JavaScript do próprio React/Next na hidratação sob CPU 4x mais lenta, além da animação do hero na Home. Não há correção barata e segura além do que já existe (gráficos sob demanda, Server Components). Em hospedagem real, com CDN e sem a variabilidade da máquina local, o resultado deve ser igual ou melhor, mas **precisa ser remedido após o deploy**.
+Metas: Performance 90 ou mais; demais 95 ou mais. **Ativo e simulador atendem; a Home não atende de forma estável.** O que mudou nesta rodada: o Recharts só é baixado quando o gráfico chega perto da tela, a busca só é carregada no primeiro Ctrl/⌘+K, a animação do hero começa quando o navegador fica ocioso e para depois de formar o gráfico.
 
-Durante a medição apareceu uma violação de CSP (`eval`) silenciosa vinda do modo JIT do Zod 4; foi corrigida desligando o JIT (`src/lib/zod-setup.ts`), o que levou Boas práticas de 96 para 100 no simulador.
+Causa medida na Home: em 4 das 5 execuções aparece uma tarefa longa do React DOM (hidratação) de 580 a 640 ms com CPU 4x mais lenta, e o script do canvas do hero soma cerca de 1,8 s de trabalho na thread principal durante o carregamento. Na execução sem essa tarefa longa, a Home fez 98. Numa bateria só da Home (5 execuções seguidas, depois do aquecimento), a mediana foi 99 (92 a 99), com TBT de 128 ms. Ou seja, o resultado oscila muito nesta máquina, e o ponto a atacar é o custo do canvas do hero no celular (por exemplo, menos partículas ou só o quadro final em telas pequenas). Em hospedagem real, com CDN, **é preciso remedir após o deploy**.
+
+Durante a medição anterior apareceu uma violação de CSP (`eval`) silenciosa vinda do modo JIT do Zod 4; foi corrigida desligando o JIT (`src/lib/zod-setup.ts`).
 
 ## Limitações conhecidas
 

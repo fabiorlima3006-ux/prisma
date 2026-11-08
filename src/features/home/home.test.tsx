@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -196,11 +196,47 @@ describe('HeroParticles', () => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
       fakeCtx as unknown as CanvasRenderingContext2D,
     );
+    // Por padrão, o "ocioso" chega na hora; os testes de agendamento sobrescrevem.
+    vi.stubGlobal('requestIdleCallback', (cb: IdleRequestCallback) => {
+      cb({ didTimeout: false, timeRemaining: () => 50 });
+      return 1;
+    });
+    vi.stubGlobal('cancelIdleCallback', () => {});
+  });
+
+  it('só começa a desenhar quando o navegador fica ocioso (requestIdleCallback)', () => {
+    const idle: IdleRequestCallback[] = [];
+    vi.stubGlobal('requestIdleCallback', (cb: IdleRequestCallback) => idle.push(cb));
+    const raf = vi.fn();
+    vi.stubGlobal('requestAnimationFrame', raf);
+    render(<HeroParticles />);
+    expect(idle).toHaveLength(1);
+    expect(raf).not.toHaveBeenCalled();
+    expect(fakeCtx.setTransform).not.toHaveBeenCalled();
+    act(() => idle[0]?.({ didTimeout: false, timeRemaining: () => 50 }));
+    expect(fakeCtx.setTransform).toHaveBeenCalled();
+    expect(raf).toHaveBeenCalled();
+  });
+
+  it('sem requestIdleCallback, começa após setTimeout de 200 ms', () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    vi.stubGlobal('requestIdleCallback', undefined);
+    vi.stubGlobal('matchMedia', (q: string) => ({ matches: true, media: q }));
+    try {
+      render(<HeroParticles />);
+      vi.advanceTimersByTime(199);
+      expect(fakeCtx.fillRect).not.toHaveBeenCalled();
+      vi.advanceTimersByTime(1);
+      expect(fakeCtx.fillRect).toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
   });
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     fakeCtx.fillRect.mockClear();
+    fakeCtx.setTransform.mockClear();
   });
 
   it('sem contexto 2D renderiza o canvas sem quebrar', () => {

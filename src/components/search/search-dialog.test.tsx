@@ -35,6 +35,11 @@ describe('SearchDialog', () => {
     expect(push).toHaveBeenCalledWith('/acoes/petr4');
   });
 
+  it('defaultOpen monta o diálogo já aberto (usado pelo loader)', () => {
+    render(<SearchDialog index={index} defaultOpen />);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
   it('abre com o evento open-search', async () => {
     render(<SearchDialog index={index} />);
     window.dispatchEvent(new Event('open-search'));
