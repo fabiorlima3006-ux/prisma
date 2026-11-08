@@ -18,7 +18,7 @@ export const siteConfig: {
   description:
     'Plataforma para acompanhar mercados, estudar investimentos, analisar ativos e simular cenários.',
   url: normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL),
-  links: { github: 'https://github.com/' },
+  links: { github: 'https://github.com/fabiorlima3006-ux' },
   nav: [
     { label: 'Mercados', href: '/mercados' },
     {

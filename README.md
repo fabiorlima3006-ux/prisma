@@ -94,7 +94,7 @@ Regras (detalhes em [docs/API.md](docs/API.md)):
 
 > **Pendente: depende das contas do Fabio.** O projeto está pronto para deploy; a publicação em si acontece quando as contas existirem.
 
-1. **GitHub:** criar um repositório e enviar o código (`git remote add origin <url>` e `git push -u origin <branch>`). Depois, trocar o espaço reservado em `siteConfig.links.github` (`src/lib/config/site.ts`) pelo endereço real.
+1. **GitHub:** criar um repositório e enviar o código (`git remote add origin <url>` e `git push -u origin <branch>`). O perfil exibido em `/contato` fica em `siteConfig.links.github` (`src/lib/config/site.ts`).
 2. **Vercel:** em vercel.com, "Add New → Project" e importar o repositório. O Next.js é detectado sozinho (plano Hobby, gratuito).
 3. **Variáveis de ambiente** (Settings → Environment Variables):
    - `NEXT_PUBLIC_SITE_URL` = a URL final (por exemplo `https://seu-dominio.vercel.app`);
@@ -124,7 +124,6 @@ Durante a medição anterior apareceu uma violação de CSP (`eval`) silenciosa 
 - **Fundamentos:** pela brapi, só o P/L é mapeado. Os demais indicadores aparecem como "Dado não disponível". Cada ativo faz 3 requisições separadas por ticker.
 - **Rate limit das rotas `/api/market/*`:** em memória, por instância (não é global em serverless; zera a cada cold start). Plano: Upstash Redis na Fase 2.
 - **Comparador de renda fixa:** o estado não vai para a URL (o simulador de juros compostos vai). Voltar/avançar do navegador não ressincroniza o formulário do simulador.
-- **Link do GitHub em `/contato`:** é um espaço reservado (`https://github.com/`) até o usuário ser definido.
 - **Regras tributárias** (`src/lib/config/tax-rules.ts`): a carência de LCI/LCA foi extraída de um comunicado da B3 (LCI 6 meses, Res. CMN 5.215/2025); `verifiedAt` é uma data fixa e a custódia do Tesouro tem data de vigência incerta. Confira sempre na fonte oficial.
 - **Colunas qualitativas** do comparador (liquidez, risco, FGC) vêm de uma tabela estática; a cobertura do FGC é descrita de forma qualitativa, sem limites em reais.
 - **Cálculos** em `number` (ponto flutuante duplo), com arredondamento só na exibição: aceitável para simulação educativa. Aportes no fim do mês, valores nominais (sem inflação), dias úteis aproximados por 252/365.

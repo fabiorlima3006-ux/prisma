@@ -6,6 +6,7 @@ import {
   PARTICLE_COUNT,
   chartPoints,
   fibonacciSphere,
+  isSmallScreen,
   prefersReducedMotion,
   watchSize,
   watchVisibility,
@@ -30,7 +31,8 @@ function startParticles(canvas: HTMLCanvasElement): (() => void) | undefined {
   const ctx = canvas.getContext('2d');
   if (!ctx) return undefined;
 
-  const reduce = prefersReducedMotion();
+  // Movimento reduzido ou tela pequena: só o quadro final, sem animação.
+  const still = prefersReducedMotion() || isSmallScreen();
   const N = PARTICLE_COUNT;
   const sphere = fibonacciSphere(N);
   const P: Particle[] = sphere.map(() => ({
@@ -92,8 +94,8 @@ function startParticles(canvas: HTMLCanvasElement): (() => void) | undefined {
     canvas.height = Math.max(1, Math.round(H * dpr));
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     assignTargets();
-    // Parado (movimento reduzido ou já formado): redesenha o quadro final no novo tamanho.
-    if (reduce || mode === 'formed') showFinal();
+    // Parado (sem animação ou já formado): redesenha o quadro final no novo tamanho.
+    if (still || mode === 'formed') showFinal();
   };
 
   const rand = seededRandom(42);
@@ -167,7 +169,7 @@ function startParticles(canvas: HTMLCanvasElement): (() => void) | undefined {
 
   measure();
   const stopSize = watchSize(canvas, measure);
-  const stopVisible = reduce ? () => {} : watchVisibility(canvas, setRunning);
+  const stopVisible = still ? () => {} : watchVisibility(canvas, setRunning);
 
   return () => {
     running = false;
@@ -177,7 +179,10 @@ function startParticles(canvas: HTMLCanvasElement): (() => void) | undefined {
   };
 }
 
-/** Esfera de pontos que "explode" e se reorganiza no gráfico em alta. Canvas 2D puro. */
+/**
+ * Esfera de pontos que "explode" e se reorganiza no gráfico em alta. Canvas 2D puro.
+ * Em telas menores que 768 px (e com movimento reduzido) mostra só o gráfico já formado.
+ */
 export function HeroParticles({ className = '' }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 

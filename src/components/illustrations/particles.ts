@@ -52,6 +52,17 @@ export function chartPoints(
   return pts;
 }
 
+/** Telas pequenas recebem só o quadro final: a animação custa caro na CPU de celular. */
+export const SMALL_SCREEN_QUERY = '(max-width: 767px)';
+
+export function isSmallScreen(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    typeof window.matchMedia === 'function' &&
+    window.matchMedia(SMALL_SCREEN_QUERY).matches
+  );
+}
+
 export function prefersReducedMotion(): boolean {
   return (
     typeof window !== 'undefined' &&

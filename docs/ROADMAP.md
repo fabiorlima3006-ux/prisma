@@ -28,7 +28,7 @@ Documento vivo. Baseado na seção 12 do spec (`docs/superpowers/specs/2026-11-0
 **Dependem do Fabio**
 - [ ] Criar o repositório no GitHub e importar na Vercel (passo a passo no README).
 - [ ] Definir `NEXT_PUBLIC_SITE_URL` (e, se quiser dados reais, `BRAPI_TOKEN`) e refazer o deploy.
-- [ ] Informar o usuário do GitHub e trocar o espaço reservado em `siteConfig.links.github` (aparece em `/contato`).
+- [x] Usuário do GitHub em `siteConfig.links.github` (aparece em `/contato`): `fabiorlima3006-ux`.
 - [ ] Confirmar na página de preços da brapi os limites e os termos do plano gratuito.
 - [ ] Remedir o Lighthouse na URL publicada (a Performance local ficou em 89 a 91).
 

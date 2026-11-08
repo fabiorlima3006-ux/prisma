@@ -258,6 +258,15 @@ describe('HeroParticles', () => {
     expect(raf).not.toHaveBeenCalled();
   });
 
+  it('em tela pequena (< 768 px) desenha só o quadro final, sem animação', () => {
+    vi.stubGlobal('matchMedia', (q: string) => ({ matches: q === '(max-width: 767px)', media: q }));
+    const raf = vi.fn();
+    vi.stubGlobal('requestAnimationFrame', raf);
+    render(<HeroParticles />);
+    expect(fakeCtx.fillRect).toHaveBeenCalled();
+    expect(raf).not.toHaveBeenCalled();
+  });
+
   it('depois de "formed" desenha o quadro final e não agenda mais rAF', () => {
     const queue: FrameRequestCallback[] = [];
     vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => queue.push(cb));
