@@ -17,12 +17,22 @@ export function SearchDialogLoader() {
     if (Dialog) return;
     let cancelled = false;
     let loading = false;
+    let warned = false;
     const load = () => {
       if (loading) return;
       loading = true;
-      void import('./SearchDialog').then((m) => {
-        if (!cancelled) setDialog(() => m.SearchDialog);
-      });
+      import('./SearchDialog')
+        .then((m) => {
+          if (!cancelled) setDialog(() => m.SearchDialog);
+        })
+        .catch(() => {
+          // Offline ou chunk indisponível: libera uma nova tentativa no próximo atalho/clique.
+          loading = false;
+          if (!warned) {
+            warned = true;
+            console.warn('Não foi possível carregar a busca; tente novamente.');
+          }
+        });
     };
     const onKey = (e: KeyboardEvent) => {
       if (!isSearchShortcut(e)) return;
