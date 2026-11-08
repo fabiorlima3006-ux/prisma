@@ -38,7 +38,17 @@ test('reduzir movimento deixa tudo estático', async ({ page }) => {
   expect(await snap(canvas)).toBe(first);
 });
 
-test('sem reduzir movimento o canvas da Home anima', async ({ page }) => {
+const blankOf = (canvas: Locator) =>
+  canvas.evaluate((c) => {
+    const el = c as HTMLCanvasElement;
+    const b = document.createElement('canvas');
+    b.width = el.width;
+    b.height = el.height;
+    return b.toDataURL();
+  });
+
+test('sem reduzir movimento o canvas da Home anima no computador', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'no celular o hero é estático (teste abaixo)');
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await page.goto('/', { waitUntil: 'load' });
   const canvas = page.locator('canvas').first();
@@ -46,4 +56,20 @@ test('sem reduzir movimento o canvas da Home anima', async ({ page }) => {
   const first = await snap(canvas);
   await page.waitForTimeout(SNAPSHOT_GAP_MS);
   expect(await snap(canvas)).not.toBe(first);
+});
+
+test('em tela pequena o canvas da Home mostra o gráfico formado e parado', async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile', 'só se aplica abaixo de 768 px');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.goto('/', { waitUntil: 'load' });
+  const canvas = page.locator('canvas').first();
+  await expect(canvas).toBeAttached();
+  // O quadro final é desenhado quando o navegador fica ocioso; espera sair do branco.
+  const blank = await blankOf(canvas);
+  await expect.poll(() => snap(canvas)).not.toBe(blank);
+  const first = await snap(canvas);
+  await page.waitForTimeout(SNAPSHOT_GAP_MS);
+  expect(await snap(canvas)).toBe(first);
 });
