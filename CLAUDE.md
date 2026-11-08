@@ -92,9 +92,11 @@ Utilizar variáveis de ambiente.
 Este é um projeto pessoal, de estudo e de portfólio. Fabio delega as decisões técnicas e acompanha pelo resultado: explique cada escolha em linguagem simples.
 
 ### Stack escolhida
+
 Next.js (App Router) + React + TypeScript estrito · Tailwind CSS v4 com tokens CSS (claro e escuro via next-themes) · Zod · Recharts (carregado sob demanda) · MDX para a área de Educação · Vitest + Testing Library · Playwright + axe · npm · Vercel.
 
 ### Regras de dados
+
 - Se um dado faltar, a tela mostra "Dado não disponível".
 - O modo demonstrativo simula só preço e histórico. Indicadores fundamentalistas nunca são simulados.
 - Uma fonte real que falha mostra "indisponível". Ela nunca é trocada em silêncio por dado demonstrativo.
@@ -103,11 +105,13 @@ Next.js (App Router) + React + TypeScript estrito · Tailwind CSS v4 com tokens 
 - **Fontes:** Banco Central (real, sem chave) para Selic, CDI, IPCA e PTAX. brapi.dev é opcional, ativada por `BRAPI_TOKEN`. O restante fica demonstrativo.
 
 ### Linguagem e avisos
+
 - Não usar "compre/venda", "melhor investimento" nem preço-alvo. Para destacar um resultado, use "maior valor líquido nesta simulação".
 - O aviso padrão (componente `Disclaimer`) aparece no rodapé global e, em destaque, nos simuladores, no comparador e nas páginas de ativo.
 - Nada de contagem regressiva, escassez, preço riscado ou depoimentos de ganho.
 
 ### Arquitetura
+
 - `src/lib/finance`: funções financeiras puras, sem I/O e com o "hoje" passado como parâmetro, sempre testadas (TDD).
 - `src/lib/data`: a única camada que conhece fornecedores (`bcb`, `brapi`, `demo`). A UI nunca chama APIs externas.
 - `src/lib/config/tax-rules.ts`: regras tributárias com `effectiveFrom`, `source` e `verifiedAt`. Confira sempre na fonte oficial.
@@ -118,21 +122,31 @@ Next.js (App Router) + React + TypeScript estrito · Tailwind CSS v4 com tokens 
 - Os documentos ficam assim: `README.md` na raiz; `ARCHITECTURE.md`, `ROADMAP.md`, `API.md` e `DATABASE.md` em `docs/`.
 
 ### Design
+
 - **Referência:** `docs/design/mockup-home-v3.html`. Topo escuro fixo, header em vidro fosco, rótulos `// seção` em fonte monoespaçada, cards no estilo Alura e animações em SVG/CSS.
 - Respeitar `prefers-reduced-motion`. Animação em loop só no hero.
 - Contraste WCAG AA nos dois temas. Alta e baixa sempre com ▲/▼ e sinal, nunca só pela cor.
 - Sem rolagem horizontal em 375px.
 
 ### Comandos
+
 - `npm run dev`: servidor de desenvolvimento.
 - `npm run build` e `npm run start`: build e servidor de produção.
 - `npm run lint`: ESLint.
 - `npm run typecheck`: `next typegen && tsc --noEmit`.
 - `npm test`: testes unitários (Vitest). `npm run test:watch` roda em modo contínuo.
-- `npm run test:e2e`: testes E2E (Playwright; sobe `npm run build && npm run start`).
+- `npm run test:e2e`: testes E2E (Playwright + axe; sobe `npm run build && npm run start` com o BCB inacessível de propósito, ou reaproveita um servidor já aberto em `localhost:3000`: pare-o antes).
 - `npm run format`: Prettier.
 
+### Skills do projeto
+
+Ficam em `.claude/skills/`:
+
+- `financial-analysis`: indicadores fundamentalistas e técnicos, definições canônicas e a regra de nunca inventar nem simular indicadores.
+- `options-analysis`: opções e derivativos (Black-Scholes, gregas, payoff e estratégias), sempre educativo e sem "a melhor estratégia".
+
 ### Fluxo de trabalho
+
 - **Ao final de cada etapa, relate ao Fabio:**
   - o que foi criado;
   - os arquivos alterados;
