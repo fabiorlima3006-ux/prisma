@@ -26,8 +26,9 @@ export default function PrivacidadePage() {
               </p>
               <p>
                 Para limitar abusos, o endereço IP é mantido temporariamente na memória do servidor
-                (até 1 minuto) e a hospedagem pode registrar acessos em logs técnicos; esses dados
-                não são usados para identificar visitantes.
+                e descartado na primeira requisição após 1 minuto (ou quando o servidor reinicia); a
+                hospedagem pode registrar acessos em logs técnicos. Esses dados não são usados para
+                identificar visitantes.
               </p>
             </>
           ),

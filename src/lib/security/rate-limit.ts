@@ -23,8 +23,8 @@ export function createRateLimiter(opts: {
     check(key) {
       const t = now();
       // O Map fica em ordem de início da janela: as expiradas estão no começo. Removê-las a cada
-      // consulta garante que um IP não fique na memória além da própria janela (política de
-      // privacidade: "até 1 minuto").
+      // consulta garante que um IP não seja mantido além da primeira requisição após a janela
+      // (política de privacidade: "descartado na primeira requisição após 1 minuto").
       for (const [k, v] of buckets) {
         if (t - v.start < opts.windowMs) break;
         buckets.delete(k);
