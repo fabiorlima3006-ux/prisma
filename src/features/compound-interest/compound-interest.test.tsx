@@ -6,11 +6,8 @@ import { CompoundInterestForm } from './CompoundInterestForm';
 import { CompoundInterestResult } from './CompoundInterestResult';
 import { DEFAULT_VALUES, fromSearchParams, toSearchParams, validateValues } from './url-state';
 
-const replace = vi.fn();
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ replace }),
-  useSearchParams: () => new URLSearchParams(),
-}));
+// A URL é reescrita com history.replaceState (sem navegação); o teste observa essa chamada.
+const replace = vi.spyOn(window.history, 'replaceState').mockImplementation(() => {});
 
 // O desenho do Recharts (carregado sob demanda) é substituído por um componente vazio: ele não é o
 // assunto destes testes (tem os próprios em charts.test.tsx) e redesenhar o SVG a cada tecla
@@ -152,7 +149,7 @@ describe('CompoundInterestForm', () => {
     expect(replace).not.toHaveBeenCalled();
     vi.advanceTimersByTime(300);
     expect(replace).toHaveBeenCalledTimes(1);
-    expect(replace).toHaveBeenCalledWith(expect.stringContaining('aporte=250'), { scroll: false });
+    expect(replace).toHaveBeenCalledWith(null, '', expect.stringContaining('aporte=250'));
 
     replace.mockClear();
     await user.clear(screen.getByLabelText('Aporte mensal'));

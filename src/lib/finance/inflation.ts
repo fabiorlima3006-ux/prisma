@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import type { MonthlyPoint } from '@/lib/data/types';
 
 /** Primeiro mês da série de IPCA usada nas correções (YYYY-MM). */
@@ -5,6 +6,45 @@ export const REAL_START_MONTH = '1994-07';
 /** Limites aceitos para inflação anual (fração): −50% a 100%. */
 export const INFLATION_MIN = -0.5;
 export const INFLATION_MAX = 1;
+/** Prazo aceito no cálculo de poder de compra, em anos inteiros. */
+export const FUTURE_MIN_YEARS = 1;
+export const FUTURE_MAX_YEARS = 50;
+
+export const MONTH_FORMAT_MESSAGE = 'Use o formato MM/aaaa, com mês de 01 a 12';
+export const INFLATION_RANGE_MESSAGE = 'Informe uma inflação entre -50% e 100% a.a.';
+const YEARS_MESSAGE = `Informe um prazo entre ${FUTURE_MIN_YEARS} e ${FUTURE_MAX_YEARS} anos`;
+const AMOUNT_MESSAGE = 'Informe um valor maior que zero';
+
+const amountSchema = z
+  .number({ error: AMOUNT_MESSAGE })
+  .finite(AMOUNT_MESSAGE)
+  .positive(AMOUNT_MESSAGE);
+const monthSchema = z
+  .string({ error: MONTH_FORMAT_MESSAGE })
+  .regex(/^\d{4}-(0[1-9]|1[0-2])$/, MONTH_FORMAT_MESSAGE);
+
+/** Entrada da correção por IPCA: valor positivo e meses 'YYYY-MM'. */
+export const correctionInputSchema = z.object({
+  amount: amountSchema,
+  from: monthSchema,
+  to: monthSchema,
+});
+export type CorrectionInput = z.infer<typeof correctionInputSchema>;
+
+/** Entrada do poder de compra: valor positivo, anos inteiros de 1 a 50, inflação anual em fração. */
+export const futureInputSchema = z.object({
+  amount: amountSchema,
+  years: z
+    .number({ error: YEARS_MESSAGE })
+    .int(YEARS_MESSAGE)
+    .min(FUTURE_MIN_YEARS, YEARS_MESSAGE)
+    .max(FUTURE_MAX_YEARS, YEARS_MESSAGE),
+  inflation: z
+    .number({ error: INFLATION_RANGE_MESSAGE })
+    .min(INFLATION_MIN, INFLATION_RANGE_MESSAGE)
+    .max(INFLATION_MAX, INFLATION_RANGE_MESSAGE),
+});
+export type FutureInput = z.infer<typeof futureInputSchema>;
 
 export type CorrectionResult =
   | { ok: true; corrected: number; factor: number; accumulated: number; months: number }

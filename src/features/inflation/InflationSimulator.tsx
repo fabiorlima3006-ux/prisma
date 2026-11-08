@@ -1,11 +1,9 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { DataSourceBadge } from '@/components/market/DataSourceBadge';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Tabs } from '@/components/ui';
-import type { DataMeta, MonthlyPoint } from '@/lib/data/types';
-import { CorrectionForm, evaluateCorrection } from './CorrectionForm';
+import type { DataResult, MonthlyPoint } from '@/lib/data/types';
+import { CorrectionPanel, type ParsedCorrection } from './CorrectionPanel';
 import { evaluateFuture, PurchasingPowerForm } from './PurchasingPowerForm';
 import {
   toSearchParams,
@@ -17,30 +15,27 @@ import {
 const DEBOUNCE_MS = 300;
 
 export function InflationSimulator({
-  series,
-  meta,
+  history,
   initialTab,
-  correction: initialCorrection,
+  correction,
   future: initialFuture,
   inflationNote,
 }: {
-  /** Série do IPCA mensal (BCB); null quando indisponível. */
-  series: MonthlyPoint[] | null;
-  meta: DataMeta | null;
+  /** Série do IPCA mensal (BCB), transmitida pelo servidor sem bloquear a página. */
+  history: Promise<DataResult<MonthlyPoint[]>>;
   initialTab: InflationTab;
   correction: CorrectionValues;
   future: FutureValues;
   inflationNote: string;
 }) {
-  const router = useRouter();
   const [tab, setTab] = useState<InflationTab>(initialTab);
-  const [correction, setCorrection] = useState(initialCorrection);
   const [future, setFuture] = useState(initialFuture);
+  const [parsedCorrection, setParsedCorrection] = useState<ParsedCorrection | null>(null);
+  const onParsed = useCallback((p: ParsedCorrection | null) => setParsedCorrection(p), []);
 
   const query = useMemo(() => {
     if (tab === 'corrigir') {
-      const parsed = series ? evaluateCorrection(series, correction).parsed : undefined;
-      return parsed ? toSearchParams('corrigir', parsed).toString() : null;
+      return parsedCorrection ? toSearchParams('corrigir', parsedCorrection).toString() : null;
     }
     const parsed = evaluateFuture(future).parsed;
     return parsed
@@ -50,49 +45,52 @@ export function InflationSimulator({
           inflation: parsed.inflation,
         }).toString()
       : null;
-  }, [tab, series, correction, future]);
+  }, [tab, parsedCorrection, future]);
 
-  // Estado inicial já está na URL (ou é o padrão): não navega ao montar.
-  const lastQuery = useRef<string | null | undefined>(undefined);
-  if (lastQuery.current === undefined) lastQuery.current = query;
+  // O estado inicial já está na URL (ou é o padrão): a primeira consulta da aba inicial só serve
+  // de referência. Depois, a URL é reescrita sem navegação (history.replaceState): o Server
+  // Component não é executado de novo, então a BCB não é consultada a cada edição.
+  const lastQuery = useRef<string | null>(null);
+  const seeded = useRef(false);
 
   useEffect(() => {
-    if (query === null || query === lastQuery.current) return;
+    if (query === null) return;
+    if (!seeded.current && tab === initialTab) {
+      seeded.current = true;
+      lastQuery.current = query;
+      return;
+    }
+    if (query === lastQuery.current) return;
     const handle = setTimeout(() => {
       lastQuery.current = query;
-      router.replace(`?${query}`, { scroll: false });
+      window.history.replaceState(null, '', `?${query}`);
     }, DEBOUNCE_MS);
     return () => clearTimeout(handle);
-  }, [query, router]);
-
-  const correctionContent = series ? (
-    <div className="space-y-4">
-      <CorrectionForm series={series} values={correction} onChange={setCorrection} />
-      <div className="flex flex-wrap items-center gap-2 text-xs text-muted">
-        {meta && (
-          <DataSourceBadge meta={{ ...meta, attribution: 'Banco Central do Brasil — SGS 433' }} />
-        )}
-        <span>IPCA mensal (IBGE), série histórica desde 07/1994.</span>
-      </div>
-    </div>
-  ) : (
-    <div className="rounded-xl border border-line bg-surface p-4">
-      <p role="status" className="font-semibold text-text">
-        Dado indisponível no momento
-      </p>
-      <p className="mt-1 text-sm text-muted">
-        Não foi possível consultar a série do IPCA no Banco Central. Nenhum valor demonstrativo é
-        usado no lugar. A aba de poder de compra segue funcionando com a inflação digitada.
-      </p>
-    </div>
-  );
+  }, [query, tab, initialTab]);
 
   return (
     <Tabs
       initialId={initialTab}
       onChange={(id) => setTab(id === 'futuro' ? 'futuro' : 'corrigir')}
       items={[
-        { id: 'corrigir', label: 'Corrigir um valor', content: correctionContent },
+        {
+          id: 'corrigir',
+          label: 'Corrigir um valor',
+          content: (
+            <Suspense
+              fallback={
+                <p
+                  role="status"
+                  className="rounded-xl border border-line bg-surface p-4 text-muted"
+                >
+                  Carregando dados do IPCA…
+                </p>
+              }
+            >
+              <CorrectionPanel history={history} initial={correction} onParsed={onParsed} />
+            </Suspense>
+          ),
+        },
         {
           id: 'futuro',
           label: 'Poder de compra no futuro',

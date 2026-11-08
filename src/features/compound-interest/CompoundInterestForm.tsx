@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Adorned, Field, Input, Select } from '@/components/ui';
 import { INFLATION_UNAVAILABLE_NOTE } from '@/features/simulators-shared/inflation-default';
@@ -17,7 +16,6 @@ export function CompoundInterestForm({
   /** Fonte e referência do padrão de inflação (ou aviso de indisponibilidade). */
   inflationNote?: string;
 }) {
-  const router = useRouter();
   const [values, setValues] = useState<FormValues>(initial);
   const set = <K extends keyof FormValues>(key: K, value: FormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
@@ -43,10 +41,10 @@ export function CompoundInterestForm({
     if (query === lastQuery.current) return;
     const handle = setTimeout(() => {
       lastQuery.current = query;
-      router.replace(`?${query}`, { scroll: false });
+      window.history.replaceState(null, '', `?${query}`);
     }, DEBOUNCE_MS);
     return () => clearTimeout(handle);
-  }, [input, unidade, inflation, inflationError, router]);
+  }, [input, unidade, inflation, inflationError]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[320px_1fr]">

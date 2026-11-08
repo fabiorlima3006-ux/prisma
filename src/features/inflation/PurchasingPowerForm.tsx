@@ -3,12 +3,11 @@
 import { useMemo } from 'react';
 import { Adorned, Field, Input } from '@/components/ui';
 import { parseInflation } from '@/features/simulators-shared/inflation-input';
-import { purchasingPower } from '@/lib/finance/inflation';
+import { futureInputSchema, purchasingPower } from '@/lib/finance/inflation';
 import { formatCurrency, formatNumber, parseBrNumber } from '@/lib/format';
 import type { FutureValues } from './url-state';
 
 const REQUIRED = 'Informe um número válido';
-const MAX_YEARS = 100;
 
 export type FutureState = {
   errors: Partial<Record<'valor' | 'anos' | 'inflacao', string>>;
@@ -18,21 +17,30 @@ export type FutureState = {
 
 export function evaluateFuture(v: FutureValues): FutureState {
   const errors: FutureState['errors'] = {};
-  const valor = parseBrNumber(v.valor);
-  const anos = parseBrNumber(v.anos);
+  const amount = parseBrNumber(v.valor);
+  const years = parseBrNumber(v.anos);
   const { inflation, inflationError } = parseInflation(v.inflacao);
-  if (valor === null || valor <= 0) errors.valor = 'Informe um valor maior que zero';
-  if (anos === null) errors.anos = REQUIRED;
-  else if (anos <= 0 || anos > MAX_YEARS)
-    errors.anos = `Informe um prazo entre 1 e ${MAX_YEARS} anos`;
-  if (inflationError) errors.inflacao = inflationError;
-  else if (inflation === null) errors.inflacao = 'Informe uma premissa de inflação';
-  if (Object.keys(errors).length > 0 || valor === null || anos === null || inflation === null)
+  const parsed = futureInputSchema.safeParse({
+    amount: amount ?? undefined,
+    years: years ?? undefined,
+    inflation: inflation ?? undefined,
+  });
+  if (!parsed.success) {
+    const keys = { amount: 'valor', years: 'anos', inflation: 'inflacao' } as const;
+    for (const issue of parsed.error.issues) {
+      const key = keys[issue.path[0] as keyof typeof keys];
+      if (key) errors[key] ??= issue.message;
+    }
+    if (years === null) errors.anos = REQUIRED;
+    if (v.inflacao.trim() === '') errors.inflacao = 'Informe uma premissa de inflação';
+    else if (inflationError) errors.inflacao = inflationError;
     return { errors };
+  }
+  const { amount: valor, years: anos, inflation: infl } = parsed.data;
   return {
     errors,
-    parsed: { valor, anos, inflation },
-    result: purchasingPower(valor, inflation, anos),
+    parsed: { valor, anos, inflation: infl },
+    result: purchasingPower(valor, infl, anos),
   };
 }
 

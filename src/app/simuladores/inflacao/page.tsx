@@ -27,15 +27,10 @@ export default async function InflacaoPage({ searchParams }: { searchParams: Sea
     const first = Array.isArray(value) ? value[0] : value;
     if (first !== undefined) sp.set(key, first);
   }
-  const [history, ipca12m] = await Promise.all([
-    marketData.getIndicatorHistory('ipcaMonth', REAL_START_MONTH),
-    marketData.getIndicator('ipca12m'),
-  ]);
-  const series = history.status === 'ok' && history.data.length > 0 ? history.data : null;
-  const lastMonth = series ? series.reduce((max, p) => (p.month > max ? p.month : max), '') : null;
-  const fallback = inflationDefault(ipca12m);
+  // A série (IPCA mensal desde 1994) é transmitida: não bloqueia o cabeçalho nem a aba Futuro.
+  const history = marketData.getIndicatorHistory('ipcaMonth', REAL_START_MONTH);
+  const fallback = inflationDefault(await marketData.getIndicator('ipca12m'));
   const { tab, correction, future } = fromSearchParams(sp, {
-    lastMonth,
     defaultInflacao: fallback?.percent ?? '',
   });
   return (
@@ -52,8 +47,7 @@ export default async function InflacaoPage({ searchParams }: { searchParams: Sea
       />
       <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8 sm:px-6">
         <InflationSimulator
-          series={series}
-          meta={history.status === 'ok' ? history.meta : null}
+          history={history}
           initialTab={tab}
           correction={correction}
           future={future}

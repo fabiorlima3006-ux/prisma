@@ -3,11 +3,9 @@
 import { useMemo } from 'react';
 import { Adorned, Field, Input } from '@/components/ui';
 import type { MonthlyPoint } from '@/lib/data/types';
-import { correctByIpca, REAL_START_MONTH } from '@/lib/finance/inflation';
+import { correctByIpca, correctionInputSchema, REAL_START_MONTH } from '@/lib/finance/inflation';
 import { formatCurrency, formatNumber, formatPercent, parseBrNumber } from '@/lib/format';
-import { monthLabel, parseMonthYear, type CorrectionValues } from './url-state';
-
-const FORMAT_ERROR = 'Use o formato MM/aaaa, com mês de 01 a 12';
+import { monthLabel, parseMonthYear, type CorrectionFields } from './url-state';
 
 export type CorrectionState = {
   errors: Partial<Record<'valor' | 'de' | 'ate' | 'form', string>>;
@@ -16,17 +14,25 @@ export type CorrectionState = {
   result?: { corrected: number; factor: number; accumulated: number; months: number };
 };
 
-export function evaluateCorrection(series: MonthlyPoint[], v: CorrectionValues): CorrectionState {
+export function evaluateCorrection(series: MonthlyPoint[], v: CorrectionFields): CorrectionState {
   const errors: CorrectionState['errors'] = {};
-  const valor = parseBrNumber(v.valor);
-  if (valor === null || valor <= 0) errors.valor = 'Informe um valor maior que zero';
-  const de = parseMonthYear(v.de);
-  const ate = parseMonthYear(v.ate);
-  if (de === null) errors.de = FORMAT_ERROR;
-  if (ate === null) errors.ate = FORMAT_ERROR;
-  if (valor === null || valor <= 0 || de === null || ate === null) return { errors };
+  const amount = parseBrNumber(v.valor);
+  const parsed = correctionInputSchema.safeParse({
+    amount: amount ?? undefined,
+    from: parseMonthYear(v.de) ?? undefined,
+    to: parseMonthYear(v.ate) ?? undefined,
+  });
+  if (!parsed.success) {
+    const keys = { amount: 'valor', from: 'de', to: 'ate' } as const;
+    for (const issue of parsed.error.issues) {
+      const key = keys[issue.path[0] as keyof typeof keys];
+      if (key) errors[key] ??= issue.message;
+    }
+    return { errors };
+  }
 
-  const result = correctByIpca(series, valor, de, ate);
+  const { amount: valor, from, to } = parsed.data;
+  const result = correctByIpca(series, valor, from, to);
   if (!result.ok) {
     if (result.error === 'order') {
       errors.form = 'O mês final deve ser igual ou posterior ao inicial';
@@ -47,11 +53,11 @@ export function CorrectionForm({
   onChange,
 }: {
   series: MonthlyPoint[];
-  values: CorrectionValues;
-  onChange: (next: CorrectionValues) => void;
+  values: CorrectionFields;
+  onChange: (next: CorrectionFields) => void;
 }) {
   const { errors, result } = useMemo(() => evaluateCorrection(series, values), [series, values]);
-  const set = (key: keyof CorrectionValues, value: string) => onChange({ ...values, [key]: value });
+  const set = (key: keyof CorrectionFields, value: string) => onChange({ ...values, [key]: value });
 
   return (
     <div className="grid gap-6 lg:grid-cols-[320px_1fr]">

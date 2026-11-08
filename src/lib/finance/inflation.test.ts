@@ -3,6 +3,8 @@ import ipcaFixture from '@/lib/data/providers/__fixtures__/bcb-ipca-history.json
 import type { MonthlyPoint } from '@/lib/data/types';
 import {
   correctByIpca,
+  correctionInputSchema,
+  futureInputSchema,
   INFLATION_MAX,
   INFLATION_MIN,
   purchasingPower,
@@ -105,5 +107,42 @@ describe('purchasingPower', () => {
     const r = purchasingPower(1000, 0.05, 2);
     expect(r.neededInFuture).toBeCloseTo(1102.5, 10);
     expect(r.todayEquivalent).toBeCloseTo(907.03, 2);
+  });
+});
+
+describe('correctionInputSchema', () => {
+  it('aceita valor positivo e meses YYYY-MM', () => {
+    expect(
+      correctionInputSchema.safeParse({ amount: 1000, from: '2024-01', to: '2024-04' }).success,
+    ).toBe(true);
+  });
+
+  it('rejeita valor não positivo e mês inválido, com as mensagens do formulário', () => {
+    const r = correctionInputSchema.safeParse({ amount: 0, from: '2024-13', to: '2024-4' });
+    expect(r.success).toBe(false);
+    const msgs = r.error?.issues.map((i) => i.message);
+    expect(msgs).toContain('Informe um valor maior que zero');
+    expect(msgs).toContain('Use o formato MM/aaaa, com mês de 01 a 12');
+  });
+});
+
+describe('futureInputSchema', () => {
+  const base = { amount: 1000, inflation: 0.05 };
+
+  it('aceita anos inteiros de 1 a 50', () => {
+    expect(futureInputSchema.safeParse({ ...base, years: 1 }).success).toBe(true);
+    expect(futureInputSchema.safeParse({ ...base, years: 50 }).success).toBe(true);
+  });
+
+  it.each([0, 0.5, 2.5, 51])('rejeita %s anos', (years) => {
+    const r = futureInputSchema.safeParse({ ...base, years });
+    expect(r.success).toBe(false);
+    expect(r.error?.issues[0]?.message).toBe('Informe um prazo entre 1 e 50 anos');
+  });
+
+  it('rejeita inflação fora de -50% a 100% e valor não positivo', () => {
+    expect(futureInputSchema.safeParse({ ...base, years: 2, inflation: 1.5 }).success).toBe(false);
+    expect(futureInputSchema.safeParse({ ...base, years: 2, inflation: -0.6 }).success).toBe(false);
+    expect(futureInputSchema.safeParse({ ...base, years: 2, amount: -1 }).success).toBe(false);
   });
 });
