@@ -7,14 +7,22 @@ import { referenceLabel } from '@/components/market/indicator-labels';
 import { Adorned, Badge, Button, Field, Input } from '@/components/ui';
 import type { TaxRules } from '@/lib/config/tax-rules';
 import type { DataResult, IndicatorValue } from '@/lib/data/types';
-import { compareFixedIncome, comparatorInputSchema, type ComparatorInput } from '@/lib/finance/fixed-income';
+import {
+  compareFixedIncome,
+  comparatorInputSchema,
+  type ComparatorInput,
+} from '@/lib/finance/fixed-income';
 import { formatDate, formatNumber, formatPercent, parseBrNumber } from '@/lib/format';
 import { ComparatorChart } from './ComparatorChart';
 import { ComparatorTable } from './ComparatorTable';
 
 const DEBOUNCE_MS = 300;
 
-type Rates = { cdi: DataResult<IndicatorValue>; selic: DataResult<IndicatorValue>; tr: DataResult<IndicatorValue> };
+type Rates = {
+  cdi: DataResult<IndicatorValue>;
+  selic: DataResult<IndicatorValue>;
+  tr: DataResult<IndicatorValue>;
+};
 
 type Values = {
   amount: string;
@@ -72,7 +80,8 @@ function validate(values: Values, manual: boolean, rates: Rates) {
 }
 
 export function ComparatorForm({ rates, rules }: { rates: Rates; rules: TaxRules }) {
-  const allOk = rates.cdi.status === 'ok' && rates.selic.status === 'ok' && rates.tr.status === 'ok';
+  const allOk =
+    rates.cdi.status === 'ok' && rates.selic.status === 'ok' && rates.tr.status === 'ok';
   const trUnavailable = rates.tr.status !== 'ok';
   const [manualChosen, setManualChosen] = useState(false);
   const manual = !allOk || manualChosen;
@@ -97,7 +106,10 @@ export function ComparatorForm({ rates, rules }: { rates: Rates; rules: TaxRules
     return () => clearTimeout(handle);
   }, [input]);
 
-  const rows = useMemo(() => (input && debounced ? compareFixedIncome(debounced, rules) : null), [input, debounced, rules]);
+  const rows = useMemo(
+    () => (input && debounced ? compareFixedIncome(debounced, rules) : null),
+    [input, debounced, rules],
+  );
 
   const numberField = (key: Key, label: string, opts: { prefix?: string; suffix?: string }) => (
     <Field label={label} error={errors[key]}>
@@ -150,7 +162,9 @@ export function ComparatorForm({ rates, rules }: { rates: Rates; rules: TaxRules
               {numberField('cdi', 'CDI (% a.a.)', { suffix: '%' })}
               {numberField('selic', 'Selic meta (% a.a.)', { suffix: '%' })}
               {numberField('tr', 'TR (% a.m.)', { suffix: '%' })}
-              {trUnavailable && <p className="text-xs text-muted">TR indisponível; considerada 0</p>}
+              {trUnavailable && (
+                <p className="text-xs text-muted">TR indisponível; considerada 0</p>
+              )}
             </>
           ) : (
             <dl className="space-y-3">

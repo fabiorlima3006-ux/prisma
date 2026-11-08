@@ -64,7 +64,8 @@ export function validateValues(v: FormValues): Validation {
   if (v.unidade === 'anos') {
     const exact = prazo * 12;
     months = Math.round(exact);
-    if (Math.abs(exact - months) > 1e-9 && months >= 1) notes.prazo = `convertido para ${months} meses`;
+    if (Math.abs(exact - months) > 1e-9 && months >= 1)
+      notes.prazo = `convertido para ${months} meses`;
   }
 
   const parsed = compoundInterestInputSchema.safeParse({

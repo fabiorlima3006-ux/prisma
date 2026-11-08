@@ -2,7 +2,14 @@ import { Badge } from '@/components/ui';
 import { formatCurrency, formatPercent } from '@/lib/format';
 import { highestNet, PRODUCT_META, type ComparisonRow } from '@/lib/finance/fixed-income';
 
-const NUMERIC = ['Bruto', 'Imposto', 'Custos', 'Líquido', 'Rentab. líquida no período', 'Equivalente a.a.'];
+const NUMERIC = [
+  'Bruto',
+  'Imposto',
+  'Custos',
+  'Líquido',
+  'Rentab. líquida no período',
+  'Equivalente a.a.',
+];
 const TEXT = ['Liquidez', 'Risco', 'FGC'];
 
 export function ComparatorTable({ rows }: { rows: ComparisonRow[] }) {

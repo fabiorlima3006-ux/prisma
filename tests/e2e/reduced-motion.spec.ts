@@ -4,8 +4,7 @@ import { expect, test, type Locator } from '@playwright/test';
 // partículas se moverem (a animação roda a ~60 fps), curto para não alongar o teste.
 const SNAPSHOT_GAP_MS = 500;
 
-const snap = (canvas: Locator) =>
-  canvas.evaluate((c) => (c as HTMLCanvasElement).toDataURL());
+const snap = (canvas: Locator) => canvas.evaluate((c) => (c as HTMLCanvasElement).toDataURL());
 
 test('reduzir movimento deixa tudo estático', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });

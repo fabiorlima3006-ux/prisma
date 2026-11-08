@@ -50,7 +50,9 @@ describe('url-state', () => {
     const exact = validateValues({ ...DEFAULT_VALUES, prazo: '1,5', unidade: 'anos' });
     expect(exact.input?.months).toBe(18);
     expect(exact.notes.prazo).toBeUndefined();
-    expect(validateValues({ ...DEFAULT_VALUES, prazo: '2', unidade: 'anos' }).notes.prazo).toBeUndefined();
+    expect(
+      validateValues({ ...DEFAULT_VALUES, prazo: '2', unidade: 'anos' }).notes.prazo,
+    ).toBeUndefined();
   });
 
   it('entrada inválida dá input nulo; sem parâmetros usa os padrões', () => {
@@ -98,7 +100,13 @@ describe('CompoundInterestForm', () => {
   it('gráfico e tabela anual rotulam ano fracionário em pt-BR', () => {
     render(
       <CompoundInterestResult
-        input={{ initial: 1000, monthlyContribution: 0, rate: 0.01, ratePeriod: 'month', months: 30 }}
+        input={{
+          initial: 1000,
+          monthlyContribution: 0,
+          rate: 0.01,
+          ratePeriod: 'month',
+          months: 30,
+        }}
       />,
     );
     expect(screen.getByRole('cell', { name: 'Ano 2,5' })).toBeInTheDocument();

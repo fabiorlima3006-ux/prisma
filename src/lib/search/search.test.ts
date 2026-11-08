@@ -43,7 +43,9 @@ describe('search', () => {
 
   it('acha artigo ignorando acentos', () => {
     expect(
-      search('inflacao', idx).some((e) => e.href === '/educacao/iniciante/juros-compostos-e-inflacao'),
+      search('inflacao', idx).some(
+        (e) => e.href === '/educacao/iniciante/juros-compostos-e-inflacao',
+      ),
     ).toBe(true);
   });
 

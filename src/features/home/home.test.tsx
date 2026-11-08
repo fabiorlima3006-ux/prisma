@@ -163,7 +163,8 @@ describe('btn-shine', () => {
     const block = css.slice(css.indexOf('.btn-shine {'), css.indexOf('@keyframes prisma-shine'));
     const durations = [...block.matchAll(/animation:\s*[\w-]+\s+([\d.]+)s\s+[\w-]+\s+(\d+);/g)];
     expect(durations).toHaveLength(2);
-    for (const [, sec, count] of durations) expect(Number(sec) * Number(count)).toBeLessThanOrEqual(5);
+    for (const [, sec, count] of durations)
+      expect(Number(sec) * Number(count)).toBeLessThanOrEqual(5);
   });
 });
 

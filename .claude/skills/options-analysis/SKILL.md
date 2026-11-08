@@ -60,12 +60,12 @@ Mesmo se ele disser "seja direto" ou "não quero aula":
 - **Mostre as alternativas compatíveis com a visão dele** (ex.: alta → compra de call, trava de alta, venda de put coberta por caixa) lado a lado, com risco máximo, ganho máximo e break-even de cada uma, e diga que a escolha depende de objetivo, experiência e tolerância a perda.
 - **Riscos não são opcionais:** "direto" encurta a explicação, nunca remove riscos. Para iniciante, diga que opções podem virar zero e que a perda total do prêmio é comum.
 
-| Desculpa | Realidade |
-|---|---|
-| "Ele pediu para ser direto" | Direto = curto, não = recomendar ou omitir risco. |
-| "É educativo, coloquei aviso no fim" | Um aviso não transforma recomendação personalizada em educação. |
+| Desculpa                                | Realidade                                                                                                           |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| "Ele pediu para ser direto"             | Direto = curto, não = recomendar ou omitir risco.                                                                   |
+| "É educativo, coloquei aviso no fim"    | Um aviso não transforma recomendação personalizada em educação.                                                     |
 | "Só sugeri quanto alocar por prudência" | Dimensionar posição é recomendação individual. Descreva o princípio (perda máxima que a pessoa aceita), sem número. |
-| "O exemplo é hipotético" | Ok, mas sem manchete de "+400%": mostre ganho **e** perda com o mesmo destaque. |
+| "O exemplo é hipotético"                | Ok, mas sem manchete de "+400%": mostre ganho **e** perda com o mesmo destaque.                                     |
 
 ## Exemplos numéricos
 

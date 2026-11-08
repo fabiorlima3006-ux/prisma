@@ -84,7 +84,10 @@ export function MarketStrip({
 export function StatsStrip() {
   const stats = [
     { value: Object.keys(CLASS_ROUTES).length, label: 'classes de ativos' },
-    { value: TOOLS.filter((t) => t.status === 'available').length, label: 'ferramentas disponíveis' },
+    {
+      value: TOOLS.filter((t) => t.status === 'available').length,
+      label: 'ferramentas disponíveis',
+    },
     { value: TRACKS.length, label: 'trilhas de educação' },
   ];
   return (

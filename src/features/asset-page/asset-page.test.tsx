@@ -105,7 +105,12 @@ describe('AssetPage', () => {
   it('P/L com prejuízo mostra "Não se aplica" com o motivo', async () => {
     const fundamentals: DataResult<Fundamentals> = {
       status: 'ok',
-      meta: { source: 'brapi', isDemo: false, asOf: '2026-11-07T12:00:00Z', attribution: 'brapi.dev' },
+      meta: {
+        source: 'brapi',
+        isDemo: false,
+        asOf: '2026-11-07T12:00:00Z',
+        attribution: 'brapi.dev',
+      },
       data: {
         pl: null,
         pvp: null,

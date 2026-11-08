@@ -14,7 +14,8 @@ import type {
 } from '../types';
 
 const ATTRIBUTION = 'brapi.dev';
-export const PL_LOSS_REASON = 'A empresa teve prejuízo nos últimos 12 meses; o P/L negativo não tem leitura útil.';
+export const PL_LOSS_REASON =
+  'A empresa teve prejuízo nos últimos 12 meses; o P/L negativo não tem leitura útil.';
 const RANGE: Record<HistoryRange, string> = { '1m': '1mo', '6m': '6mo', '1y': '1y' };
 
 const num = z.number().nullish();
