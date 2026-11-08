@@ -4,6 +4,22 @@ import { ARTICLE, KEY_PAGES } from './routes';
 
 const PAGES = [...KEY_PAGES, ARTICLE];
 
+// Causa do timeout intermitente (~1 em 4 execuções completas): logo após o `next build`, o
+// servidor de produção fica 10-20 s sem aceitar conexões (até uma sonda fora do browser ficou
+// pendurada; goto, CSS e JS do primeiro teste de cada worker esperavam juntos). O app não é
+// o problema: com o servidor já quente os mesmos testes levam ~1,5 s. O global-setup espera
+// o servidor estabilizar; aqui cada worker ainda faz uma navegação de aquecimento (browser +
+// primeira página) com timeout próprio, e os testes seguem com o timeout padrão.
+test.beforeAll(async ({ browser, baseURL }) => {
+  test.setTimeout(120_000);
+  const context = await browser.newContext({ baseURL });
+  try {
+    await (await context.newPage()).goto('/', { timeout: 90_000 });
+  } finally {
+    await context.close();
+  }
+});
+
 for (const theme of ['light', 'dark'] as const) {
   for (const route of PAGES) {
     test(`${route} sem violações graves (${theme})`, async ({ page }) => {
