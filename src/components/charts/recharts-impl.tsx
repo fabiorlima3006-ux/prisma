@@ -48,7 +48,7 @@ function Axes({ formatValue }: Pick<ChartProps, 'formatValue'>) {
 export function LineChartImpl({ data, formatValue }: ChartProps) {
   return (
     <Frame>
-      <RLineChart data={data}>
+      <RLineChart data={data} accessibilityLayer={false}>
         <Axes formatValue={formatValue} />
         <Line
           type="monotone"
@@ -66,7 +66,7 @@ export function LineChartImpl({ data, formatValue }: ChartProps) {
 export function AreaChartImpl({ data, formatValue }: ChartProps) {
   return (
     <Frame>
-      <RAreaChart data={data}>
+      <RAreaChart data={data} accessibilityLayer={false}>
         <Axes formatValue={formatValue} />
         <Area
           type="monotone"
@@ -85,7 +85,7 @@ export function AreaChartImpl({ data, formatValue }: ChartProps) {
 export function BarChartImpl({ data, formatValue }: ChartProps) {
   return (
     <Frame>
-      <RBarChart data={data}>
+      <RBarChart data={data} accessibilityLayer={false}>
         <Axes formatValue={formatValue} />
         <Bar dataKey="value" fill="var(--accent)" isAnimationActive={false} />
       </RBarChart>
@@ -96,7 +96,7 @@ export function BarChartImpl({ data, formatValue }: ChartProps) {
 export function StackedAreaChartImpl({ data, formatValue }: StackedAreaChartProps) {
   return (
     <Frame>
-      <RAreaChart data={data}>
+      <RAreaChart data={data} accessibilityLayer={false}>
         <Axes formatValue={formatValue} />
         <Area
           type="monotone"
