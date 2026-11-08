@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui';
+import { realRate, toPresentValue } from '@/lib/finance/inflation';
 import { formatCurrency, formatPercent } from '@/lib/format';
 import { highestNet, PRODUCT_META, type ComparisonRow } from '@/lib/finance/fixed-income';
 
@@ -12,7 +13,19 @@ const NUMERIC = [
 ];
 const TEXT = ['Liquidez', 'Risco', 'FGC'];
 
-export function ComparatorTable({ rows }: { rows: ComparisonRow[] }) {
+export function ComparatorTable({
+  rows,
+  inflation = null,
+  calendarDays = 0,
+}: {
+  rows: ComparisonRow[];
+  /** Inflação anual em fração; null (vazia ou inválida) esconde as colunas em reais de hoje. */
+  inflation?: number | null;
+  calendarDays?: number;
+}) {
+  const real = inflation !== null;
+  const realColumns = ['Líquido em reais de hoje', 'Retorno real anualizado'];
+  const numericColumns = real ? [...NUMERIC, ...realColumns] : NUMERIC;
   const top = highestNet(rows);
   const th = 'px-3.5 py-2 text-xs font-bold text-muted';
   return (
@@ -26,7 +39,7 @@ export function ComparatorTable({ rows }: { rows: ComparisonRow[] }) {
             <th scope="col" className={`${th} text-left`}>
               Produto
             </th>
-            {NUMERIC.map((c) => (
+            {numericColumns.map((c) => (
               <th key={c} scope="col" className={`${th} text-right`}>
                 {c}
               </th>
@@ -61,9 +74,19 @@ export function ComparatorTable({ rows }: { rows: ComparisonRow[] }) {
                     <td className={`${num} font-bold`}>{formatCurrency(r.net)}</td>
                     <td className={num}>{formatPercent(r.netReturn)}</td>
                     <td className={num}>{formatPercent(r.netReturnAnnualized)}</td>
+                    {real && (
+                      <>
+                        <td className={num}>
+                          {formatCurrency(toPresentValue(r.net, inflation, calendarDays / 365))}
+                        </td>
+                        <td className={num}>
+                          {formatPercent(realRate(r.netReturnAnnualized, inflation))}
+                        </td>
+                      </>
+                    )}
                   </>
                 ) : (
-                  <td colSpan={NUMERIC.length} className="px-3.5 py-2 text-left text-muted">
+                  <td colSpan={numericColumns.length} className="px-3.5 py-2 text-left text-muted">
                     {r.reason}
                   </td>
                 )}

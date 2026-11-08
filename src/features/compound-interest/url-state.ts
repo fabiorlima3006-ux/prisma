@@ -2,7 +2,7 @@ import {
   compoundInterestInputSchema,
   type CompoundInterestInput,
 } from '@/lib/finance/compound-interest';
-import { INFLATION_MAX, INFLATION_MIN } from '@/lib/finance/inflation';
+import { parseInflation } from '@/features/simulators-shared/inflation-input';
 import { parseBrNumber } from '@/lib/format';
 
 export type FormValues = {
@@ -31,7 +31,6 @@ export const DEFAULT_VALUES: FormValues = {
 };
 
 const REQUIRED = 'Informe um número válido';
-const INFLATION_RANGE = 'Informe uma inflação entre -50% e 100% a.a.';
 const FIELD_BY_PATH: Record<string, FieldName> = {
   initial: 'capital',
   monthlyContribution: 'aporte',
@@ -50,17 +49,6 @@ export type Validation = (
   /** Erro do campo de inflação (não impede o cálculo nominal). */
   inflationError?: string;
 };
-
-/** Lê a inflação: vazia → desligada; número fora de [−50%, 100%] ou ilegível → erro. */
-function parseInflation(text: string): { inflation: number | null; inflationError?: string } {
-  if (text.trim() === '') return { inflation: null };
-  const pct = parseBrNumber(text);
-  if (pct === null) return { inflation: null, inflationError: REQUIRED };
-  const fraction = pct / 100;
-  if (fraction < INFLATION_MIN || fraction > INFLATION_MAX)
-    return { inflation: null, inflationError: INFLATION_RANGE };
-  return { inflation: fraction };
-}
 
 /**
  * Valida o formulário: taxa em % (÷100 antes do schema), prazo em anos × 12 arredondado para

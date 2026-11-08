@@ -12,3 +12,12 @@ test('com o BCB indisponível, taxas manuais calculam o CDB', async ({ page }) =
   ).toContainText('10.825,00');
   await expect(page.locator('body')).not.toContainText('NaN');
 });
+
+test('com a inflação preenchida, aparece o líquido em reais de hoje', async ({ page }) => {
+  await page.goto('/ferramentas/comparador');
+  await page.getByLabel('CDI (% a.a.)').fill('10');
+  await page.getByLabel('Selic meta (% a.a.)').fill('10,5');
+  await page.getByLabel('Inflação estimada (% a.a.)').fill('5');
+  await expect(page.getByRole('columnheader', { name: 'Líquido em reais de hoje' })).toBeVisible();
+  await expect(page.locator('body')).not.toContainText('NaN');
+});

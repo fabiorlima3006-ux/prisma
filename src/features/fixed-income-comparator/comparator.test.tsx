@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { DataResult, IndicatorValue } from '@/lib/data/types';
@@ -98,6 +98,7 @@ describe('ComparatorForm', () => {
       <ComparatorForm
         rates={{ cdi: unavailable, selic: unavailable, tr: unavailable }}
         rules={TAX_RULES}
+        inflation={null}
       />,
     );
     expect(screen.getByText('Taxas informadas pelo usuário')).toBeInTheDocument();
@@ -119,11 +120,78 @@ describe('ComparatorForm', () => {
     expect(screen.getByLabelText('Prazo (dias)')).toHaveAttribute('aria-invalid', 'true');
   });
 
+  describe('inflação', () => {
+    const manualRates = { cdi: unavailable, selic: unavailable, tr: unavailable };
+
+    async function setup(inflation: { percent: string; note: string } | null) {
+      const user = userEvent.setup();
+      const { container } = render(
+        <ComparatorForm rates={manualRates} rules={TAX_RULES} inflation={inflation} />,
+      );
+      const q = within(container);
+      await user.type(q.getByLabelText('CDI (% a.a.)'), '10');
+      await user.type(q.getByLabelText('Selic meta (% a.a.)'), '10,5');
+      return { user, q };
+    }
+
+    it('com inflação de 5%, mostra o líquido em reais de hoje e o retorno real', async () => {
+      const { user, q } = await setup({ percent: '', note: 'nota' });
+      await user.type(q.getByLabelText('Inflação estimada (% a.a.)'), '5');
+      const row = await q.findByRole('row', { name: /CDB/ });
+      expect(q.getByRole('columnheader', { name: 'Líquido em reais de hoje' })).toBeInTheDocument();
+      expect(q.getByRole('columnheader', { name: 'Retorno real anualizado' })).toBeInTheDocument();
+      // 10.825,00 / 1,05 = 10.309,52; (1,0825 / 1,05) - 1 = 3,10%
+      await waitFor(() => expect(row).toHaveTextContent('10.309,52'));
+      expect(row).toHaveTextContent('3,10%');
+      expect(document.body.textContent).not.toMatch(/NaN|Infinity|undefined/);
+    });
+
+    it('usa o padrão e a nota recebidos, com rótulo de premissa', async () => {
+      const { q } = await setup({
+        percent: '4,58',
+        note: 'IPCA 12 meses (premissa, não previsão)',
+      });
+      expect(q.getByLabelText('Inflação estimada (% a.a.)')).toHaveValue('4,58');
+      expect(q.getByText(/premissa, não previsão/)).toBeInTheDocument();
+      expect(
+        await q.findByRole('columnheader', { name: 'Líquido em reais de hoje' }),
+      ).toBeInTheDocument();
+    });
+
+    it('com inflação vazia, as colunas novas não existem', async () => {
+      const { q } = await setup(null);
+      await q.findByRole('row', { name: /CDB/ });
+      expect(q.getByLabelText('Inflação estimada (% a.a.)')).toHaveValue('');
+      expect(
+        q.queryByRole('columnheader', { name: 'Líquido em reais de hoje' }),
+      ).not.toBeInTheDocument();
+      expect(
+        q.queryByRole('columnheader', { name: 'Retorno real anualizado' }),
+      ).not.toBeInTheDocument();
+      expect(q.getByText(/IPCA indisponível no momento/)).toBeInTheDocument();
+    });
+
+    it('com inflação inválida, há erro de campo e as colunas novas somem', async () => {
+      const { user, q } = await setup(null);
+      await user.type(q.getByLabelText('Inflação estimada (% a.a.)'), '150');
+      expect(q.getByLabelText('Inflação estimada (% a.a.)')).toHaveAttribute(
+        'aria-invalid',
+        'true',
+      );
+      expect(q.getByText('Informe uma inflação entre -50% e 100% a.a.')).toBeInTheDocument();
+      await q.findByRole('row', { name: /CDB/ });
+      expect(
+        q.queryByRole('columnheader', { name: 'Líquido em reais de hoje' }),
+      ).not.toBeInTheDocument();
+    });
+  });
+
   it('campos manuais vazios geram erro e nenhum resultado', () => {
     render(
       <ComparatorForm
         rates={{ cdi: unavailable, selic: unavailable, tr: unavailable }}
         rules={TAX_RULES}
+        inflation={null}
       />,
     );
     expect(screen.getByLabelText('CDI (% a.a.)')).toHaveAttribute('aria-invalid', 'true');
@@ -142,6 +210,7 @@ describe('ComparatorForm', () => {
           tr: ok('tr', 0, 'a.m.'),
         }}
         rules={TAX_RULES}
+        inflation={null}
       />,
     );
     expect(screen.queryByLabelText('CDI (% a.a.)')).not.toBeInTheDocument();
@@ -166,6 +235,7 @@ describe('ComparatorForm', () => {
           tr: ok('tr', 0, 'a.m.'),
         }}
         rules={TAX_RULES}
+        inflation={null}
       />,
     );
     await user.clear(screen.getByLabelText('Prazo (dias)'));

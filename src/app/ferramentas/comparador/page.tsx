@@ -3,6 +3,7 @@ import { Disclaimer } from '@/components/layout/Disclaimer';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { TAX_RULES } from '@/lib/config/tax-rules';
 import { marketData } from '@/lib/data';
+import { inflationDefault } from '@/features/simulators-shared/inflation-default';
 import { ComparatorForm } from '@/features/fixed-income-comparator/ComparatorForm';
 import { buildMetadata } from '@/lib/seo/metadata';
 
@@ -14,10 +15,11 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function ComparadorPage() {
-  const [cdi, selic, tr] = await Promise.all([
+  const [cdi, selic, tr, ipca] = await Promise.all([
     marketData.getIndicator('cdi'),
     marketData.getIndicator('selic'),
     marketData.getIndicator('tr'),
+    marketData.getIndicator('ipca12m'),
   ]);
   return (
     <>
@@ -32,7 +34,11 @@ export default async function ComparadorPage() {
         ]}
       />
       <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8 sm:px-6">
-        <ComparatorForm rates={{ cdi, selic, tr }} rules={TAX_RULES} />
+        <ComparatorForm
+          rates={{ cdi, selic, tr }}
+          rules={TAX_RULES}
+          inflation={inflationDefault(ipca)}
+        />
         <Disclaimer variant="prominent" />
       </div>
     </>

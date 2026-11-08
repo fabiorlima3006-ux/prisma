@@ -13,6 +13,8 @@ import {
   type ComparatorInput,
 } from '@/lib/finance/fixed-income';
 import { formatDate, formatNumber, formatPercent, parseBrNumber } from '@/lib/format';
+import { INFLATION_UNAVAILABLE_NOTE } from '@/features/simulators-shared/inflation-default';
+import { parseInflation } from '@/features/simulators-shared/inflation-input';
 import { ComparatorChart } from './ComparatorChart';
 import { ComparatorTable } from './ComparatorTable';
 
@@ -32,6 +34,7 @@ type Values = {
   cdi: string;
   selic: string;
   tr: string;
+  inflation: string;
 };
 type Key = keyof Values;
 
@@ -79,7 +82,16 @@ function validate(values: Values, manual: boolean, rates: Rates) {
   return { input: null, errors };
 }
 
-export function ComparatorForm({ rates, rules }: { rates: Rates; rules: TaxRules }) {
+export function ComparatorForm({
+  rates,
+  rules,
+  inflation: inflationDefault,
+}: {
+  rates: Rates;
+  rules: TaxRules;
+  /** Padrão do campo de inflação (IPCA 12 meses real) e sua nota; null quando indisponível. */
+  inflation: { percent: string; note: string } | null;
+}) {
   const allOk =
     rates.cdi.status === 'ok' && rates.selic.status === 'ok' && rates.tr.status === 'ok';
   const trUnavailable = rates.tr.status !== 'ok';
@@ -93,10 +105,16 @@ export function ComparatorForm({ rates, rules }: { rates: Rates; rules: TaxRules
     cdi: pctText(rates.cdi),
     selic: pctText(rates.selic),
     tr: rates.tr.status === 'ok' ? pctText(rates.tr) : '0',
+    inflation: inflationDefault?.percent ?? '',
   });
   const set = (key: Key, value: string) => setValues((v) => ({ ...v, [key]: value }));
 
   const { input, errors } = useMemo(() => validate(values, manual, rates), [values, manual, rates]);
+
+  const { inflation, inflationError } = useMemo(
+    () => parseInflation(values.inflation),
+    [values.inflation],
+  );
 
   // Validação é imediata; só o cálculo dos resultados é debounced.
   const [debounced, setDebounced] = useState<ComparatorInput | null>(input);
@@ -154,6 +172,24 @@ export function ComparatorForm({ rates, rules }: { rates: Rates; rules: TaxRules
         {numberField('cdbPct', '% do CDI do CDB', { suffix: '%' })}
         {numberField('lciPct', '% do CDI da LCI/LCA', { suffix: '%' })}
 
+        <Field
+          label="Inflação estimada (% a.a.)"
+          error={inflationError}
+          hint={inflationDefault?.note ?? INFLATION_UNAVAILABLE_NOTE}
+        >
+          {(p) => (
+            <Adorned suffix="%">
+              <Input
+                {...p}
+                inputMode="decimal"
+                className="pr-9"
+                value={values.inflation}
+                onChange={(e) => set('inflation', e.target.value)}
+              />
+            </Adorned>
+          )}
+        </Field>
+
         <fieldset className="space-y-3 border-t border-line pt-4">
           <legend className="sr-only">Taxas de mercado</legend>
           {manual ? (
@@ -197,7 +233,11 @@ export function ComparatorForm({ rates, rules }: { rates: Rates; rules: TaxRules
       <div className="min-w-0 space-y-4">
         {rows ? (
           <>
-            <ComparatorTable rows={rows} />
+            <ComparatorTable
+              rows={rows}
+              inflation={inflation}
+              calendarDays={debounced?.calendarDays ?? 0}
+            />
             <ComparatorChart rows={rows} />
           </>
         ) : (
