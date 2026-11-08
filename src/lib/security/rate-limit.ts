@@ -22,6 +22,13 @@ export function createRateLimiter(opts: {
     size: () => buckets.size,
     check(key) {
       const t = now();
+      // O Map fica em ordem de início da janela: as expiradas estão no começo. Removê-las a cada
+      // consulta garante que um IP não fique na memória além da própria janela (política de
+      // privacidade: "até 1 minuto").
+      for (const [k, v] of buckets) {
+        if (t - v.start < opts.windowMs) break;
+        buckets.delete(k);
+      }
       const b = buckets.get(key);
       if (!b || t - b.start >= opts.windowMs) {
         if (b)

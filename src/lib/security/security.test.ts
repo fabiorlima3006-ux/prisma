@@ -15,6 +15,23 @@ describe('createRateLimiter', () => {
   });
 });
 
+describe('createRateLimiter: retenção do IP', () => {
+  it('remove janelas expiradas na consulta seguinte (o IP não fica além da janela)', () => {
+    let t = 0;
+    const rl = createRateLimiter({ limit: 5, windowMs: 60_000, now: () => t });
+    rl.check('10.0.0.1');
+    rl.check('10.0.0.2');
+    expect(rl.size()).toBe(2);
+    t = 30_000;
+    rl.check('10.0.0.3');
+    expect(rl.size()).toBe(3);
+    t = 60_000;
+    rl.check('10.0.0.9');
+    // 10.0.0.1 e .2 expiraram (60 s); sobram .3 (30 s) e .9.
+    expect(rl.size()).toBe(2);
+  });
+});
+
 describe('createRateLimiter maxKeys', () => {
   it('nunca passa do teto de chaves', () => {
     let t = 0;
@@ -53,7 +70,8 @@ describe('SECURITY_HEADERS', () => {
     expect(get('X-Content-Type-Options')).toBe('nosniff');
     expect(get('Referrer-Policy')).toBe('strict-origin-when-cross-origin');
     expect(get('Permissions-Policy')).toBe('camera=(), microphone=(), geolocation=()');
-    expect(get('Strict-Transport-Security')).toContain('max-age=63072000');
+    expect(get('Strict-Transport-Security')).toBe('max-age=63072000; includeSubDomains');
+    expect(get('Strict-Transport-Security')).not.toContain('preload');
   });
   it('só usa unsafe-eval fora de produção', () => {
     expect(process.env.NODE_ENV).not.toBe('production');

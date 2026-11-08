@@ -17,11 +17,19 @@ export default function PrivacidadePage() {
         {
           heading: 'Dados pessoais',
           body: (
-            <p>
-              Não há cadastro e não coletamos nem armazenamos dados pessoais. Os valores informados
-              nos simuladores podem aparecer na URL, para que a simulação possa ser compartilhada, e
-              são usados apenas para calcular a página exibida; não são armazenados.
-            </p>
+            <>
+              <p>
+                Não há cadastro e não coletamos nem armazenamos dados pessoais. Os valores
+                informados nos simuladores podem aparecer na URL, para que a simulação possa ser
+                compartilhada, e são usados apenas para calcular a página exibida; não são
+                armazenados.
+              </p>
+              <p>
+                Para limitar abusos, o endereço IP é mantido temporariamente na memória do servidor
+                (até 1 minuto) e a hospedagem pode registrar acessos em logs técnicos; esses dados
+                não são usados para identificar visitantes.
+              </p>
+            </>
           ),
         },
         {

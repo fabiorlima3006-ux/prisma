@@ -136,7 +136,7 @@ Next.js (App Router) + React + TypeScript estrito · Tailwind CSS v4 com tokens 
 - `npm run typecheck`: `next typegen && tsc --noEmit`.
 - `npm test`: testes unitários (Vitest). `npm run test:watch` roda em modo contínuo.
 - `npm run test:e2e`: testes E2E (Playwright + axe; sobe `npm run build && npm run start` com o BCB inacessível de propósito, ou reaproveita um servidor já aberto em `localhost:3000`: pare-o antes).
-- `npm run format`: Prettier.
+- `npm run format`: Prettier. `npm run format:check` só confere.
 
 ### Skills do projeto
 

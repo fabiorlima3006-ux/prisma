@@ -1,3 +1,9 @@
+/** URL base sem barra final (evita "//" ao concatenar caminhos no canonical, sitemap e OG). */
+export function normalizeSiteUrl(raw: string | undefined): string {
+  const url = raw?.trim() || 'http://localhost:3000';
+  return url.replace(/\/+$/, '');
+}
+
 export type NavItem = { label: string; href: string; children?: NavItem[] };
 
 export const siteConfig: {
@@ -11,7 +17,7 @@ export const siteConfig: {
   name: 'Prisma',
   description:
     'Plataforma para acompanhar mercados, estudar investimentos, analisar ativos e simular cenários.',
-  url: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+  url: normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL),
   links: { github: 'https://github.com/' },
   nav: [
     { label: 'Mercados', href: '/mercados' },

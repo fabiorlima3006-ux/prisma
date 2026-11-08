@@ -30,7 +30,7 @@ Next.js 16 (App Router) · React 19 · TypeScript estrito · Tailwind CSS v4 (to
 
 ## Como rodar
 
-Requisitos: Node 20 ou superior e npm.
+Requisitos: Node 22 ou superior (`engines` no `package.json`) e npm.
 
 ```bash
 npm install
@@ -61,7 +61,8 @@ Os valores reais ficam em `.env.local` (fora do git). O `.env.example` documenta
 | `npm test`                        | Testes unitários e de componentes (Vitest) |
 | `npm run test:watch`              | Vitest em modo contínuo                    |
 | `npm run test:e2e`                | Testes E2E (Playwright + axe)              |
-| `npm run format`                  | Prettier                                   |
+| `npm run format`                  | Prettier (grava)                           |
+| `npm run format:check`            | Prettier (só confere, para CI)             |
 
 ## Como testar
 
