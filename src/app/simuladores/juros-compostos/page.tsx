@@ -2,7 +2,12 @@ import type { Metadata } from 'next';
 import { Disclaimer } from '@/components/layout/Disclaimer';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { CompoundInterestForm } from '@/features/compound-interest/CompoundInterestForm';
+import {
+  inflationDefault,
+  INFLATION_UNAVAILABLE_NOTE,
+} from '@/features/simulators-shared/inflation-default';
 import { fromSearchParams } from '@/features/compound-interest/url-state';
+import { marketData } from '@/lib/data';
 import { buildMetadata } from '@/lib/seo/metadata';
 
 export const metadata: Metadata = buildMetadata({
@@ -20,7 +25,8 @@ export default async function JurosCompostosPage({ searchParams }: { searchParam
     const first = Array.isArray(value) ? value[0] : value;
     if (first !== undefined) sp.set(key, first);
   }
-  const { values } = fromSearchParams(sp);
+  const fallback = inflationDefault(await marketData.getIndicator('ipca12m'));
+  const { values } = fromSearchParams(sp, fallback?.percent ?? '');
   return (
     <>
       <PageHeader
@@ -34,7 +40,10 @@ export default async function JurosCompostosPage({ searchParams }: { searchParam
         ]}
       />
       <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-8 sm:px-6">
-        <CompoundInterestForm initial={values} />
+        <CompoundInterestForm
+          initial={values}
+          inflationNote={fallback?.note ?? INFLATION_UNAVAILABLE_NOTE}
+        />
         <Disclaimer variant="prominent" />
       </div>
     </>

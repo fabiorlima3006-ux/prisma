@@ -21,3 +21,11 @@ test('capital no formato brasileiro não gera NaN', async ({ page }) => {
   await expect(page.getByTestId('final-balance')).toContainText('2.395,64');
   await expect(page.locator('body')).not.toContainText('NaN');
 });
+
+test('inflação informada mostra valor em reais de hoje', async ({ page }) => {
+  await page.goto(URL);
+  await page.getByLabel('Inflação anual esperada (premissa)').fill('10');
+  // 2.395,08 ÷ 1,1 (12 meses)
+  await expect(page.getByTestId('final-real')).toContainText('2.177,34');
+  await expect(page.getByText('Valor final em reais de hoje')).toBeVisible();
+});

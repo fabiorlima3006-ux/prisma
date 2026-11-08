@@ -12,13 +12,18 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-// Aquecimento: a primeira montagem do formulário em jsdom (Recharts sob demanda, zod, JIT) custa ~1 s
-// e, sem isso, esse custo cai dentro do primeiro teste e, sob carga paralela
-// (npm test), estoura os 5 s dele; o teste estourado segue digitando no DOM do teste seguinte.
-beforeAll(async () => {
-  await import('@/components/charts/recharts-impl');
-  const { unmount } = render(<CompoundInterestForm initial={DEFAULT_VALUES} />);
-  unmount();
+// O desenho do Recharts (carregado sob demanda) é substituído por um componente vazio: ele não é o
+// assunto destes testes (tem os próprios em charts.test.tsx) e redesenhar o SVG a cada tecla
+// custava ~20 ms em jsdom, o que sob carga paralela (npm test) estourava os 5 s do teste de digitação,
+// que seguia digitando no DOM do teste seguinte. A moldura (figura e tabela para leitores de tela)
+// continua real.
+vi.mock('@/components/charts/recharts-impl', () => ({
+  StackedAreaChartImpl: () => null,
+}));
+
+// Aquecimento: a primeira montagem do formulário em jsdom (zod, JIT) custa ~0,5 s.
+beforeAll(() => {
+  render(<CompoundInterestForm initial={DEFAULT_VALUES} />).unmount();
 });
 
 beforeEach(() => replace.mockClear());
@@ -73,7 +78,7 @@ describe('url-state', () => {
 });
 
 describe('CompoundInterestForm', () => {
-  it('calcula, mostra erro por campo e nunca exibe NaN', async () => {
+  it('calcula o saldo final digitando nos campos', async () => {
     const user = userEvent.setup();
     render(<CompoundInterestForm initial={DEFAULT_VALUES} />);
     await user.clear(screen.getByLabelText('Capital inicial'));
@@ -85,6 +90,12 @@ describe('CompoundInterestForm', () => {
     await user.selectOptions(screen.getByLabelText('Período da taxa'), 'mes');
     await user.clear(screen.getByLabelText('Prazo'));
     await user.type(screen.getByLabelText('Prazo'), '12');
+    expect(await screen.findByTestId('final-balance')).toHaveTextContent('2.395,08');
+  });
+
+  it('mostra erro por campo e nunca exibe NaN', async () => {
+    const user = userEvent.setup();
+    render(<CompoundInterestForm initial={DEFAULT_VALUES} />);
     expect(await screen.findByTestId('final-balance')).toHaveTextContent('2.395,08');
 
     await user.clear(screen.getByLabelText('Prazo'));
@@ -206,5 +217,87 @@ describe('CompoundInterestForm: montagem', () => {
     vi.advanceTimersByTime(1000);
     expect(replace).not.toHaveBeenCalled();
     vi.useRealTimers();
+  });
+});
+
+describe('inflação (premissa)', () => {
+  const NOTE = 'IPCA 12 meses, ref. 09/2026 (premissa, não previsão)';
+
+  it('com inflação de 10%, mostra o valor final em reais de hoje e a taxa real anual', () => {
+    render(
+      <CompoundInterestForm initial={{ ...DEFAULT_VALUES, inflacao: '10' }} inflationNote={NOTE} />,
+    );
+    // 2.395,08 ÷ 1,1 (12 meses = 1 ano)
+    expect(screen.getByTestId('final-real')).toHaveTextContent('2.177,34');
+    expect(screen.getByText('Valor final em reais de hoje')).toBeInTheDocument();
+    // (1,01^12 − 1) = 12,68% nominal; real = 1,126825/1,1 − 1 = 2,44%
+    expect(screen.getByTestId('real-rate')).toHaveTextContent('+2,44% a.a.');
+    expect(screen.getByTestId('real-rate')).toHaveTextContent('a.m.');
+    expect(screen.getByText(NOTE)).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Em reais de hoje' })).toBeInTheDocument();
+  });
+
+  it('inflação vazia: a seção real não é renderizada', () => {
+    render(<CompoundInterestForm initial={DEFAULT_VALUES} />);
+    expect(screen.queryByTestId('final-real')).toBeNull();
+    expect(screen.queryByTestId('real-rate')).toBeNull();
+    expect(screen.queryByRole('columnheader', { name: 'Em reais de hoje' })).toBeNull();
+    expect(screen.getByTestId('final-balance')).toBeInTheDocument();
+  });
+
+  it('inflação inválida ou fora do limite: erro no campo, sem NaN e sem seção real', () => {
+    const { unmount } = render(
+      <CompoundInterestForm initial={{ ...DEFAULT_VALUES, inflacao: 'abc' }} />,
+    );
+    expect(screen.getByLabelText('Inflação anual esperada (premissa)')).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    );
+    expect(screen.getByText('Informe um número válido')).toBeInTheDocument();
+    expect(screen.queryByText(/NaN|Infinity|undefined/)).toBeNull();
+    expect(screen.queryByTestId('final-real')).toBeNull();
+    unmount();
+
+    render(<CompoundInterestForm initial={{ ...DEFAULT_VALUES, inflacao: '150' }} />);
+    expect(screen.getByText('Informe uma inflação entre -50% e 100% a.a.')).toBeInTheDocument();
+    expect(screen.queryByTestId('final-real')).toBeNull();
+  });
+
+  it('sem padrão do IPCA: campo vazio e nota de indisponibilidade', () => {
+    render(<CompoundInterestForm initial={DEFAULT_VALUES} />);
+    expect(screen.getByLabelText('Inflação anual esperada (premissa)')).toHaveValue('');
+    expect(
+      screen.getByText(
+        'IPCA indisponível no momento; informe uma premissa se quiser ver o valor em reais de hoje',
+      ),
+    ).toBeInTheDocument();
+  });
+});
+
+describe('url-state: inflação', () => {
+  it('ausente usa o padrão; vazio desliga; valor é lido com ponto decimal', () => {
+    const none = fromSearchParams(new URLSearchParams(), '4,58');
+    expect(none.values.inflacao).toBe('4,58');
+    expect(validateValues(none.values).inflation).toBeCloseTo(0.0458);
+
+    const off = fromSearchParams(new URLSearchParams('inflacao='), '4,58');
+    expect(off.values.inflacao).toBe('');
+    expect(validateValues(off.values).inflation).toBeNull();
+
+    const set = fromSearchParams(new URLSearchParams('inflacao=6.5'), '4,58');
+    expect(set.values.inflacao).toBe('6,5');
+  });
+
+  it('valida limites e escreve o parâmetro na URL', () => {
+    const bad = validateValues({ ...DEFAULT_VALUES, inflacao: '101' });
+    expect(bad.inflation).toBeNull();
+    expect(bad.inflationError).toBe('Informe uma inflação entre -50% e 100% a.a.');
+    expect(bad.input).toBeDefined();
+    expect(validateValues({ ...DEFAULT_VALUES, inflacao: '-50' }).inflation).toBeCloseTo(-0.5);
+
+    const input = validateValues(DEFAULT_VALUES).input!;
+    expect(toSearchParams(input, 'meses', 0.0458).get('inflacao')).toBe('4.58');
+    expect(toSearchParams(input, 'meses', null).get('inflacao')).toBe('');
+    expect(toSearchParams(input, 'meses').has('inflacao')).toBe(false);
   });
 });

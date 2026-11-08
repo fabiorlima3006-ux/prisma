@@ -3,12 +3,20 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Adorned, Field, Input, Select } from '@/components/ui';
+import { INFLATION_UNAVAILABLE_NOTE } from '@/features/simulators-shared/inflation-default';
 import { CompoundInterestResult } from './CompoundInterestResult';
 import { toSearchParams, validateValues, type FormValues } from './url-state';
 
 const DEBOUNCE_MS = 300;
 
-export function CompoundInterestForm({ initial }: { initial: FormValues }) {
+export function CompoundInterestForm({
+  initial,
+  inflationNote = INFLATION_UNAVAILABLE_NOTE,
+}: {
+  initial: FormValues;
+  /** Fonte e referência do padrão de inflação (ou aviso de indisponibilidade). */
+  inflationNote?: string;
+}) {
   const router = useRouter();
   const [values, setValues] = useState<FormValues>(initial);
   const set = <K extends keyof FormValues>(key: K, value: FormValues[K]) =>
@@ -18,23 +26,27 @@ export function CompoundInterestForm({ initial }: { initial: FormValues }) {
   const input = validation.input;
   const errors = validation.errors ?? {};
   const unidade = values.unidade;
+  const { inflation, inflationError } = validation;
 
   const lastQuery = useRef<string | null>(null);
   if (lastQuery.current === null) {
     const first = validateValues(initial).input;
-    lastQuery.current = first ? toSearchParams(first, initial.unidade).toString() : '';
+    const firstInflation = validateValues(initial).inflation;
+    lastQuery.current = first
+      ? toSearchParams(first, initial.unidade, firstInflation).toString()
+      : '';
   }
 
   useEffect(() => {
-    if (!input) return;
-    const query = toSearchParams(input, unidade).toString();
+    if (!input || inflationError) return;
+    const query = toSearchParams(input, unidade, inflation).toString();
     if (query === lastQuery.current) return;
     const handle = setTimeout(() => {
       lastQuery.current = query;
       router.replace(`?${query}`, { scroll: false });
     }, DEBOUNCE_MS);
     return () => clearTimeout(handle);
-  }, [input, unidade, router]);
+  }, [input, unidade, inflation, inflationError, router]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
@@ -123,11 +135,29 @@ export function CompoundInterestForm({ initial }: { initial: FormValues }) {
             )}
           </Field>
         </div>
+        <Field
+          label="Inflação anual esperada (premissa)"
+          error={inflationError}
+          hint={inflationNote}
+        >
+          {(p) => (
+            <Adorned suffix="%">
+              <Input
+                {...p}
+                inputMode="decimal"
+                className="pr-9"
+                value={values.inflacao}
+                onChange={(e) => set('inflacao', e.target.value)}
+              />
+            </Adorned>
+          )}
+        </Field>
       </form>
       <div className="min-w-0 space-y-4">
-        <CompoundInterestResult input={input ?? null} />
+        <CompoundInterestResult input={input ?? null} inflation={inflation} />
         <p className="text-xs text-muted">
-          Valores nominais, sem descontar a inflação. Aporte considerado no fim de cada mês.
+          Valores nominais, sem descontar a inflação, exceto onde indicado &ldquo;em reais de
+          hoje&rdquo;. Aporte considerado no fim de cada mês.
         </p>
       </div>
     </div>
