@@ -30,7 +30,6 @@ const STATIC_PATHS = [
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
   const articles = await listArticles();
   const assetPaths = CATALOG.flatMap((a) => {
     const href = assetHref(a);
@@ -40,7 +39,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...plain.map((p) => ({
       url: `${siteConfig.url}${p}`,
-      lastModified: now,
       changeFrequency:
         p === '/' || assetPaths.includes(p) ? ('daily' as const) : ('monthly' as const),
       priority: p === '/' ? 1 : 0.6,

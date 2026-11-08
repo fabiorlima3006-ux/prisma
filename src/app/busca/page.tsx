@@ -15,9 +15,12 @@ async function readQuery(searchParams: Props['searchParams']): Promise<string> {
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const q = await readQuery(searchParams);
   const description = 'Busque ativos, ferramentas, artigos e páginas da plataforma.';
-  return q
-    ? buildMetadata({ title: `Busca: ${q}`, description, path: '/busca', noindex: true })
-    : buildMetadata({ title: 'Busca', description, path: '/busca', noindex: true });
+  return buildMetadata({
+    title: q ? `Busca: ${q}` : 'Busca',
+    description,
+    path: '/busca',
+    noindex: true,
+  });
 }
 
 export default async function BuscaPage({ searchParams }: Props) {

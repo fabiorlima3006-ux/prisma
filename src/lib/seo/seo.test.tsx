@@ -33,9 +33,9 @@ describe('buildMetadata', () => {
     });
     expect(m.openGraph).toMatchObject({
       type: 'article',
-      publishedTime: '2026-01-05',
       modifiedTime: '2026-01-05',
     });
+    expect(m.openGraph).not.toHaveProperty('publishedTime');
   });
 
   it('home usa título absoluto e noindex é opcional', () => {
@@ -45,6 +45,26 @@ describe('buildMetadata', () => {
     expect(
       buildMetadata({ title: 'B', description: 'd', path: '/busca', noindex: true }).robots,
     ).toEqual({ index: false });
+  });
+});
+
+describe('imagem OG', () => {
+  it('openGraph e twitter carregam a imagem padrão', () => {
+    const m = buildMetadata({ title: 'M', description: 'd', path: '/mercados' });
+    const img = { url: `${siteConfig.url}/opengraph-image`, width: 1200, height: 630 };
+    expect(m.openGraph?.images).toEqual([expect.objectContaining(img)]);
+    expect(m.twitter?.images).toEqual([expect.objectContaining(img)]);
+  });
+});
+
+describe('busca', () => {
+  it('é noindex com e sem q', async () => {
+    const { generateMetadata } = await import('@/app/busca/page');
+    const a = await generateMetadata({ searchParams: Promise.resolve({}) });
+    const b = await generateMetadata({ searchParams: Promise.resolve({ q: 'petr' }) });
+    expect(a.robots).toEqual({ index: false });
+    expect(b.robots).toEqual({ index: false });
+    expect(b.title).toBe('Busca: petr');
   });
 });
 

@@ -1,8 +1,9 @@
 import { ImageResponse } from 'next/og';
 import { siteConfig } from '@/lib/config/site';
+import { OG_IMAGE_ALT, OG_IMAGE_SIZE } from '@/lib/seo/og';
 
-export const alt = 'Prisma — central de investimentos';
-export const size = { width: 1200, height: 630 };
+export const alt = OG_IMAGE_ALT;
+export const size = OG_IMAGE_SIZE;
 export const contentType = 'image/png';
 
 export default function OpengraphImage() {

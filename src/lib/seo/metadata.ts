@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { siteConfig } from '@/lib/config/site';
+import { OG_IMAGE_ALT, OG_IMAGE_PATH, OG_IMAGE_SIZE } from './og';
 
 export type BuildMetadataOptions = {
   title: string;
@@ -20,6 +21,7 @@ export function absoluteUrl(path: string): string {
 export function buildMetadata(opts: BuildMetadataOptions): Metadata {
   const { title, description, path, type = 'website', updatedAt, absoluteTitle, noindex } = opts;
   const url = absoluteUrl(path);
+  const images = [{ url: absoluteUrl(OG_IMAGE_PATH), ...OG_IMAGE_SIZE, alt: OG_IMAGE_ALT }];
   const fullTitle = absoluteTitle ? title : `${title} | ${siteConfig.name}`;
   return {
     title: absoluteTitle ? { absolute: title } : title,
@@ -32,19 +34,21 @@ export function buildMetadata(opts: BuildMetadataOptions): Metadata {
             title: fullTitle,
             description,
             url,
+            images,
             locale: 'pt_BR',
             siteName: siteConfig.name,
-            ...(updatedAt ? { publishedTime: updatedAt, modifiedTime: updatedAt } : {}),
+            ...(updatedAt ? { modifiedTime: updatedAt } : {}),
           }
         : {
             type: 'website',
             title: fullTitle,
             description,
             url,
+            images,
             locale: 'pt_BR',
             siteName: siteConfig.name,
           },
-    twitter: { card: 'summary_large_image', title: fullTitle, description },
+    twitter: { card: 'summary_large_image', title: fullTitle, description, images },
     ...(noindex ? { robots: { index: false } } : {}),
   };
 }
