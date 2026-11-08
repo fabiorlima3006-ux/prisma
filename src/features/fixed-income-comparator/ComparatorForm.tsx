@@ -1,14 +1,14 @@
 'use client';
 
 // Sem sincronização com a URL: o comparador recalcula localmente (debounce de 300 ms).
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { DataSourceBadge } from '@/components/market/DataSourceBadge';
 import { referenceLabel } from '@/components/market/indicator-labels';
-import { Badge, Button, Field, Input } from '@/components/ui';
+import { Adorned, Badge, Button, Field, Input } from '@/components/ui';
 import type { TaxRules } from '@/lib/config/tax-rules';
 import type { DataResult, IndicatorValue } from '@/lib/data/types';
 import { compareFixedIncome, comparatorInputSchema, type ComparatorInput } from '@/lib/finance/fixed-income';
-import { formatNumber, formatPercent, parseBrNumber } from '@/lib/format';
+import { formatDate, formatNumber, formatPercent, parseBrNumber } from '@/lib/format';
 import { ComparatorChart } from './ComparatorChart';
 import { ComparatorTable } from './ComparatorTable';
 
@@ -26,26 +26,6 @@ type Values = {
   tr: string;
 };
 type Key = keyof Values;
-
-const adornment = 'pointer-events-none absolute top-1/2 -translate-y-1/2 font-mono text-sm text-muted';
-
-function Adorned({ prefix, suffix, children }: { prefix?: string; suffix?: string; children: ReactNode }) {
-  return (
-    <div className="relative">
-      {prefix && (
-        <span aria-hidden="true" className={`${adornment} left-3`}>
-          {prefix}
-        </span>
-      )}
-      {children}
-      {suffix && (
-        <span aria-hidden="true" className={`${adornment} right-3`}>
-          {suffix}
-        </span>
-      )}
-    </div>
-  );
-}
 
 function pctText(r: DataResult<IndicatorValue>): string {
   return r.status === 'ok' ? formatNumber(r.data.value * 100, 2) : '';
@@ -227,9 +207,8 @@ function oldestVerified(rules: TaxRules): string | null {
     rules.savings.verifiedAt,
   ];
   if (dates.some((d) => d === null)) return null;
-  const oldest = (dates as string[]).slice().sort()[0] ?? '';
-  const [y, m, d] = oldest.split('-');
-  return `${d}/${m}/${y}`;
+  const oldest = (dates as string[]).slice().sort()[0];
+  return oldest ? formatDate(oldest) : null;
 }
 
 function Assumptions({ rules }: { rules: TaxRules }) {

@@ -1,7 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { Badge, Button, Dropdown, Field, Modal, Select, Table, Tabs, Tooltip } from './index';
+import {
+  Adorned,
+  Badge,
+  Button,
+  Dropdown,
+  Field,
+  Modal,
+  Select,
+  Table,
+  Tabs,
+  Tooltip,
+} from './index';
 
 describe('Field', () => {
   it('liga label, descrição e aria-invalid', () => {
@@ -24,6 +35,19 @@ describe('Field', () => {
     const input = screen.getByLabelText('Prazo');
     expect(input).not.toHaveAttribute('aria-invalid', 'true');
     expect(input).toHaveAccessibleDescription('Em meses');
+  });
+});
+
+describe('Adorned', () => {
+  it('prefixo e sufixo são decorativos (fora do nome acessível)', () => {
+    const { container } = render(
+      <Adorned prefix="R$" suffix="%">
+        <input aria-label="Valor" />
+      </Adorned>,
+    );
+    expect(screen.getByRole('textbox', { name: 'Valor' })).toBeInTheDocument();
+    const hidden = container.querySelectorAll('[aria-hidden="true"]');
+    expect([...hidden].map((h) => h.textContent)).toEqual(['R$', '%']);
   });
 });
 

@@ -8,7 +8,7 @@ import { assetHref } from '@/features/asset-page/class-info';
 import type { Asset, DataResult, Quote } from '@/lib/data/types';
 import { formatCurrency, formatNumber } from '@/lib/format';
 
-export const PHASE2_TEXT = 'Dado não disponível — previsto na Fase 2';
+const PHASE2_TEXT = 'Dado não disponível — previsto na Fase 2';
 
 const columns: TableColumn[] = [
   { key: 'asset', label: 'Ativo' },

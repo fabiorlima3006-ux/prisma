@@ -18,14 +18,7 @@ const eyebrow = 'mb-1 font-mono text-xs tracking-wider text-accent';
 
 export function HeroSection() {
   return (
-    <section
-      className="-mt-[var(--header-h)] bg-hero pt-[var(--header-h)] text-white"
-      style={{
-        backgroundImage:
-          'radial-gradient(60% 70% at 88% 0%,rgba(47,211,255,.18) 0%,transparent 60%),radial-gradient(50% 60% at 0% 100%,rgba(124,92,255,.18) 0%,transparent 60%),linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px)',
-        backgroundSize: 'auto,auto,28px 28px,28px 28px',
-      }}
-    >
+    <section className="hero-grid-glow -mt-[var(--header-h)] bg-hero pt-[var(--header-h)] text-white">
       <div className={`${wrap} grid items-center gap-6 pt-10 lg:grid-cols-[1fr_1.1fr]`}>
         <div>
           <p className="mb-2 font-mono text-xs tracking-wider text-[#2fd3ff]">

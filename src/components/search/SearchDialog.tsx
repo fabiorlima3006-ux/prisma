@@ -142,9 +142,10 @@ export function SearchDialog({
   return (
     <Modal open={open} onClose={close} title="Buscar">
       {open && (
-        <div onKeyDown={onKeyDown}>
+        <div>
           <input
             ref={inputRef}
+            onKeyDown={onKeyDown}
             type="text"
             role="combobox"
             aria-label="Buscar ativos, ferramentas e artigos"
@@ -194,6 +195,9 @@ export function SearchDialog({
                   {g.items.map((entry) => {
                     const i = flat.indexOf(entry);
                     return (
+                      // Padrão combobox com aria-activedescendant: o foco fica no campo, que trata
+                      // setas e Enter; as opções não recebem foco nem teclado próprios (APG).
+                      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus
                       <div
                         key={entry.type + entry.href + entry.title}
                         id={optionId(i)}

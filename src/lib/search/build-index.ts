@@ -1,16 +1,9 @@
 import { listArticles, TRACKS } from '@/features/education/registry';
 import { siteConfig, type NavItem } from '@/lib/config/site';
 import { TOOLS } from '@/lib/config/tools';
-import { CATALOG, CLASS_ROUTES } from '@/lib/data/catalog';
-import type { AssetClass } from '@/lib/data/types';
+import { assetHref, CLASS_LABELS } from '@/features/asset-page/class-info';
+import { CATALOG } from '@/lib/data/catalog';
 import type { SearchEntry } from './search';
-
-const CLASS_LABELS: Partial<Record<AssetClass, string>> = {
-  stock: 'Ações',
-  fii: 'FIIs',
-  etf: 'ETFs',
-  crypto: 'Cripto',
-};
 
 function leaves(items: NavItem[]): NavItem[] {
   return items.flatMap((i) => (i.children?.length ? leaves(i.children) : [i]));
@@ -38,17 +31,16 @@ export function buildSearchIndex(): Promise<SearchEntry[]> {
 async function compute(): Promise<SearchEntry[]> {
   const entries: SearchEntry[] = [];
 
-  const routes = Object.keys(CLASS_ROUTES) as (keyof typeof CLASS_ROUTES)[];
   for (const a of CATALOG) {
-    const route = routes.find((r) => CLASS_ROUTES[r] === a.class);
-    const label = CLASS_LABELS[a.class];
-    if (!route || !label) continue;
+    // Só ativos com página (índices e câmbio ficam fora da busca).
+    const href = assetHref(a);
+    if (!href) continue;
     entries.push({
       type: 'asset',
       title: a.ticker,
       subtitle: a.name,
-      href: `/${route}/${a.slug}`,
-      keywords: [...a.name.split(/\s+/), label],
+      href,
+      keywords: [...a.name.split(/\s+/), CLASS_LABELS[a.class]],
     });
   }
 

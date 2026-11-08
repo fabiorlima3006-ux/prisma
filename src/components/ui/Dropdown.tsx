@@ -55,7 +55,6 @@ export function Dropdown({
     <div
       ref={wrapper}
       className="relative"
-      onKeyDown={onKeyDown}
       onBlur={(e) => {
         // Fecha ao sair do componente com Tab (o foco foi para fora do wrapper).
         const next = e.relatedTarget as Node | null;
@@ -68,6 +67,7 @@ export function Dropdown({
         aria-expanded={open}
         aria-controls={menuId}
         onClick={() => setOpen((o) => !o)}
+        onKeyDown={onKeyDown}
         className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold"
       >
         {label}
@@ -86,6 +86,7 @@ export function Dropdown({
                   links.current[i] = el;
                 }}
                 onClick={() => setOpen(false)}
+                onKeyDown={onKeyDown}
                 className="block rounded-lg px-3 py-2 text-sm text-text hover:bg-surface-2"
               >
                 {item.label}

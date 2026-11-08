@@ -13,11 +13,6 @@ export const LEVEL_LABEL: Record<TrackSlug, string> = {
   avancado: 'Avançado',
 };
 
-export function formatIsoDate(iso: string): string {
-  const [y, m, d] = iso.split('-');
-  return `${d}/${m}/${y}`;
-}
-
 export function articlesLabel(n: number): string {
   return `${n} ${n === 1 ? 'artigo' : 'artigos'}`;
 }

@@ -7,8 +7,6 @@ import {
   Bar,
   BarChart as RBarChart,
   CartesianGrid,
-  Line,
-  LineChart as RLineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -42,24 +40,6 @@ function Axes({ formatValue }: Pick<ChartProps, 'formatValue'>) {
         }}
       />
     </>
-  );
-}
-
-export function LineChartImpl({ data, formatValue }: ChartProps) {
-  return (
-    <Frame>
-      <RLineChart data={data} accessibilityLayer={false}>
-        <Axes formatValue={formatValue} />
-        <Line
-          type="monotone"
-          dataKey="value"
-          stroke="var(--accent)"
-          strokeWidth={2}
-          dot={false}
-          isAnimationActive={false}
-        />
-      </RLineChart>
-    </Frame>
   );
 }
 

@@ -7,11 +7,11 @@ import {
   chartPoints,
   fibonacciSphere,
   prefersReducedMotion,
-  seededRandom,
   watchSize,
   watchVisibility,
   whenIdle,
 } from './particles';
+import { seededRandom } from '@/lib/random';
 
 type Particle = {
   x: number;

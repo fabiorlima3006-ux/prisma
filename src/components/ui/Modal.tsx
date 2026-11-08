@@ -33,6 +33,8 @@ export function Modal({
   }, [open]);
 
   return (
+    // O clique no fundo (backdrop) é só um atalho de mouse; pelo teclado, Esc fecha (onCancel nativo).
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions
     <dialog
       ref={ref}
       aria-labelledby={titleId}

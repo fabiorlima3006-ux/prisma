@@ -2,7 +2,7 @@ import type { ComponentType } from 'react';
 import { z } from 'zod';
 import { LEVELS, TRACKS, type Track, type TrackSlug } from './tracks';
 
-export { LEVELS, TRACKS, type Track, type TrackSlug };
+export { TRACKS, type Track, type TrackSlug };
 
 export const articleMetaSchema = z.object({
   title: z.string().min(1),

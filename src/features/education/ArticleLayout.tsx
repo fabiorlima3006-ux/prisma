@@ -4,7 +4,8 @@ import { Disclaimer } from '@/components/layout/Disclaimer';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui';
 import { TOOLS } from '@/lib/config/tools';
-import { LEVEL_LABEL, LEVEL_TONE, formatIsoDate } from './labels';
+import { formatDate } from '@/lib/format';
+import { LEVEL_LABEL, LEVEL_TONE } from './labels';
 import type { ArticleMeta, Track } from './registry';
 
 export function ArticleLayout({
@@ -34,7 +35,7 @@ export function ArticleLayout({
         <p className="mb-6 flex flex-wrap items-center gap-3 text-sm text-muted">
           <Badge tone={LEVEL_TONE[meta.level]}>{LEVEL_LABEL[meta.level]}</Badge>
           <span>{meta.readingMinutes} min de leitura</span>
-          <span>Atualizado em {formatIsoDate(meta.updatedAt)}</span>
+          <span>Atualizado em {formatDate(meta.updatedAt)}</span>
         </p>
         <article className="prose">{children}</article>
         {tools.length > 0 && (

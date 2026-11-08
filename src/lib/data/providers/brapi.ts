@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { log } from '../../logger';
+import { pctChange } from '../change';
 import type {
   Asset,
   DataMeta,
@@ -41,13 +42,6 @@ function series(r: Result): PricePoint[] {
     out.push({ date: new Date(p.date * 1000).toISOString().slice(0, 10), close: p.close });
   }
   return out;
-}
-
-function pctChange(closes: number[], back: number): number | null {
-  const last = closes[closes.length - 1];
-  const ref = closes[closes.length - 1 - back];
-  if (last === undefined || ref === undefined || ref === 0) return null;
-  return last / ref - 1;
 }
 
 export function createBrapiProvider(opts: {

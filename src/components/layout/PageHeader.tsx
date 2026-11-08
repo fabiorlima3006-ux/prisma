@@ -14,14 +14,7 @@ export function PageHeader({
   breadcrumbs?: Crumb[];
 }) {
   return (
-    <section
-      className="-mt-[var(--header-h)] bg-hero pt-[var(--header-h)] text-white"
-      style={{
-        backgroundImage:
-          'linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px)',
-        backgroundSize: '28px 28px',
-      }}
-    >
+    <section className="hero-grid -mt-[var(--header-h)] bg-hero pt-[var(--header-h)] text-white">
       <div className="mx-auto max-w-6xl px-4 pt-10 pb-12 sm:px-6">
         {breadcrumbs && breadcrumbs.length > 0 && (
           <div className="mb-4">

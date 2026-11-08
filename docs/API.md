@@ -74,7 +74,7 @@ Aplicados a todas as páginas e rotas por `next.config.ts` (`src/lib/security/he
 
 ### 2.3 Demonstrativo (demo)
 
-- Gerado localmente, sem rede: caminhada aleatória determinística, com gerador `mulberry32` semeado pelo hash FNV-1a do ticker, volatilidade diária de 1,5%, base 100 (10000 para índices) e 252 dias úteis.
+- Gerado localmente, sem rede: caminhada aleatória determinística, com gerador `mulberry32` (`src/lib/random.ts`, o mesmo das ilustrações do hero) semeado pelo hash FNV-1a do ticker, volatilidade diária de 1,5%, base 100 (10000 para índices) e 252 dias úteis.
 - Só simula preço, cotação e histórico. Indicadores e fundamentos nunca são simulados: aparecem como "Dado não disponível".
 - Todo dado demonstrativo traz `meta.isDemo = true` e a UI exibe o selo **DADOS DEMONSTRATIVOS**.
 

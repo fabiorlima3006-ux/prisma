@@ -4,7 +4,7 @@ import { afterEach } from 'vitest';
 
 afterEach(() => cleanup());
 
-// jsdom n�o implementa canvas 2D: contexto no-op para componentes que desenham.
+// jsdom não implementa canvas 2D: contexto no-op para componentes que desenham.
 // Testes que precisam de null podem usar vi.spyOn(HTMLCanvasElement.prototype, 'getContext').
 HTMLCanvasElement.prototype.getContext = function getContext() {
   return {

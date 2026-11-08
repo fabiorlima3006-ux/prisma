@@ -1,40 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Field, Input, Select } from '@/components/ui';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Adorned, Field, Input, Select } from '@/components/ui';
 import { CompoundInterestResult } from './CompoundInterestResult';
 import { toSearchParams, validateValues, type FormValues } from './url-state';
 
 const DEBOUNCE_MS = 300;
-const adornment =
-  'pointer-events-none absolute top-1/2 -translate-y-1/2 font-mono text-sm text-muted';
-
-function Adorned({
-  prefix,
-  suffix,
-  children,
-}: {
-  prefix?: string;
-  suffix?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="relative">
-      {prefix && (
-        <span aria-hidden="true" className={`${adornment} left-3`}>
-          {prefix}
-        </span>
-      )}
-      {children}
-      {suffix && (
-        <span aria-hidden="true" className={`${adornment} right-3`}>
-          {suffix}
-        </span>
-      )}
-    </div>
-  );
-}
 
 export function CompoundInterestForm({ initial }: { initial: FormValues }) {
   const router = useRouter();

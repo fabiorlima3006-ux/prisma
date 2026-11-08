@@ -7,6 +7,8 @@ import type {
   PricePoint,
   Quote,
 } from '../types';
+import { seededRandom } from '../../random';
+import { pctChange } from '../change';
 
 const POINTS = 252;
 const DAILY_VOL = 0.015;
@@ -19,17 +21,6 @@ function fnv1a(text: string): number {
     h = Math.imul(h, 0x01000193) >>> 0;
   }
   return h >>> 0;
-}
-
-function mulberry32(seed: number): () => number {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
 }
 
 /** Últimos `count` dias úteis (sem sábado/domingo) até a data de `now`, em ordem crescente. */
@@ -45,19 +36,12 @@ function businessDays(now: Date, count: number): string[] {
 }
 
 function generate(asset: Asset, now: Date): PricePoint[] {
-  const rand = mulberry32(fnv1a(asset.ticker));
+  const rand = seededRandom(fnv1a(asset.ticker));
   let price = asset.class === 'index' ? 10000 : 100;
   return businessDays(now, POINTS).map((date) => {
     price = price * (1 + (rand() * 2 - 1) * DAILY_VOL);
     return { date, close: Math.round(price * 100) / 100 };
   });
-}
-
-function pctChange(closes: number[], back: number): number | null {
-  const last = closes[closes.length - 1];
-  const ref = closes[closes.length - 1 - back];
-  if (last === undefined || ref === undefined || ref === 0) return null;
-  return last / ref - 1;
 }
 
 export function createDemoProvider(opts: { now?: () => Date } = {}): MarketDataProvider {

@@ -1,3 +1,4 @@
+export { Adorned } from './Adorned';
 export { Badge, type BadgeTone } from './Badge';
 export { Button, type ButtonProps } from './Button';
 export { Card, type CardProps } from './Card';

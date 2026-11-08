@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { CYAN, prefersReducedMotion, seededRandom, watchSize, watchVisibility } from './particles';
+import { seededRandom } from '@/lib/random';
+import { CYAN, prefersReducedMotion, watchSize, watchVisibility } from './particles';
 
 type Dot = { x: number; y: number; v: number };
 
