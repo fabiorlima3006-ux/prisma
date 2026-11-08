@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CompoundInterestInput } from '@/lib/finance/compound-interest';
 import { CompoundInterestForm } from './CompoundInterestForm';
 import { CompoundInterestResult } from './CompoundInterestResult';
@@ -11,6 +11,15 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ replace }),
   useSearchParams: () => new URLSearchParams(),
 }));
+
+// Aquecimento: a primeira montagem do formulário em jsdom (Recharts sob demanda, zod, JIT) custa ~1 s
+// e, sem isso, esse custo cai dentro do primeiro teste e, sob carga paralela
+// (npm test), estoura os 5 s dele; o teste estourado segue digitando no DOM do teste seguinte.
+beforeAll(async () => {
+  await import('@/components/charts/recharts-impl');
+  const { unmount } = render(<CompoundInterestForm initial={DEFAULT_VALUES} />);
+  unmount();
+});
 
 beforeEach(() => replace.mockClear());
 
