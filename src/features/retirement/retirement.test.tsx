@@ -119,10 +119,27 @@ describe('RetirementForm', () => {
     const ui = setup();
     expect(
       ui.getByText(
-        'Valores em reais de hoje. Rentabilidade real constante é uma simplificação; IR e custos não estão incluídos.',
+        'Valores em reais de hoje. Rentabilidade real constante é uma simplificação; IR e custos não estão incluídos; resultados reais variam.',
       ),
     ).toBeInTheDocument();
-    expect(ui.getByText(/premissa, não previsão/i)).toBeInTheDocument();
+    expect(
+      ui.getByText(
+        'Valor ilustrativo, não é dado de mercado nem previsão: o retorno real futuro é incerto.',
+      ),
+    ).toBeInTheDocument();
+    expect(ui.getByText(/premissa/i)).toBeInTheDocument();
+  });
+
+  it('a tabela acessível do gráfico cita o patrimônio necessário', () => {
+    const ui = setup();
+    const plan = retirementPlan(validateValues(DEFAULT_VALUES).input!);
+    const caption = ui
+      .getAllByRole('table', { hidden: true })
+      .map((t) => t.querySelector('caption')?.textContent ?? '')
+      .join(' ')
+      .replace(/\s/g, ' ');
+    expect(caption).toContain('patrimônio necessário');
+    expect(caption).toContain(formatCurrency(plan.requiredWealth!).replace(/\s/g, ' '));
   });
 
   it('campo inválido mostra erro e esconde o resultado', async () => {

@@ -4,7 +4,7 @@ import { retirementPlan, type RetirementInput } from '@/lib/finance/retirement';
 import { formatCurrency } from '@/lib/format';
 
 const NOTE =
-  'Valores em reais de hoje. Rentabilidade real constante é uma simplificação; IR e custos não estão incluídos.';
+  'Valores em reais de hoje. Rentabilidade real constante é uma simplificação; IR e custos não estão incluídos; resultados reais variam.';
 
 function Stat({ label, value, testId }: { label: string; value: string; testId: string }) {
   return (
@@ -100,7 +100,7 @@ export function RetirementResult({ input }: { input: RetirementInput | null }) {
         </p>
       </div>
       <AreaChart
-        title="Evolução do patrimônio por idade"
+        title={`Evolução do patrimônio por idade (patrimônio necessário: ${formatCurrency(requiredWealth)})`}
         description={`Patrimônio necessário: ${formatCurrency(requiredWealth)}.`}
         labelHeader="Idade"
         data={points}

@@ -109,7 +109,7 @@ export function RetirementForm({ initial }: { initial: FormValues }) {
         <Field
           label="Rentabilidade real anual (premissa)"
           error={errors.real}
-          hint="Acima da inflação. Premissa, não previsão: o retorno real futuro é incerto."
+          hint="Valor ilustrativo, não é dado de mercado nem previsão: o retorno real futuro é incerto."
         >
           {(p) => (
             <Adorned suffix="%">
