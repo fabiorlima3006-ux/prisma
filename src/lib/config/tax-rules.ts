@@ -59,6 +59,10 @@ export const TAX_RULES: TaxRules = {
       },
     },
   },
+  // Base do IR do Tesouro Selic: o comparador aplica a alíquota sobre (bruto − valor), SEM deduzir
+  // a custódia. Em 2026-11-08 não foi encontrada fonte oficial (Tesouro Direto, B3, Receita) que
+  // autorize deduzir a taxa de custódia da base; a IN RFB 1.585/2015, art. 46, § 1º, só cita o IOF.
+  // Revisar se a Receita ou o Tesouro publicarem orientação expressa.
   tesouroCustody: {
     effectiveFrom: '2022-01-01',
     source: 'https://www.tesourodireto.com.br/en/b/entenda-a-nova-taxa-de-custodia',

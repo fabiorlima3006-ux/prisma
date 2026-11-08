@@ -1,10 +1,12 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { getAsset } from '@/lib/data/catalog';
 import type {
   Asset,
   DataMeta,
   DataResult,
+  Fundamentals,
   HistoryRange,
   PricePoint,
   Quote,
@@ -83,7 +85,8 @@ describe('AssetPage', () => {
         fundamentals={noFundamentals}
       />,
     );
-    expect(screen.getAllByText('2026-10-01').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('01/10/2026').length).toBeGreaterThan(0);
+    expect(screen.queryByText('2026-10-01')).toBeNull();
     expect(screen.getAllByText(/Previsto na Fase 2/).length).toBeGreaterThanOrEqual(3);
   });
 
@@ -97,6 +100,54 @@ describe('AssetPage', () => {
       />,
     );
     expect(screen.queryByRole('heading', { name: /Indicadores fundamentalistas/ })).toBeNull();
+  });
+
+  it('P/L com prejuízo mostra "Não se aplica" com o motivo', async () => {
+    const fundamentals: DataResult<Fundamentals> = {
+      status: 'ok',
+      meta: { source: 'brapi', isDemo: false, asOf: '2026-11-07T12:00:00Z', attribution: 'brapi.dev' },
+      data: {
+        pl: null,
+        pvp: null,
+        roe: null,
+        roic: null,
+        netMargin: null,
+        ebitdaMargin: null,
+        netDebtToEbitda: null,
+        dividendYield: null,
+        payout: null,
+        revenueCagr5y: null,
+        earningsCagr5y: null,
+        notApplicable: { pl: 'A empresa teve prejuízo nos últimos 12 meses.' },
+      },
+    };
+    const user = userEvent.setup();
+    render(
+      <AssetPage
+        asset={need('stock', 'petr4')}
+        quote={quote}
+        history={histories}
+        fundamentals={fundamentals}
+      />,
+    );
+    const card = screen.getByText('P/L', { selector: 'span' }).closest('article') as HTMLElement;
+    expect(within(card).getByText('Não se aplica')).toBeInTheDocument();
+    await user.hover(within(card).getByRole('button', { name: 'Por que não se aplica?' }));
+    expect(screen.getByRole('tooltip')).toHaveTextContent('prejuízo nos últimos 12 meses');
+  });
+
+  it('cripto: faixa de 52 semanas em dólar (US$)', () => {
+    render(
+      <AssetPage
+        asset={need('crypto', 'btc')}
+        quote={quote}
+        history={histories}
+        fundamentals={noFundamentals}
+      />,
+    );
+    const range = screen.getByRole('img', { name: /^Mínima/ });
+    expect(range.getAttribute('aria-label')).toMatch(/Mínima US\$\s?30,00, máxima US\$\s?45,00/);
+    expect(range.getAttribute('aria-label')).not.toMatch(/R\$/);
   });
 });
 

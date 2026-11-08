@@ -3,6 +3,12 @@ import '@/lib/zod-setup';
 import { annualToMonthly } from './rates';
 
 const MAX_VALUE = 1e12;
+/**
+ * Teto da taxa (fração): 100% a.m. e o equivalente anual exato, (1 + 1)^12 − 1 = 4.095,
+ * ou seja, 409.500% a.a. Assim os dois períodos aceitam o mesmo crescimento máximo.
+ */
+export const MAX_MONTHLY_RATE = 1;
+export const MAX_ANNUAL_RATE = (1 + MAX_MONTHLY_RATE) ** 12 - 1;
 const NEGATIVE = 'O valor não pode ser negativo';
 const TOO_BIG = 'O valor informado é grande demais';
 
@@ -51,7 +57,7 @@ export const compoundInterestInputSchema: z.ZodType<CompoundInterestInput> = z
       .max(600, 'Informe um prazo entre 1 e 600 meses'),
   })
   .superRefine((v, ctx) => {
-    const limit = v.ratePeriod === 'month' ? 1 : 10000;
+    const limit = v.ratePeriod === 'month' ? MAX_MONTHLY_RATE : MAX_ANNUAL_RATE;
     if (v.rate > limit) {
       ctx.addIssue({ code: 'custom', path: ['rate'], message: 'Taxa acima do limite permitido' });
       return;

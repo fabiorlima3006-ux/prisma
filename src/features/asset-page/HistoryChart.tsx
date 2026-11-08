@@ -4,7 +4,7 @@ import { AreaChart } from '@/components/charts';
 import { unavailableText } from '@/components/market/unavailable';
 import { Tabs } from '@/components/ui';
 import type { DataResult, HistoryRange, PricePoint } from '@/lib/data/types';
-import { formatCurrency } from '@/lib/format';
+import { formatCurrency, formatDate } from '@/lib/format';
 
 const RANGES: { id: HistoryRange; label: string; title: string }[] = [
   { id: '1m', label: '1M', title: 'último mês' },
@@ -30,7 +30,7 @@ export function HistoryChart({
         result.status === 'ok' && result.data.length > 0 ? (
           <AreaChart
             title={`Histórico de preço de ${ticker}, ${r.title}`}
-            data={result.data.map((p) => ({ label: p.date, value: p.close }))}
+            data={result.data.map((p) => ({ label: formatDate(p.date), value: p.close }))}
             formatValue={(v) => formatCurrency(v, currency)}
           />
         ) : (

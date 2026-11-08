@@ -347,7 +347,7 @@ Next.js App Router ─ Server Components (renderização + SEO)
   type DataSource = 'bcb' | 'brapi' | 'demo';
   interface DataMeta { source: DataSource; isDemo: boolean; asOf: string /* ISO */; attribution: string }
   ```
-- O componente **`DataSourceBadge`** lê `DataMeta` e mostra "DADOS DEMONSTRATIVOS" (amarelo) ou "Fonte: Banco Central / brapi · atualizado em <data>" (verde). **Nenhum componente que exibe dado de mercado pode ser renderizado sem `DataMeta`.** O tipo deve obrigar isso, por exemplo com props `{ data: WithMeta<T> }`.
+- O componente **`DataSourceBadge`** lê `DataMeta` e mostra "DADOS DEMONSTRATIVOS" (amarelo) ou "Fonte: Banco Central / brapi · consultado em <data hora>" (verde). **Nenhum componente que exibe dado de mercado pode ser renderizado sem `DataMeta`.** O tipo deve obrigar isso, por exemplo com props `{ data: WithMeta<T> }`.
 - **DemoProvider:**
   - Preços de partida fixos por ativo em uma fixture.
   - Histórico gerado por um passeio aleatório **determinístico** (semente = ticker), para dar estabilidade entre renderizações e nos testes.

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { DataMeta, DataResult, IndicatorValue, Quote } from '@/lib/data/types';
 import { formatCurrency, formatPercent } from '@/lib/format';
 import { DataSourceBadge } from './DataSourceBadge';
+import { referenceLabel } from './indicator-labels';
 import { PriceChange } from './PriceChange';
 import { unavailableText } from './unavailable';
 
@@ -53,9 +54,12 @@ function Item({ result, label }: { result: StripResult; label: string }) {
       const text =
         d.unit === 'BRL' ? formatCurrency(d.value) : `${formatPercent(d.value)} ${d.unit}`;
       value = (
-        <span className="font-mono text-sm font-bold text-text" {...demoAttr}>
-          {text}
-        </span>
+        <>
+          <span className="font-mono text-sm font-bold text-text" {...demoAttr}>
+            {text}
+          </span>
+          <span className="text-[11px] text-muted">{referenceLabel(d)}</span>
+        </>
       );
     } else {
       value = (

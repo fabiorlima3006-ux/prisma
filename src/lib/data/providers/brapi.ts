@@ -13,6 +13,7 @@ import type {
 } from '../types';
 
 const ATTRIBUTION = 'brapi.dev';
+export const PL_LOSS_REASON = 'A empresa teve prejuízo nos últimos 12 meses; o P/L negativo não tem leitura útil.';
 const RANGE: Record<HistoryRange, string> = { '1m': '1mo', '6m': '6mo', '1y': '1y' };
 
 const num = z.number().nullish();
@@ -69,12 +70,14 @@ export function createBrapiProvider(opts: {
     return { status: 'unavailable', reason, source: 'brapi', attribution: ATTRIBUTION };
   }
 
+  /** Sem `range`: só a cotação (preço, dia, volume, 52 semanas). Com `range`: inclui o histórico. */
   async function load(
     asset: Asset,
-    range: string,
+    range?: string,
   ): Promise<{ ok: true; result: unknown } | { ok: false; reason: UnavailableReason }> {
     const symbol = encodeURIComponent(asset.brapiSymbol ?? asset.ticker);
-    const url = `https://brapi.dev/api/quote/${symbol}?range=${range}&interval=1d`;
+    const base = `https://brapi.dev/api/quote/${symbol}`;
+    const url = range ? `${base}?range=${range}&interval=1d` : base;
     let body: unknown;
     try {
       const res = await fetchImpl(url, {
@@ -92,15 +95,27 @@ export function createBrapiProvider(opts: {
     return { ok: true, result: parsed.data.results[0] };
   }
 
+  async function loadHistory(asset: Asset, range: HistoryRange): Promise<DataResult<PricePoint[]>> {
+    const l = await load(asset, RANGE[range]);
+    if (!l.ok) return fail('history', asset, l.reason);
+    const r = resultSchema.safeParse(l.result);
+    if (!r.success) return fail('history', asset, 'invalid-response');
+    const points = series(r.data);
+    if (points.length === 0) return fail('history', asset, 'empty');
+    return { status: 'ok', data: points, meta: meta() };
+  }
+
   return {
     id: 'brapi',
     async getQuote(asset): Promise<DataResult<Quote>> {
-      const l = await load(asset, '1y');
+      // A cotação não depende do histórico: se a chamada de 1 ano falhar (ex.: plano sem esse
+      // intervalo), semana/mês/ano ficam null e o resto da cotação continua valendo.
+      const [l, h] = await Promise.all([load(asset), loadHistory(asset, '1y')]);
       if (!l.ok) return fail('quote', asset, l.reason);
       const r = resultSchema.safeParse(l.result);
       if (!r.success) return fail('quote', asset, 'invalid-response');
       const d = r.data;
-      const closes = series(d).map((p) => p.close);
+      const closes = h.status === 'ok' ? h.data.map((p) => p.close) : [];
       const pct = d.regularMarketChangePercent;
       return {
         status: 'ok',
@@ -122,24 +137,18 @@ export function createBrapiProvider(opts: {
         meta: meta(),
       };
     },
-    async getHistory(asset, range): Promise<DataResult<PricePoint[]>> {
-      const l = await load(asset, RANGE[range]);
-      if (!l.ok) return fail('history', asset, l.reason);
-      const r = resultSchema.safeParse(l.result);
-      if (!r.success) return fail('history', asset, 'invalid-response');
-      const points = series(r.data);
-      if (points.length === 0) return fail('history', asset, 'empty');
-      return { status: 'ok', data: points, meta: meta() };
-    },
+    getHistory: loadHistory,
     async getFundamentals(asset): Promise<DataResult<Fundamentals>> {
-      const l = await load(asset, '1mo');
+      const l = await load(asset);
       if (!l.ok) return fail('fundamentals', asset, l.reason);
       const r = fundamentalsSchema.safeParse(l.result);
       if (!r.success) return fail('fundamentals', asset, 'not-provided');
+      // P/L negativo = prejuízo em 12 meses: calculável, mas sem significado (skill financial-analysis).
+      const loss = r.data.priceEarnings < 0;
       return {
         status: 'ok',
         data: {
-          pl: r.data.priceEarnings,
+          pl: loss ? null : r.data.priceEarnings,
           pvp: null,
           roe: null,
           roic: null,
@@ -150,6 +159,7 @@ export function createBrapiProvider(opts: {
           payout: null,
           revenueCagr5y: null,
           earningsCagr5y: null,
+          ...(loss ? { notApplicable: { pl: PL_LOSS_REASON } } : {}),
         },
         meta: meta(),
       };

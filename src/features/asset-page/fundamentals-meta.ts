@@ -1,7 +1,7 @@
-import type { Fundamentals } from '@/lib/data/types';
+import type { FundamentalKey } from '@/lib/data/types';
 
 export type FundamentalMeta = {
-  key: keyof Fundamentals;
+  key: FundamentalKey;
   label: string;
   format: 'percent' | 'ratio';
   help: string;

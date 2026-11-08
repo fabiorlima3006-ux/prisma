@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CompoundInterestInput } from '@/lib/finance/compound-interest';
 import { CompoundInterestForm } from './CompoundInterestForm';
-import { DEFAULT_VALUES, fromSearchParams, toSearchParams } from './url-state';
+import { CompoundInterestResult } from './CompoundInterestResult';
+import { DEFAULT_VALUES, fromSearchParams, toSearchParams, validateValues } from './url-state';
 
 const replace = vi.fn();
 vi.mock('next/navigation', () => ({
@@ -38,6 +39,20 @@ describe('url-state', () => {
     expect(values.unidade).toBe('anos');
   });
 
+  it('prazo fracionário em anos é convertido para meses inteiros, com nota', () => {
+    const v = validateValues({ ...DEFAULT_VALUES, prazo: '1,3', unidade: 'anos' });
+    expect(v.input?.months).toBe(16);
+    expect(v.notes.prazo).toBe('convertido para 16 meses');
+    // Na URL vai em meses (16 não é múltiplo de 12).
+    const sp = toSearchParams(v.input!, 'anos');
+    expect(sp.get('prazo')).toBe('16');
+    expect(sp.get('unidade')).toBe('meses');
+    const exact = validateValues({ ...DEFAULT_VALUES, prazo: '1,5', unidade: 'anos' });
+    expect(exact.input?.months).toBe(18);
+    expect(exact.notes.prazo).toBeUndefined();
+    expect(validateValues({ ...DEFAULT_VALUES, prazo: '2', unidade: 'anos' }).notes.prazo).toBeUndefined();
+  });
+
   it('entrada inválida dá input nulo; sem parâmetros usa os padrões', () => {
     expect(fromSearchParams(new URLSearchParams('capital=abc')).input).toBeNull();
     const d = fromSearchParams(new URLSearchParams());
@@ -67,6 +82,28 @@ describe('CompoundInterestForm', () => {
     expect(screen.getByText('Informe um número válido')).toBeInTheDocument();
     expect(screen.queryByText(/NaN|Infinity/)).toBeNull();
     expect(screen.queryByTestId('final-balance')).toBeNull();
+  });
+
+  it('prazo 1,3 anos calcula com 16 meses e mostra a nota no campo', async () => {
+    const user = userEvent.setup();
+    render(<CompoundInterestForm initial={DEFAULT_VALUES} />);
+    await user.selectOptions(screen.getByLabelText('Unidade do prazo'), 'anos');
+    await user.clear(screen.getByLabelText('Prazo'));
+    await user.type(screen.getByLabelText('Prazo'), '1,3');
+    expect(screen.getByLabelText('Prazo')).not.toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByLabelText('Prazo')).toHaveAccessibleDescription('convertido para 16 meses');
+    expect(await screen.findByTestId('final-balance')).toBeInTheDocument();
+  });
+
+  it('gráfico e tabela anual rotulam ano fracionário em pt-BR', () => {
+    render(
+      <CompoundInterestResult
+        input={{ initial: 1000, monthlyContribution: 0, rate: 0.01, ratePeriod: 'month', months: 30 }}
+      />,
+    );
+    expect(screen.getByRole('cell', { name: 'Ano 2,5' })).toBeInTheDocument();
+    expect(screen.queryByText(/Ano 2\.5/)).toBeNull();
+    expect(screen.getByRole('cell', { name: '2,5' })).toBeInTheDocument();
   });
 
   it('mostra erro do Zod no campo certo (taxa acima do limite)', async () => {

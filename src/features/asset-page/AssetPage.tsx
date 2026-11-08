@@ -76,6 +76,7 @@ export function AssetPage({
               low={q?.low52w ?? null}
               high={q?.high52w ?? null}
               current={q?.price ?? null}
+              currency={asset.currency}
             />
           </Card>
         </section>

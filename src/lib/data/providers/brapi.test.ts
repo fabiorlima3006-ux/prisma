@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import fixture from './__fixtures__/brapi-petr4.json';
-import { createBrapiProvider } from './brapi';
+import { createBrapiProvider, PL_LOSS_REASON } from './brapi';
 import { getAsset } from '../catalog';
 
 const petr4 = getAsset('stock', 'petr4')!;
@@ -38,11 +38,42 @@ describe('brapi provider', () => {
     expect(q.data.change.month).toBeNull();
     expect(q.data.change.year).toBeCloseTo(closes[19]! / closes[0]! - 1, 10);
     expect(f).toHaveBeenCalledWith(
-      expect.stringContaining('/api/quote/PETR4'),
+      'https://brapi.dev/api/quote/PETR4',
       expect.objectContaining({
         headers: expect.objectContaining({ Authorization: 'Bearer t' }),
       }),
     );
+    // Semana/mês/ano vêm de uma chamada de histórico separada.
+    expect(f).toHaveBeenCalledWith(
+      'https://brapi.dev/api/quote/PETR4?range=1y&interval=1d',
+      expect.anything(),
+    );
+  });
+
+  it('histórico falha: cotação continua ok, com semana/mês/ano null', async () => {
+    const { historicalDataPrice: _h, ...quoteOnly } = fixture.results[0]!;
+    void _h;
+    const f = vi.fn(async (url: string) =>
+      url.includes('range=')
+        ? ({ ok: false, status: 400, json: async () => ({}) } as Response)
+        : ({ ok: true, status: 200, json: async () => ({ results: [quoteOnly] }) } as Response),
+    ) as unknown as typeof fetch;
+    const q = await createBrapiProvider({ token: 't', fetchImpl: f, now }).getQuote!(petr4);
+    if (q.status !== 'ok') throw new Error('esperava ok');
+    expect(q.data.price).toBe(quoteOnly.regularMarketPrice);
+    expect(q.data.change.day).toBeCloseTo(quoteOnly.regularMarketChangePercent / 100, 10);
+    expect(q.data.high52w).toBe(quoteOnly.fiftyTwoWeekHigh);
+    expect(q.data.change).toMatchObject({ week: null, month: null, year: null });
+  });
+
+  it('P/L negativo (prejuízo) vira "não se aplica" com motivo', async () => {
+    const body = { results: [{ ...fixture.results[0]!, priceEarnings: -3.2 }] };
+    const p = createBrapiProvider({ token: 't', fetchImpl: fakeFetch(body), now });
+    const fd = await p.getFundamentals!(petr4);
+    if (fd.status !== 'ok') throw new Error('esperava ok');
+    expect(fd.data.pl).toBeNull();
+    expect(fd.data.notApplicable?.pl).toBe(PL_LOSS_REASON);
+    expect(PL_LOSS_REASON).toMatch(/prejuízo nos últimos 12 meses/);
   });
 
   it('mapeia o histórico com datas YYYY-MM-DD e o intervalo pedido', async () => {
@@ -85,6 +116,7 @@ describe('brapi provider', () => {
     const f = await p.getFundamentals!(petr4);
     if (f.status !== 'ok') throw new Error('esperava ok');
     expect(f.data.pl).toBe(fixture.results[0]!.priceEarnings);
+    expect(f.data.notApplicable).toBeUndefined();
     expect(f.data.roe).toBeNull();
     expect(f.data.dividendYield).toBeNull();
     const none = createBrapiProvider({

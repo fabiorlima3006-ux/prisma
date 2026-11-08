@@ -44,6 +44,14 @@ describe('quote', () => {
     expect(res.status).toBe(404);
     expect(await res.json()).toEqual({ error: 'not-found' });
   });
+  it('404 para classes sem página: câmbio (usdbrl) e índices (ibov)', async () => {
+    for (const t of ['usdbrl', 'USDBRL', 'ibov', 'spx']) {
+      const res = await quoteGET(req(`/api/market/quote/${t}`), ctx(t));
+      expect(res.status).toBe(404);
+      expect(await res.json()).toEqual({ error: 'not-found' });
+    }
+    expect(mocks.getQuote).not.toHaveBeenCalled();
+  });
   it('200 com ticker em minúsculas e cache', async () => {
     const res = await quoteGET(req('/api/market/quote/petr4'), ctx('petr4'));
     expect(res.status).toBe(200);
@@ -80,6 +88,7 @@ describe('history', () => {
   });
   it('404 e 200', async () => {
     expect((await historyGET(req('/h?range=1m'), ctx('zzzz9'))).status).toBe(404);
+    expect((await historyGET(req('/h?range=1m'), ctx('usdbrl'))).status).toBe(404);
     const res = await historyGET(req('/h?range=6m'), ctx('PETR4'));
     expect(res.status).toBe(200);
     expect(mocks.getHistory.mock.calls[0]![1]).toBe('6m');

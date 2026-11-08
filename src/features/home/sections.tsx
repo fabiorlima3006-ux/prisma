@@ -7,7 +7,7 @@ import { INDICATOR_LABELS } from '@/components/market/indicator-labels';
 import { IndicatorStrip } from '@/components/market/IndicatorStrip';
 import { Badge, Button, Card } from '@/components/ui';
 import { TOOLS } from '@/lib/config/tools';
-import { CATALOG } from '@/lib/data/catalog';
+import { CLASS_ROUTES } from '@/lib/data/catalog';
 import type { Asset, DataResult, IndicatorValue, Quote } from '@/lib/data/types';
 import { LEVEL_LABEL, LEVEL_TONE } from '@/features/education/labels';
 import { TRACKS } from '@/features/education/tracks';
@@ -90,8 +90,8 @@ export function MarketStrip({
 
 export function StatsStrip() {
   const stats = [
-    { value: new Set(CATALOG.map((a) => a.class)).size, label: 'classes de ativos' },
-    { value: TOOLS.length, label: 'simuladores e ferramentas' },
+    { value: Object.keys(CLASS_ROUTES).length, label: 'classes de ativos' },
+    { value: TOOLS.filter((t) => t.status === 'available').length, label: 'ferramentas disponíveis' },
     { value: TRACKS.length, label: 'trilhas de educação' },
   ];
   return (
@@ -117,7 +117,7 @@ export function HighlightsSection({ items }: { items: HighlightItem[] }) {
   return (
     <section className={`${wrap} mt-14`}>
       <p className={eyebrow}>{'// destaques'}</p>
-      <h2 className={h2}>Ativos para acompanhar</h2>
+      <h2 className={h2}>Ativos do catálogo</h2>
       <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         {items.map((i) => (
           <AssetCard key={i.asset.ticker} asset={i.asset} quote={i.quote} href={i.href} />

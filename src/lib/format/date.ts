@@ -47,3 +47,9 @@ export function formatDateTime(iso: string): string {
   const p = parts(iso);
   return p ? `${p.d}/${p.mo}/${p.y} ${p.h}:${p.mi}` : INVALID;
 }
+
+/** Mês de referência ("MM/aaaa"), para séries mensais como o IPCA. */
+export function formatMonthYear(iso: string): string {
+  const p = parts(iso);
+  return p ? `${p.mo}/${p.y}` : INVALID;
+}

@@ -3,6 +3,7 @@
 // Sem sincronização com a URL: o comparador recalcula localmente (debounce de 300 ms).
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { DataSourceBadge } from '@/components/market/DataSourceBadge';
+import { referenceLabel } from '@/components/market/indicator-labels';
 import { Badge, Button, Field, Input } from '@/components/ui';
 import type { TaxRules } from '@/lib/config/tax-rules';
 import type { DataResult, IndicatorValue } from '@/lib/data/types';
@@ -180,7 +181,8 @@ export function ComparatorForm({ rates, rules }: { rates: Rates; rules: TaxRules
                     <dd className="space-y-1">
                       <span className="font-mono text-sm">
                         {formatPercent(r.data.value)} {r.data.unit}
-                      </span>
+                      </span>{' '}
+                      <span className="text-xs text-muted">{referenceLabel(r.data)}</span>
                       <span className="block">
                         <DataSourceBadge meta={r.meta} />
                       </span>

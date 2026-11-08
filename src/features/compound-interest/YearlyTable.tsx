@@ -1,9 +1,10 @@
 import { Table } from '@/components/ui';
 import type { MonthRow } from '@/lib/finance/compound-interest';
-import { formatCurrency } from '@/lib/format';
+import { formatCurrency, formatNumber } from '@/lib/format';
 
-function yearLabel(month: number): string {
-  return month % 12 === 0 ? String(month / 12) : (month / 12).toFixed(1).replace('.', ',');
+/** Ano da linha em pt-BR: inteiro ("3") ou com uma casa quando o prazo não fecha o ano ("2,5"). */
+export function yearLabel(month: number): string {
+  return month % 12 === 0 ? String(month / 12) : formatNumber(month / 12, 1);
 }
 
 export function YearlyTable({ rows }: { rows: MonthRow[] }) {

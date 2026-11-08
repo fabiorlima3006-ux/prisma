@@ -12,7 +12,7 @@ Todas as rotas ficam em `/api/market/*`, aceitam apenas `GET` e respondem JSON.
 | `/api/market/quote/{ticker}` | `ticker` no caminho | `DataResult<Quote>` |
 | `/api/market/history/{ticker}?range=` | `ticker` no caminho; `range` = `1m`, `6m` ou `1y` (padrão `1y`) | `DataResult<PricePoint[]>` |
 
-O `ticker` é resolvido no catálogo (`src/lib/data/catalog.ts`) sem diferenciar maiúsculas de minúsculas, pelo código ou pelo slug (`petr4` resolve para `PETR4`). O formato aceito é `^[A-Za-z0-9^.]{1,12}$`.
+O `ticker` é resolvido no catálogo (`src/lib/data/catalog.ts`) sem diferenciar maiúsculas de minúsculas, pelo código ou pelo slug (`petr4` resolve para `PETR4`). O formato aceito é `^[A-Za-z0-9^.]{1,12}$`. Só são servidas as classes que têm página (ações, FIIs, ETFs e cripto): índices (`ibov`, `spx`…) e câmbio (`usdbrl`) respondem 404. O dólar real da plataforma é o indicador `ptax` de `/api/market/indicators`, nunca uma cotação demonstrativa.
 
 Um `DataResult<T>` é `{ status: 'ok', data, meta }` (com `meta.source`, `meta.isDemo`, `meta.asOf`, `meta.attribution`) ou `{ status: 'unavailable', reason, source, attribution }`. Uma fonte indisponível **não** gera erro HTTP: a rota responde 200 com `status: 'unavailable'`.
 
@@ -23,7 +23,7 @@ Um `DataResult<T>` é `{ status: 'ok', data, meta }` (com `meta.source`, `meta.i
 | 200 | `DataResult` ou objeto de indicadores | Sucesso, inclusive quando o dado está indisponível |
 | 400 | `{ "error": "invalid-ticker" }` | Ticker fora do formato aceito |
 | 400 | `{ "error": "invalid-range" }` | `range` diferente de `1m`, `6m` e `1y` |
-| 404 | `{ "error": "not-found" }` | Ticker com formato válido, mas fora do catálogo |
+| 404 | `{ "error": "not-found" }` | Ticker com formato válido, mas fora do catálogo ou de uma classe sem página (índice, câmbio) |
 | 429 | `{ "error": "rate-limited" }` | Limite estourado; vem com o cabeçalho `Retry-After` (segundos) |
 | 500 | `{ "error": "internal" }` | Erro inesperado. A resposta nunca traz stack; o detalhe vai para o log (`api-internal-error`) |
 
@@ -69,7 +69,7 @@ Aplicados a todas as páginas e rotas por `next.config.ts` (`src/lib/security/he
 - Autenticação: cabeçalho `Authorization: Bearer <BRAPI_TOKEN>`. O token é opcional e fica só em `.env.local`. Sem token, o provedor brapi nem é registrado e os ativos usam o modo demonstrativo.
 - Sem token, a própria brapi libera apenas os tickers de teste `PETR4`, `MGLU3`, `VALE3` e `ITUB4`, e **somente um por requisição** (combinar com outro exige token). Qualquer outro ticker responde 401 `MISSING_TOKEN`. O índice `^BVSP` (Ibovespa) exige token e **não foi verificado ao vivo**.
 - Limites do plano gratuito: a documentação consultada não informa requisições por mês, tickers por requisição nem profundidade do histórico. Sabe-se que o plano define quais `range`, `interval` e módulos são aceitos (valores fora do plano retornam erro) e que `includeRaw` é exclusivo do plano Pro. Confirmar os números e os termos de uso na página de preços da brapi antes de publicar.
-- Uso: a cotação usa `range=1y` (uma requisição, de onde saem as variações de semana, mês e ano); o histórico usa `1mo`, `6mo` ou `1y`. Do bloco de fundamentos, só `priceEarnings` (P/L) é mapeado.
+- Uso: a cotação usa a chamada **sem** `range` (preço, variação do dia, volume, máxima e mínima do dia e faixa de 52 semanas vêm da própria resposta). As variações de semana, mês e ano saem de uma chamada de histórico separada (`range=1y&interval=1d`); se ela falhar (por exemplo, intervalo fora do plano), essas três ficam `null` e a cotação continua valendo. O histórico usa `1mo`, `6mo` ou `1y`. Do bloco de fundamentos, só `priceEarnings` (P/L) é mapeado; P/L negativo (prejuízo em 12 meses) vira "Não se aplica" com o motivo.
 - Revalidação de 900 s; timeout de 5000 ms.
 
 ### 2.3 Demonstrativo (demo)

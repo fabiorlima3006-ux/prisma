@@ -54,7 +54,14 @@ export interface Fundamentals {
   payout: number | null;
   revenueCagr5y: number | null;
   earningsCagr5y: number | null;
+  /**
+   * Indicadores calculáveis mas sem significado (ex.: P/L com prejuízo): o valor fica `null`
+   * e a UI mostra "Não se aplica" com este motivo.
+   */
+  notApplicable?: Partial<Record<FundamentalKey, string>>;
 }
+
+export type FundamentalKey = Exclude<keyof Fundamentals, 'notApplicable'>;
 
 export type IndicatorId = 'selic' | 'cdi' | 'ipca12m' | 'ipcaMonth' | 'ptax' | 'tr';
 

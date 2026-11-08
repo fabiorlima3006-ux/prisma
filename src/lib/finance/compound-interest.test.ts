@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { annualToMonthly, monthlyToAnnual } from './rates';
-import { compoundInterest, compoundInterestInputSchema, yearlySummary } from './compound-interest';
+import {
+  compoundInterest,
+  compoundInterestInputSchema,
+  MAX_ANNUAL_RATE,
+  MAX_MONTHLY_RATE,
+  yearlySummary,
+} from './compound-interest';
 
 describe('rates', () => {
   it('converte taxa anual em mensal e de volta', () => {
@@ -82,8 +88,12 @@ describe('compoundInterestInputSchema', () => {
   });
   it('recusa taxa acima do limite', () => {
     expect(compoundInterestInputSchema.safeParse({ ...ok, rate: 1.01 }).success).toBe(false);
-    expect(compoundInterestInputSchema.safeParse({ ...ok, rate: 10001, ratePeriod: 'year' }).success).toBe(false);
-    expect(compoundInterestInputSchema.safeParse({ ...ok, rate: 10000, ratePeriod: 'year', months: 12 }).success).toBe(true);
+    // Teto anual coerente com 100% a.m.: (1 + 1)^12 − 1 = 4.095 (fração) = 409.500% a.a.
+    expect(MAX_ANNUAL_RATE).toBe(4095);
+    expect(annualToMonthly(MAX_ANNUAL_RATE)).toBeCloseTo(MAX_MONTHLY_RATE, 12);
+    expect(compoundInterestInputSchema.safeParse({ ...ok, rate: 4095.01, ratePeriod: 'year', months: 12 }).success).toBe(false);
+    expect(compoundInterestInputSchema.safeParse({ ...ok, rate: 10000, ratePeriod: 'year', months: 12 }).success).toBe(false);
+    expect(compoundInterestInputSchema.safeParse({ ...ok, rate: 4095, ratePeriod: 'year', months: 12 }).success).toBe(true);
   });
   it('recusa NaN e Infinity', () => {
     expect(compoundInterestInputSchema.safeParse({ ...ok, rate: Number.NaN }).success).toBe(false);

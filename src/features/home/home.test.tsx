@@ -7,7 +7,7 @@ import { GrowthBars } from '@/components/illustrations/GrowthBars';
 import { HeroParticles } from '@/components/illustrations/HeroParticles';
 import { chartPoints, seededRandom } from '@/components/illustrations/particles';
 import { TOOLS } from '@/lib/config/tools';
-import { CATALOG } from '@/lib/data/catalog';
+import { CATALOG, CLASS_ROUTES } from '@/lib/data/catalog';
 import type { Asset, DataMeta, DataResult, IndicatorValue, Quote } from '@/lib/data/types';
 import {
   AssistantShowcase,
@@ -97,13 +97,18 @@ describe('Home', () => {
     ).toBeInTheDocument();
   });
 
-  it('números da faixa vêm dos registros', () => {
+  it('números da faixa vêm dos registros (só o que tem página ou está disponível)', () => {
     render(<Page />);
-    expect(screen.getByText(String(TOOLS.length))).toBeInTheDocument();
-    expect(TOOLS).toHaveLength(10);
-    const classes = new Set(CATALOG.map((a) => a.class)).size;
-    expect(screen.getByText(String(classes))).toBeInTheDocument();
+    const stats = within(screen.getByRole('region', { name: 'A plataforma em números' }));
+    const value = (label: string) => stats.getByText(label).parentElement?.querySelector('dd');
+    const available = TOOLS.filter((t) => t.status === 'available').length;
+    expect(available).toBe(2);
+    expect(value('ferramentas disponíveis')).toHaveTextContent(String(available));
+    expect(Object.keys(CLASS_ROUTES)).toHaveLength(4);
+    expect(value('classes de ativos')).toHaveTextContent('4');
+    expect(value('trilhas de educação')).toHaveTextContent(String(TRACKS.length));
     expect(TRACKS).toHaveLength(3);
+    expect(screen.getByRole('heading', { name: 'Ativos do catálogo' })).toBeInTheDocument();
   });
 
   it('destaques, trilhas e assistente', () => {

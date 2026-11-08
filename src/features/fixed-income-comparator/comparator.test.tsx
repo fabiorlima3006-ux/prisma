@@ -100,6 +100,8 @@ describe('ComparatorForm', () => {
     );
     expect(screen.queryByLabelText('CDI (% a.a.)')).not.toBeInTheDocument();
     expect(screen.getByText(/10,65%/)).toBeInTheDocument();
+    expect(screen.getAllByText('ref. 06/11/2026')).toHaveLength(3);
+    expect(screen.getAllByText(/consultado em 06\/11\/2026 09:00/)).toHaveLength(3);
     expect(await screen.findByRole('table', { name: 'Comparação de renda fixa' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Informar taxas manualmente' }));
     expect(screen.getByLabelText('CDI (% a.a.)')).toHaveValue('10,65');

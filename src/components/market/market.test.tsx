@@ -61,6 +61,11 @@ describe('DataSourceBadge', () => {
     expect(screen.getByText(/Banco Central do Brasil — SGS/)).toBeInTheDocument();
     expect(screen.queryByText('DADOS DEMONSTRATIVOS')).toBeNull();
   });
+  it('fonte real diz "consultado em {data hora}" (horário de Brasília)', () => {
+    render(<DataSourceBadge meta={bcbMeta} />);
+    expect(screen.getByText(/consultado em 07\/11\/2026 09:00/)).toBeInTheDocument();
+    expect(screen.queryByText(/atualizado em/)).toBeNull();
+  });
 });
 
 describe('MetricCard', () => {
@@ -160,6 +165,11 @@ describe('RangeBar', () => {
     expect(screen.queryByRole('img')).toBeNull();
     expect(screen.getByText('Dado não disponível')).toBeInTheDocument();
   });
+  it('usa a moeda do ativo (US$ para cripto)', () => {
+    render(<RangeBar low={10} high={20} current={15} label="52 semanas" currency="USD" />);
+    expect(screen.getByRole('img').getAttribute('aria-label')).toMatch(/^Mínima US\$/);
+    expect(screen.getAllByText(/US\$/).length).toBe(2);
+  });
 });
 
 describe('AssetCard', () => {
@@ -226,6 +236,26 @@ describe('IndicatorStrip', () => {
     const demoValues = group.querySelectorAll('[data-demo-value]');
     expect(demoValues).toHaveLength(1);
     expect(within(group).getByText('10,50% a.a.')).not.toHaveAttribute('data-demo-value');
+  });
+  it('mostra a data de referência: diária para Selic/PTAX/TR, mensal para IPCA', () => {
+    const ipca: DataResult<IndicatorValue> = {
+      status: 'ok',
+      data: { id: 'ipca12m', value: 0.045, unit: 'a.a.', referenceDate: '2026-10-01' },
+      meta: bcbMeta,
+    };
+    const ptax: DataResult<IndicatorValue> = {
+      status: 'ok',
+      data: { id: 'ptax', value: 5.2, unit: 'BRL', referenceDate: '2026-11-06' },
+      meta: bcbMeta,
+    };
+    render(
+      <IndicatorStrip
+        groups={[{ results: [selic(bcbMeta), ipca, ptax], labels: ['Selic', 'IPCA 12m', 'PTAX'] }]}
+      />,
+    );
+    expect(screen.getByText('ref. 07/11/2026')).toBeInTheDocument();
+    expect(screen.getByText('ref. 10/2026')).toBeInTheDocument();
+    expect(screen.getByText('ref. 06/11/2026')).toBeInTheDocument();
   });
   it('grupo todo indisponível: sem selo', () => {
     render(

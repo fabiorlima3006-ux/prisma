@@ -128,7 +128,7 @@ export function CompoundInterestForm({ initial }: { initial: FormValues }) {
           )}
         </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Prazo" error={errors.prazo}>
+          <Field label="Prazo" error={errors.prazo} hint={validation.notes.prazo}>
             {(p) => (
               <Input
                 {...p}

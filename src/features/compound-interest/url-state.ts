@@ -34,10 +34,16 @@ const FIELD_BY_PATH: Record<string, FieldName> = {
   months: 'prazo',
 };
 
-export type Validation =
-  { input: CompoundInterestInput; errors?: undefined } | { input?: undefined; errors: FormErrors };
+export type FormNotes = Partial<Record<'prazo', string>>;
 
-/** Valida o formulário: taxa em % (÷100 antes do schema), prazo em anos × 12. */
+export type Validation =
+  | { input: CompoundInterestInput; errors?: undefined; notes: FormNotes }
+  | { input?: undefined; errors: FormErrors; notes: FormNotes };
+
+/**
+ * Valida o formulário: taxa em % (÷100 antes do schema), prazo em anos × 12 arredondado para
+ * meses inteiros (com nota "convertido para N meses" quando o arredondamento muda o valor).
+ */
 export function validateValues(v: FormValues): Validation {
   const capital = parseBrNumber(v.capital);
   const aporte = parseBrNumber(v.aporte);
@@ -49,22 +55,32 @@ export function validateValues(v: FormValues): Validation {
   if (aporte === null) errors.aporte = REQUIRED;
   if (taxa === null) errors.taxa = REQUIRED;
   if (prazo === null) errors.prazo = REQUIRED;
-  if (capital === null || aporte === null || taxa === null || prazo === null) return { errors };
+  if (capital === null || aporte === null || taxa === null || prazo === null) {
+    return { errors, notes: {} };
+  }
+
+  const notes: FormNotes = {};
+  let months = prazo;
+  if (v.unidade === 'anos') {
+    const exact = prazo * 12;
+    months = Math.round(exact);
+    if (Math.abs(exact - months) > 1e-9 && months >= 1) notes.prazo = `convertido para ${months} meses`;
+  }
 
   const parsed = compoundInterestInputSchema.safeParse({
     initial: capital,
     monthlyContribution: aporte,
     rate: taxa / 100,
     ratePeriod: v.periodo === 'ano' ? 'year' : 'month',
-    months: v.unidade === 'anos' ? Math.round(prazo * 12 * 1e6) / 1e6 : prazo,
+    months,
   });
-  if (parsed.success) return { input: parsed.data };
+  if (parsed.success) return { input: parsed.data, notes };
 
   for (const issue of parsed.error.issues) {
     const key = FIELD_BY_PATH[String(issue.path[0] ?? '')] ?? 'form';
     errors[key] ??= issue.message;
   }
-  return { errors };
+  return { errors, notes };
 }
 
 /** Número em notação decimal simples (nunca exponencial), aceito por /^-?\d+(\.\d+)?$/. */
@@ -79,11 +95,15 @@ function numberParam(n: number): string {
   return plainNumber(n);
 }
 
-/** Escreve a URL: números com ponto decimal, taxa em %, prazo em anos quando múltiplo de 12. */
+/**
+ * Escreve a URL: números com ponto decimal, taxa em %, prazo em anos só quando múltiplo de 12
+ * (um prazo em anos convertido, como 1,3 anos → 16 meses, vai para a URL em meses).
+ */
 export function toSearchParams(
   input: CompoundInterestInput,
-  unit: 'meses' | 'anos' = input.months % 12 === 0 ? 'anos' : 'meses',
+  preferred: 'meses' | 'anos' = 'anos',
 ): URLSearchParams {
+  const unit = preferred === 'anos' && input.months % 12 === 0 ? 'anos' : 'meses';
   const sp = new URLSearchParams();
   sp.set('capital', numberParam(input.initial));
   sp.set('aporte', numberParam(input.monthlyContribution));

@@ -1,8 +1,19 @@
 import { DataSourceBadge } from '@/components/market/DataSourceBadge';
 import { MetricCard } from '@/components/market/MetricCard';
 import { unavailableText } from '@/components/market/unavailable';
-import type { DataResult, Fundamentals } from '@/lib/data/types';
+import type { ComponentProps } from 'react';
+import type { DataResult, FundamentalKey, Fundamentals } from '@/lib/data/types';
 import { FUNDAMENTALS_META } from './fundamentals-meta';
+
+function resultFor(
+  fundamentals: DataResult<Fundamentals>,
+  key: FundamentalKey,
+): ComponentProps<typeof MetricCard>['result'] {
+  if (fundamentals.status !== 'ok') return fundamentals;
+  const reason = fundamentals.data.notApplicable?.[key];
+  if (reason) return { status: 'not-applicable', reason };
+  return { status: 'ok', data: fundamentals.data[key], meta: fundamentals.meta };
+}
 
 export function FundamentalsSection({ fundamentals }: { fundamentals: DataResult<Fundamentals> }) {
   return (
@@ -24,11 +35,7 @@ export function FundamentalsSection({ fundamentals }: { fundamentals: DataResult
             label={m.label}
             format={m.format}
             help={{ text: m.help, ...(m.articleHref ? { href: m.articleHref } : {}) }}
-            result={
-              fundamentals.status === 'ok'
-                ? { status: 'ok', data: fundamentals.data[m.key], meta: fundamentals.meta }
-                : fundamentals
-            }
+            result={resultFor(fundamentals, m.key)}
           />
         ))}
       </div>

@@ -6,7 +6,7 @@ import {
   type CompoundInterestInput,
 } from '@/lib/finance/compound-interest';
 import { formatCurrency } from '@/lib/format';
-import { YearlyTable } from './YearlyTable';
+import { YearlyTable, yearLabel } from './YearlyTable';
 
 function Stat({ label, value, testId }: { label: string; value: string; testId: string }) {
   return (
@@ -24,7 +24,7 @@ export function CompoundInterestResult({ input }: { input: CompoundInterestInput
   const yearly = result ? yearlySummary(result.rows) : [];
   const monthly = (input?.months ?? 0) <= 24;
   const points = (result ? (monthly ? result.rows : yearly) : []).map((r) => ({
-    label: monthly ? `Mês ${r.month}` : `Ano ${Math.round((r.month / 12) * 10) / 10}`,
+    label: monthly ? `Mês ${r.month}` : `Ano ${yearLabel(r.month)}`,
     invested: r.invested,
     interest: r.interest,
   }));

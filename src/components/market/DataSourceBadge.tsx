@@ -6,7 +6,7 @@ export function DataSourceBadge({ meta }: { meta: DataMeta }) {
   if (meta.isDemo) return <Badge tone="demo">DADOS DEMONSTRATIVOS</Badge>;
   return (
     <Badge tone="real">
-      Fonte: {meta.attribution} · atualizado em {formatDateTime(meta.asOf)}
+      Fonte: {meta.attribution} · consultado em {formatDateTime(meta.asOf)}
     </Badge>
   );
 }

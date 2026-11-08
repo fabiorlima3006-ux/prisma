@@ -6,11 +6,13 @@ export function RangeBar({
   high,
   current,
   label,
+  currency = 'BRL',
 }: {
   low: number | null;
   high: number | null;
   current: number | null;
   label: string;
+  currency?: 'BRL' | 'USD';
 }) {
   if (low === null || high === null || current === null) {
     return (
@@ -28,7 +30,7 @@ export function RangeBar({
       <div className="mb-1">{label}</div>
       <div
         role="img"
-        aria-label={`Mínima ${formatCurrency(low)}, máxima ${formatCurrency(high)}, atual ${formatCurrency(current)}`}
+        aria-label={`Mínima ${formatCurrency(low, currency)}, máxima ${formatCurrency(high, currency)}, atual ${formatCurrency(current, currency)}`}
         className="relative h-1.5 rounded-full bg-surface-2"
       >
         <span
@@ -37,8 +39,8 @@ export function RangeBar({
         />
       </div>
       <div className="mt-1 flex justify-between font-mono">
-        <span>{formatCurrency(low)}</span>
-        <span>{formatCurrency(high)}</span>
+        <span>{formatCurrency(low, currency)}</span>
+        <span>{formatCurrency(high, currency)}</span>
       </div>
     </div>
   );
