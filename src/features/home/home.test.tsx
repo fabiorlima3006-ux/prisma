@@ -103,7 +103,7 @@ describe('Home', () => {
     const stats = within(screen.getByRole('region', { name: 'A plataforma em números' }));
     const value = (label: string) => stats.getByText(label).parentElement?.querySelector('dd');
     const available = TOOLS.filter((t) => t.status === 'available').length;
-    expect(available).toBe(2);
+    expect(available).toBe(3);
     expect(value('ferramentas disponíveis')).toHaveTextContent(String(available));
     expect(Object.keys(CLASS_ROUTES)).toHaveLength(4);
     expect(value('classes de ativos')).toHaveTextContent('4');

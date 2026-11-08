@@ -12,6 +12,7 @@ export const ROUTES = [
   '/cripto/btc',
   '/simuladores',
   '/simuladores/juros-compostos',
+  '/simuladores/inflacao',
   '/ferramentas',
   '/ferramentas/comparador',
   '/educacao',
@@ -43,6 +44,7 @@ export const KEY_PAGES = [
   '/mercados',
   '/acoes/petr4',
   '/simuladores/juros-compostos',
+  '/simuladores/inflacao',
   '/ferramentas/comparador',
   '/educacao',
 ] as const;

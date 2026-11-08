@@ -12,6 +12,7 @@ const STATIC_PATHS = [
   '/cripto',
   '/simuladores',
   '/simuladores/juros-compostos',
+  '/simuladores/inflacao',
   '/ferramentas',
   '/ferramentas/comparador',
   '/educacao',
