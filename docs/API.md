@@ -47,7 +47,7 @@ Aplicados a todas as páginas e rotas por `next.config.ts` (`src/lib/security/he
 
 ### 2.1 BCB SGS (indicadores)
 
-- Base: `https://api.bcb.gov.br` (configurável por `BCB_BASE_URL`). Endpoint: `/dados/serie/bcdata.sgs.{codigo}/dados/ultimos/1?formato=json`. Sem autenticação.
+- Base: `https://api.bcb.gov.br` (configurável por `BCB_BASE_URL`). Endpoint: `/dados/serie/bcdata.sgs.{codigo}/dados?formato=json&dataInicial={hoje − janela}&dataFinal={hoje}` (datas dd/MM/aaaa), com janela de 30 dias nas séries diárias e 180 dias no IPCA; usa a última linha com data menor ou igual a hoje. Sem autenticação. **Não usa `ultimos/1`:** na Selic esse atalho pode trazer vigência futura e, em 2026-11-08, no CDI (4389) respondia `304 Not Modified` sem corpo (já em produção, o CDI aparecia como indisponível).
 - Revalidação de 3600 s; timeout de 5000 ms.
 - Séries conferidas em 2026-11-07:
 

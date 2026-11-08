@@ -51,11 +51,12 @@ describe('bcb provider', () => {
     expect(r.data.value).toBeCloseTo(id === 'ptax' ? raw : raw / 100, 10);
   });
 
-  it('monta a URL da série e repassa cache e timeout', async () => {
+  it('monta a URL da série por período e repassa cache e timeout', async () => {
+    // Não usa /ultimos/1: em 2026-11-08 a série 4389 respondia 304 sem corpo nesse atalho.
     const spy = vi.fn(fakeFetch(cdi));
-    await createBcbProvider({ baseUrl: 'https://x', fetchImpl: spy }).getIndicator!('cdi');
+    await createBcbProvider({ baseUrl: 'https://x', fetchImpl: spy, now }).getIndicator!('cdi');
     expect(spy.mock.calls[0]![0]).toBe(
-      'https://x/dados/serie/bcdata.sgs.4389/dados/ultimos/1?formato=json',
+      'https://x/dados/serie/bcdata.sgs.4389/dados?formato=json&dataInicial=08/10/2026&dataFinal=07/11/2026',
     );
     expect(spy.mock.calls[0]![1]).toMatchObject({
       next: { revalidate: 3600 },
@@ -69,6 +70,34 @@ describe('bcb provider', () => {
     expect(spy.mock.calls[0]![0]).toBe(
       'https://x/dados/serie/bcdata.sgs.432/dados?formato=json&dataInicial=08/10/2026&dataFinal=07/11/2026',
     );
+  });
+
+  it.each(['ipcaMonth', 'ipca12m'] as const)(
+    '%s (mensal) consulta os últimos 180 dias',
+    async (id) => {
+      const spy = vi.fn(fakeFetch(fixtures[id]));
+      await createBcbProvider({ baseUrl: 'https://x', fetchImpl: spy, now }).getIndicator!(id);
+      expect(spy.mock.calls[0]![0]).toBe(
+        `https://x/dados/serie/bcdata.sgs.${BCB_SERIES[id].code}/dados?formato=json&dataInicial=11/05/2026&dataFinal=07/11/2026`,
+      );
+    },
+  );
+
+  it('nenhuma série usa o atalho /ultimos/1', async () => {
+    for (const id of Object.keys(fixtures) as (keyof typeof fixtures)[]) {
+      const spy = vi.fn(fakeFetch(fixtures[id]));
+      await createBcbProvider({ baseUrl: 'https://x', fetchImpl: spy, now }).getIndicator!(id);
+      expect(spy.mock.calls[0]![0]).not.toContain('/ultimos/');
+    }
+  });
+
+  it('HTTP 304 sem corpo é fetch-failed', async () => {
+    const f = (async () =>
+      ({ ok: false, status: 304, json: async () => null }) as Response) as unknown as typeof fetch;
+    const r = await createBcbProvider({ baseUrl: 'https://x', fetchImpl: f, now }).getIndicator!(
+      'cdi',
+    );
+    expect(r).toMatchObject({ status: 'unavailable', reason: 'fetch-failed' });
   });
 
   it('Selic ignora linhas com data futura e usa a última até hoje', async () => {

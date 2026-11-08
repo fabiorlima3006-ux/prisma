@@ -16,13 +16,17 @@ const ATTRIBUTION = 'Banco Central do Brasil — SGS';
  * 1 dólar venda (confere com a PTAX venda); 226 TR — taxa mensal com janela [data, dataFim],
  * publicada diariamente, portanto a.m.
  */
-export const BCB_SERIES: Record<IndicatorId, { code: number; unit: IndicatorValue['unit'] }> = {
-  selic: { code: 432, unit: 'a.a.' },
-  cdi: { code: 4389, unit: 'a.a.' },
-  ipcaMonth: { code: 433, unit: 'a.m.' },
-  ipca12m: { code: 13522, unit: 'a.a.' },
-  ptax: { code: 1, unit: 'BRL' },
-  tr: { code: 226, unit: 'a.m.' },
+export const BCB_SERIES: Record<
+  IndicatorId,
+  { code: number; unit: IndicatorValue['unit']; windowDays: number }
+> = {
+  selic: { code: 432, unit: 'a.a.', windowDays: 30 },
+  cdi: { code: 4389, unit: 'a.a.', windowDays: 30 },
+  // Mensais: o IPCA sai cerca de 40 dias depois do mês de referência.
+  ipcaMonth: { code: 433, unit: 'a.m.', windowDays: 180 },
+  ipca12m: { code: 13522, unit: 'a.a.', windowDays: 180 },
+  ptax: { code: 1, unit: 'BRL', windowDays: 30 },
+  tr: { code: 226, unit: 'a.m.', windowDays: 30 },
 };
 
 const responseSchema = z.array(z.object({ data: z.string(), valor: z.string() }));
@@ -55,18 +59,15 @@ export function createBcbProvider(opts: {
   return {
     id: 'bcb',
     async getIndicator(id): Promise<DataResult<IndicatorValue>> {
-      const { code, unit } = BCB_SERIES[id];
+      const { code, unit, windowDays } = BCB_SERIES[id];
       // Datas em UTC (calendário UTC de now()), de forma consistente em todo o provedor.
       const today = now();
       const todayIso = today.toISOString().slice(0, 10);
-      // Selic (432) é a meta com data de vigência: ultimos/1 pode vir datado no futuro.
-      // Consulta por período e usa a última linha com data <= hoje (Ruling R12).
-      const base = `${baseUrl}/dados/serie/bcdata.sgs.${code}/dados`;
-      const from = brDate(new Date(today.getTime() - 30 * 86400000));
-      const url =
-        id === 'selic'
-          ? `${base}?formato=json&dataInicial=${from}&dataFinal=${brDate(today)}`
-          : `${base}/ultimos/1?formato=json`;
+      // Sempre por período, nunca /ultimos/1: na Selic (432) esse atalho pode vir com vigência
+      // futura (Ruling R12) e, em 2026-11-08, no CDI (4389) respondia 304 sem corpo (R34).
+      // Usa a última linha com data <= hoje.
+      const from = brDate(new Date(today.getTime() - windowDays * 86400000));
+      const url = `${baseUrl}/dados/serie/bcdata.sgs.${code}/dados?formato=json&dataInicial=${from}&dataFinal=${brDate(today)}`;
       let body: unknown;
       try {
         const res = await fetchImpl(url, {
@@ -82,13 +83,10 @@ export function createBcbProvider(opts: {
       const parsed = responseSchema.safeParse(body);
       if (!parsed.success) return fail(id, 'invalid-response');
       if (parsed.data.some((r) => parseDate(r.data) === null)) return fail(id, 'invalid-response');
-      const rows =
-        id === 'selic'
-          ? parsed.data.filter((r) => {
-              const d = parseDate(r.data);
-              return d !== null && d <= todayIso;
-            })
-          : parsed.data;
+      const rows = parsed.data.filter((r) => {
+        const d = parseDate(r.data);
+        return d !== null && d <= todayIso;
+      });
       const last = rows[rows.length - 1];
       if (!last) return fail(id, 'empty');
 

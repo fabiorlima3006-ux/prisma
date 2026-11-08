@@ -133,7 +133,7 @@ Estados de exibição: fonte não forneceu = "Dado não disponível" (`null`); s
 
 ### ADR 11. Selic com consulta por período (ruling R12)
 - **Contexto:** `ultimos/1` na série 432 pode devolver uma vigência futura (a API retornou 09/12/2026), o que mostraria uma data enganosa.
-- **Decisão:** Selic usa `dataInicial = hoje − 30 d` e `dataFinal = hoje` e pega a última linha com data menor ou igual a hoje. As demais séries seguem `ultimos/1`.
+- **Decisão:** todas as séries consultam por período (`dataInicial = hoje − janela`, `dataFinal = hoje`; janela de 30 dias nas diárias e 180 no IPCA) e pegam a última linha com data menor ou igual a hoje. Até 2026-11-08 só a Selic fazia isso; as demais usavam `ultimos/1`, que passou a responder `304` sem corpo no CDI (R34).
 - **Consequências:** uma URL diferente para uma série; a taxa exibida é a vigente hoje.
 
 ### ADR 12. Grupos mistos mostram os dois selos (ruling R18)
