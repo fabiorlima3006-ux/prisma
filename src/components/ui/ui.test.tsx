@@ -75,6 +75,49 @@ describe('Tooltip', () => {
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('tooltip')).toBeNull();
   });
+
+  it('Tab a partir do gatilho vai ao próximo elemento focável (não ao body)', async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <Tooltip content="Preço sobre lucro">
+          <button>P/L</button>
+        </Tooltip>
+        <a href="/depois">Depois</a>
+      </>,
+    );
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'P/L' })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole('link', { name: 'Depois' })).toHaveFocus();
+    expect(document.activeElement).not.toBe(document.body);
+    expect(screen.queryByRole('tooltip')).toBeNull();
+  });
+
+  it('fecha com Esc também quando aberto por hover', async () => {
+    const user = userEvent.setup();
+    render(
+      <Tooltip content="Preço sobre lucro">
+        <button>P/L</button>
+      </Tooltip>,
+    );
+    await user.hover(screen.getByRole('button', { name: 'P/L' }));
+    expect(screen.getByRole('tooltip')).toHaveTextContent('Preço sobre lucro');
+    expect(screen.getByRole('button', { name: 'P/L' })).not.toHaveFocus();
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('tooltip')).toBeNull();
+  });
+
+  it('é somente texto: o balão não tem conteúdo focável', async () => {
+    const user = userEvent.setup();
+    render(
+      <Tooltip content="Preço sobre lucro">
+        <button>P/L</button>
+      </Tooltip>,
+    );
+    await user.hover(screen.getByRole('button', { name: 'P/L' }));
+    expect(screen.getByRole('tooltip').querySelector('a, button, input, [tabindex]')).toBeNull();
+  });
 });
 
 describe('Tabs', () => {
@@ -93,6 +136,16 @@ describe('Tabs', () => {
     expect(screen.getByRole('tab', { name: 'Brasil' })).toHaveAttribute('aria-selected', 'true');
     await user.keyboard('{End}');
     expect(screen.getByRole('tab', { name: 'Exterior' })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('renderiza todos os painéis no HTML, os inativos com hidden', () => {
+    const { container } = render(<Tabs items={items} />);
+    const panels = container.querySelectorAll('[role="tabpanel"]');
+    expect(panels).toHaveLength(2);
+    expect(panels[0]).not.toHaveAttribute('hidden');
+    expect(panels[0]).toHaveTextContent('A');
+    expect(panels[1]).toHaveAttribute('hidden');
+    expect(panels[1]).toHaveTextContent('B');
   });
 });
 
@@ -131,6 +184,31 @@ describe('Dropdown', () => {
     await user.keyboard('{Escape}');
     expect(btn).toHaveAttribute('aria-expanded', 'false');
     expect(btn).toHaveFocus();
+  });
+
+  it('fecha ao sair do componente com Tab', async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <Dropdown
+          label="Investimentos"
+          items={[
+            { label: 'Ações', href: '/acoes' },
+            { label: 'FIIs', href: '/fiis' },
+          ]}
+        />
+        <a href="/depois">Depois</a>
+      </>,
+    );
+    const btn = screen.getByRole('button', { name: 'Investimentos' });
+    await user.click(btn);
+    await user.tab();
+    expect(screen.getByRole('link', { name: 'Ações' })).toHaveFocus();
+    expect(btn).toHaveAttribute('aria-expanded', 'true');
+    await user.tab();
+    await user.tab();
+    expect(screen.getByRole('link', { name: 'Depois' })).toHaveFocus();
+    expect(btn).toHaveAttribute('aria-expanded', 'false');
   });
 });
 

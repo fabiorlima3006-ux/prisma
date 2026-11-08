@@ -96,7 +96,8 @@ export function HeroParticles({ className = '' }: { className?: string }) {
       canvas.height = Math.max(1, Math.round(H * dpr));
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       assignTargets();
-      if (reduce) showFinal();
+      // Parado (movimento reduzido ou já formado): redesenha o quadro final no novo tamanho.
+      if (reduce || mode === 'formed') showFinal();
     };
 
     const rand = seededRandom(42);
@@ -149,11 +150,11 @@ export function HeroParticles({ className = '' }: { className?: string }) {
           p.s += (1.8 - p.s) * 0.1;
           p.a += (1 - p.a) * 0.1;
         }
-        if (el > 2) mode = 'formed';
-      } else {
-        for (const p of P) {
-          p.x = p.tx + Math.sin(now / 700 + p.ty) * 0.6;
-          p.y = p.ty + Math.cos(now / 900 + p.tx) * 0.6;
+        if (el > 2) {
+          // Quadro final desenhado UMA vez e o rAF para (WCAG 2.2.2: nada se move depois).
+          running = false;
+          showFinal();
+          return;
         }
       }
       draw();
@@ -161,7 +162,7 @@ export function HeroParticles({ className = '' }: { className?: string }) {
     };
 
     const setRunning = (on: boolean) => {
-      if (on === running) return;
+      if (mode === 'formed' || on === running) return;
       running = on;
       if (on && mode === 'sphere') t0 = null;
       if (on) raf = requestAnimationFrame(tick);

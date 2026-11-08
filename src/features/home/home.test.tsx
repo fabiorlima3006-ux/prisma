@@ -1,5 +1,8 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { FLOW_BAND_DURATION_MS, FlowBand } from '@/components/illustrations/FlowBand';
 import { GrowthBars } from '@/components/illustrations/GrowthBars';
 import { HeroParticles } from '@/components/illustrations/HeroParticles';
 import { chartPoints, seededRandom } from '@/components/illustrations/particles';
@@ -125,6 +128,39 @@ describe('Home', () => {
   });
 });
 
+describe('FlowBand', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('para depois de 5 s e congela o último quadro (sem rAF pendente)', () => {
+    const queue: FrameRequestCallback[] = [];
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => queue.push(cb));
+    vi.stubGlobal('cancelAnimationFrame', () => {});
+    render(<FlowBand />);
+    let now = 0;
+    let frames = 0;
+    while (queue.length > 0 && frames < 2000) {
+      const cb = queue.shift();
+      now += 16;
+      frames++;
+      cb?.(now);
+    }
+    expect(queue).toHaveLength(0);
+    expect(now).toBeGreaterThanOrEqual(FLOW_BAND_DURATION_MS);
+    expect(now).toBeLessThan(FLOW_BAND_DURATION_MS + 100);
+  });
+});
+
+describe('btn-shine', () => {
+  it('não anima infinitamente (WCAG 2.2.2)', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/app/globals.css'), 'utf8');
+    expect(css).not.toMatch(/infinite/);
+    const block = css.slice(css.indexOf('.btn-shine {'), css.indexOf('@keyframes prisma-shine'));
+    const durations = [...block.matchAll(/animation:\s*[\w-]+\s+([\d.]+)s\s+[\w-]+\s+(\d+);/g)];
+    expect(durations).toHaveLength(2);
+    for (const [, sec, count] of durations) expect(Number(sec) * Number(count)).toBeLessThanOrEqual(5);
+  });
+});
+
 describe('GrowthBars', () => {
   afterEach(() => vi.unstubAllGlobals());
 
@@ -177,6 +213,25 @@ describe('HeroParticles', () => {
     render(<HeroParticles />);
     expect(fakeCtx.fillRect).toHaveBeenCalled();
     expect(raf).not.toHaveBeenCalled();
+  });
+
+  it('depois de "formed" desenha o quadro final e não agenda mais rAF', () => {
+    const queue: FrameRequestCallback[] = [];
+    vi.stubGlobal('requestAnimationFrame', (cb: FrameRequestCallback) => queue.push(cb));
+    vi.stubGlobal('cancelAnimationFrame', () => {});
+    render(<HeroParticles />);
+    let now = 0;
+    let frames = 0;
+    while (queue.length > 0 && frames < 2000) {
+      const cb = queue.shift();
+      now += 16;
+      frames++;
+      cb?.(now);
+    }
+    // sphere (2,2 s) + explode (0,45 s) + morph (2 s) ≈ 4,7 s ≈ 290 quadros; depois, nada.
+    expect(frames).toBeLessThan(400);
+    expect(queue).toHaveLength(0);
+    expect(fakeCtx.fillRect).toHaveBeenCalled();
   });
 
   it('layout é determinístico', () => {

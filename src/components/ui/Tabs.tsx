@@ -65,7 +65,7 @@ export function Tabs({ items }: { items: TabItem[] }) {
           tabIndex={0}
           className="pt-4"
         >
-          {item.id === selected ? item.content : null}
+          {item.content}
         </div>
       ))}
     </div>

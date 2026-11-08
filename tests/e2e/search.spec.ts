@@ -43,3 +43,14 @@ test('botão de busca do cabeçalho abre o diálogo', async ({ page }) => {
     await expect(box).toBeVisible({ timeout: 1000 });
   }).toPass();
 });
+
+test('/busca: trilha de navegação e formulário GET do design system', async ({ page }) => {
+  await page.goto('/busca?q=petr4');
+  const crumbs = page.getByRole('navigation', { name: 'Trilha de navegação' });
+  await expect(crumbs.getByRole('link', { name: 'Início' })).toHaveAttribute('href', '/');
+  await expect(crumbs.getByText('Busca')).toHaveAttribute('aria-current', 'page');
+  const form = page.getByRole('search');
+  await expect(form.getByRole('searchbox', { name: 'Buscar' })).toHaveValue('petr4');
+  await expect(form.getByRole('button', { name: 'Buscar' })).toHaveAttribute('type', 'submit');
+  await expect(page.getByRole('link', { name: /PETR4/ }).first()).toBeVisible();
+});

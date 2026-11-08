@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { Card, Tooltip } from '@/components/ui';
 import type { DataResult } from '@/lib/data/types';
@@ -65,25 +66,20 @@ export function MetricCard({
       <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold">
         <span>{label}</span>
         {help && (
-          <Tooltip
-            content={
-              <>
-                {help.text}
-                {help.href && (
-                  <>
-                    {' '}
-                    <a href={help.href} className="underline">
-                      Saiba mais
-                    </a>
-                  </>
-                )}
-              </>
-            }
-          >
+          <Tooltip content={help.text}>
             <button type="button" aria-label={`Sobre ${label}`} className={infoButton}>
               ?
             </button>
           </Tooltip>
+        )}
+        {help?.href && (
+          <Link
+            href={help.href}
+            aria-label={`Saiba mais sobre ${label}`}
+            className="ml-auto text-[11px] font-normal text-accent underline"
+          >
+            Saiba mais
+          </Link>
         )}
       </div>
       <div>{body}</div>

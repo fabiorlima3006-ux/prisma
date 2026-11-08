@@ -119,6 +119,20 @@ describe('MetricCard', () => {
     expect(screen.getByText('12,35x')).toBeInTheDocument();
     expect(container.querySelector('[data-demo-value]')).not.toBeNull();
   });
+  it('link "Saiba mais" fica visível fora do tooltip, ao lado do rótulo', () => {
+    render(
+      <MetricCard
+        label="P/L"
+        result={{ status: 'ok', data: 12, meta: demoMeta }}
+        format="ratio"
+        help={{ text: 'Preço sobre lucro.', href: '/educacao/x/y' }}
+      />,
+    );
+    const link = screen.getByRole('link', { name: 'Saiba mais sobre P/L' });
+    expect(link).toHaveAttribute('href', '/educacao/x/y');
+    expect(link.closest('[role="tooltip"]')).toBeNull();
+    expect(screen.queryByRole('tooltip')).toBeNull();
+  });
 });
 
 describe('PriceChange', () => {

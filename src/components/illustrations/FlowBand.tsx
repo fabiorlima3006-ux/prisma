@@ -5,6 +5,9 @@ import { CYAN, prefersReducedMotion, seededRandom, watchSize, watchVisibility } 
 
 type Dot = { x: number; y: number; v: number };
 
+/** Tempo máximo de movimento (WCAG 2.2.2): depois disso o último quadro fica congelado. */
+export const FLOW_BAND_DURATION_MS = 5000;
+
 /** Faixa fina de pontos que "descem" do hero para o conteúdo. Decorativa. */
 export function FlowBand({ className = '' }: { className?: string }) {
   const ref = useRef<HTMLCanvasElement | null>(null);
@@ -25,6 +28,9 @@ export function FlowBand({ className = '' }: { className?: string }) {
     let H = 0;
     let raf = 0;
     let running = false;
+    let done = false;
+    let elapsed = 0;
+    let last: number | null = null;
 
     const draw = (advance: boolean) => {
       ctx.clearRect(0, 0, W, H);
@@ -42,9 +48,16 @@ export function FlowBand({ className = '' }: { className?: string }) {
       }
       ctx.globalAlpha = 1;
     };
-    const tick = () => {
+    const tick = (now: number) => {
       if (!running) return;
+      if (last !== null) elapsed += now - last;
+      last = now;
       draw(true);
+      if (elapsed >= FLOW_BAND_DURATION_MS) {
+        done = true;
+        running = false;
+        return;
+      }
       raf = requestAnimationFrame(tick);
     };
     const measure = () => {
@@ -55,11 +68,12 @@ export function FlowBand({ className = '' }: { className?: string }) {
       canvas.width = Math.max(1, Math.round(W * dpr));
       canvas.height = Math.max(1, Math.round(H * dpr));
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (reduce) draw(false);
+      if (reduce || done) draw(false);
     };
     const setRunning = (on: boolean) => {
-      if (on === running) return;
+      if (done || on === running) return;
       running = on;
+      last = null;
       if (on) raf = requestAnimationFrame(tick);
       else cancelAnimationFrame(raf);
     };

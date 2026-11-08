@@ -52,7 +52,16 @@ export function Dropdown({
   }
 
   return (
-    <div ref={wrapper} className="relative" onKeyDown={onKeyDown}>
+    <div
+      ref={wrapper}
+      className="relative"
+      onKeyDown={onKeyDown}
+      onBlur={(e) => {
+        // Fecha ao sair do componente com Tab (o foco foi para fora do wrapper).
+        const next = e.relatedTarget as Node | null;
+        if (open && next && !e.currentTarget.contains(next)) setOpen(false);
+      }}
+    >
       <button
         ref={button}
         type="button"

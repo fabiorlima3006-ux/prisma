@@ -65,11 +65,11 @@ body {
   outline-offset: 2px;
 }
 
-/* Botão com brilho que passa (hero). */
+/* Botão com brilho que passa (hero). Roda 2 vezes (5 s no total) e para: WCAG 2.2.2. */
 .btn-shine {
   position: relative;
   overflow: hidden;
-  animation: prisma-glow 2.8s ease-in-out infinite;
+  animation: prisma-glow 2.5s ease-in-out 2;
 }
 .btn-shine::after {
   content: '';
@@ -83,7 +83,7 @@ body {
     transparent 65%
   );
   transform: translateX(-120%);
-  animation: prisma-shine 3.2s ease-in-out infinite;
+  animation: prisma-shine 2.5s ease-in-out 2;
 }
 @keyframes prisma-shine {
   60%,
