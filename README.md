@@ -118,6 +118,18 @@ Metas: Performance 90 ou mais; demais 95 ou mais. O que mudou: o Recharts só é
 
 **A medição local oscila muito nesta máquina:** o ativo e o simulador não mudaram e caíram de 91 e 92 para 89 e 88 entre uma rodada e outra. A variação vem de uma tarefa longa de hidratação do React (580 a 640 ms com CPU 4x mais lenta) que aparece em parte das execuções. Os números definitivos devem ser **remedidos na URL publicada**, com CDN.
 
+### No site publicado (2026-11-08)
+
+Mesmo método (Lighthouse 13.6.0 desta máquina, celular, 1 aquecimento + 5 execuções intercaladas, mediana) contra https://prisma-b8wz.vercel.app:
+
+| Página                         | Performance  | Acessibilidade | Boas práticas | SEO | TBT    | LCP    | CLS |
+| ------------------------------ | ------------ | -------------- | ------------- | --- | ------ | ------ | --- |
+| `/`                            | 84 (79 a 90) | 100            | 100           | 100 | 620 ms | 0,94 s | 0   |
+| `/acoes/petr4`                 | 87 (83 a 88) | 100            | 100           | 100 | 511 ms | 0,96 s | 0   |
+| `/simuladores/juros-compostos` | 85 (82 a 89) | 100            | 100           | 100 | 599 ms | 0,95 s | 0   |
+
+**A meta de Performance 90 não é atingida no site publicado.** O LCP fica abaixo de 1 s; o que derruba a nota é o tempo de bloqueio (TBT), dominado pela hidratação do React. O throttling simulado escala o trabalho medido na CPU desta máquina, então o resultado também carrega a oscilação local; confira no PageSpeed Insights (pagespeed.web.dev), que roda nos servidores do Google. Reduzir o JavaScript do cliente fica para a Fase 2.
+
 Durante a medição anterior apareceu uma violação de CSP (`eval`) silenciosa vinda do modo JIT do Zod 4; foi corrigida desligando o JIT (`src/lib/zod-setup.ts`).
 
 ## Limitações conhecidas

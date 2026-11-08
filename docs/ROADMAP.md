@@ -30,7 +30,7 @@ Documento vivo. Baseado na seção 12 do spec (`docs/superpowers/specs/2026-11-0
 - [ ] Cadastrar `BRAPI_TOKEN` na Vercel (dados reais de ações) e refazer o deploy. `NEXT_PUBLIC_SITE_URL` não é mais necessária (usa o domínio de produção da Vercel).
 - [x] Usuário do GitHub em `siteConfig.links.github` (aparece em `/contato`): `fabiorlima3006-ux`.
 - [ ] Confirmar na página de preços da brapi os limites e os termos do plano gratuito.
-- [ ] Remedir o Lighthouse na URL publicada (a Performance local oscila entre 84 e 99).
+- [ ] Performance mobile no site publicado: 84 a 87 de mediana (meta 90; TBT da hidratação). Conferir no PageSpeed Insights e reduzir o JavaScript do cliente na Fase 2.
 
 **Pequenos ajustes de conteúdo e qualidade, recomendados antes do lançamento**
 - [ ] Artigo de volatilidade e gregas (`volatilidade-e-gregas`, linha ~28): trocar "put americana" por redação correta ("opção de venda de estilo americano").
