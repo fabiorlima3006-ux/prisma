@@ -108,13 +108,15 @@ Medição **local** (sem CDN, máquina de desenvolvimento Windows 11), em 2026-1
 
 | Página                         | Performance  | Acessibilidade | Boas práticas | SEO | TBT (mediana) | LCP    | CLS |
 | ------------------------------ | ------------ | -------------- | ------------- | --- | ------------- | ------ | --- |
-| `/`                            | 85 (83 a 98) | 100            | 100           | 100 | 583 ms        | 0,96 s | 0   |
-| `/acoes/petr4`                 | 91 (89 a 92) | 100            | 100           | 100 | 380 ms        | 0,96 s | 0   |
-| `/simuladores/juros-compostos` | 92 (90 a 93) | 100            | 100           | 100 | 359 ms        | 0,81 s | 0   |
+| `/`                            | 92 (90 a 99) | 100            | 100           | 100 | 361 ms        | 0,92 s | 0   |
+| `/acoes/petr4`                 | 89 (84 a 92) | 100            | 100           | 100 | 440 ms        | 0,92 s | 0   |
+| `/simuladores/juros-compostos` | 88 (85 a 92) | 100            | 100           | 100 | 473 ms        | 0,77 s | 0   |
 
-Metas: Performance 90 ou mais; demais 95 ou mais. **Ativo e simulador atendem; a Home não atende de forma estável.** O que mudou nesta rodada: o Recharts só é baixado quando o gráfico chega perto da tela, a busca só é carregada no primeiro Ctrl/⌘+K, a animação do hero começa quando o navegador fica ocioso e para depois de formar o gráfico.
+Acessibilidade, Boas práticas e SEO são da rodada anterior (mesmo código nesses aspectos); a Performance foi remedida em 2026-11-08 depois da última mudança, com o mesmo método.
 
-Causa medida na Home: em 4 das 5 execuções aparece uma tarefa longa do React DOM (hidratação) de 580 a 640 ms com CPU 4x mais lenta, e o script do canvas do hero soma cerca de 1,8 s de trabalho na thread principal durante o carregamento. Na execução sem essa tarefa longa, a Home fez 98. Numa bateria só da Home (5 execuções seguidas, depois do aquecimento), a mediana foi 99 (92 a 99), com TBT de 128 ms. Ou seja, o resultado oscila muito nesta máquina, e o ponto a atacar é o custo do canvas do hero no celular (por exemplo, menos partículas ou só o quadro final em telas pequenas). Em hospedagem real, com CDN, **é preciso remedir após o deploy**.
+Metas: Performance 90 ou mais; demais 95 ou mais. O que mudou: o Recharts só é baixado quando o gráfico chega perto da tela, a busca só é carregada no primeiro Ctrl/⌘+K e o hero, em telas menores que 768 px, desenha só o gráfico já formado (sem a animação). Na rodada anterior, com a animação também no celular, a Home tinha mediana 85 (83 a 98).
+
+**A medição local oscila muito nesta máquina:** o ativo e o simulador não mudaram e caíram de 91 e 92 para 89 e 88 entre uma rodada e outra. A variação vem de uma tarefa longa de hidratação do React (580 a 640 ms com CPU 4x mais lenta) que aparece em parte das execuções. Os números definitivos devem ser **remedidos na URL publicada**, com CDN.
 
 Durante a medição anterior apareceu uma violação de CSP (`eval`) silenciosa vinda do modo JIT do Zod 4; foi corrigida desligando o JIT (`src/lib/zod-setup.ts`).
 

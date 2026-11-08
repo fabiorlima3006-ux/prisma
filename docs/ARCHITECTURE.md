@@ -124,7 +124,7 @@ Estados de exibição: fonte não forneceu = "Dado não disponível" (`null`); s
 ### ADR 9. Canvas no hero em vez de SVG (ruling R10)
 - **Contexto:** o hero usa uma esfera de ~620 pontos que explode e forma um gráfico em alta, inspirada na referência pedida por Fabio.
 - **Decisão:** canvas 2D puro, sem WebGL nem biblioteca. Exceção registrada à regra "SVG/CSS" por desempenho; as demais ilustrações continuam em SVG.
-- **Consequências:** animação leve e sem dependência. Com `prefers-reduced-motion`, o gráfico já aparece formado e estático. O canvas pesa um pouco no TBT em CPU lenta.
+- **Consequências:** animação leve e sem dependência. Com `prefers-reduced-motion` **ou em telas menores que 768 px** (decisão do Fabio em 2026-11-08, para a Performance mobile), o gráfico já aparece formado e estático. No computador, a animação roda uma vez e para.
 
 ### ADR 10. Catálogo com 17 itens (ruling R11)
 - **Contexto:** o spec dizia "16 itens", mas a lista da seção 9.3 soma 17.

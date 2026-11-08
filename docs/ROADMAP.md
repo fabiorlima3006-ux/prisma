@@ -30,7 +30,7 @@ Documento vivo. Baseado na seção 12 do spec (`docs/superpowers/specs/2026-11-0
 - [ ] Definir `NEXT_PUBLIC_SITE_URL` (e, se quiser dados reais, `BRAPI_TOKEN`) e refazer o deploy.
 - [x] Usuário do GitHub em `siteConfig.links.github` (aparece em `/contato`): `fabiorlima3006-ux`.
 - [ ] Confirmar na página de preços da brapi os limites e os termos do plano gratuito.
-- [ ] Remedir o Lighthouse na URL publicada (a Performance local ficou em 89 a 91).
+- [ ] Remedir o Lighthouse na URL publicada (a Performance local oscila entre 84 e 99).
 
 **Pequenos ajustes de conteúdo e qualidade, recomendados antes do lançamento**
 - [ ] Artigo de volatilidade e gregas (`volatilidade-e-gregas`, linha ~28): trocar "put americana" por redação correta ("opção de venda de estilo americano").
