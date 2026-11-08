@@ -74,9 +74,17 @@ export interface IndicatorValue {
   referenceDate: string;
 }
 
+export interface MonthlyPoint {
+  /** YYYY-MM */
+  month: string;
+  /** Fração: 0,0042 = 0,42%. */
+  value: number;
+}
+
 export interface MarketDataProvider {
   id: DataSource;
   getIndicator?(id: IndicatorId): Promise<DataResult<IndicatorValue>>;
+  getIndicatorHistory?(id: 'ipcaMonth', fromMonth: string): Promise<DataResult<MonthlyPoint[]>>;
   getQuote?(asset: Asset): Promise<DataResult<Quote>>;
   getHistory?(asset: Asset, range: HistoryRange): Promise<DataResult<PricePoint[]>>;
   getFundamentals?(asset: Asset): Promise<DataResult<Fundamentals>>;

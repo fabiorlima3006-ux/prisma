@@ -5,6 +5,7 @@ import ipcaMonth from './__fixtures__/bcb-ipcaMonth.json';
 import ipca12m from './__fixtures__/bcb-ipca12m.json';
 import ptax from './__fixtures__/bcb-ptax.json';
 import tr from './__fixtures__/bcb-tr.json';
+import ipcaHistory from './__fixtures__/bcb-ipca-history.json';
 import { BCB_SERIES, createBcbProvider } from './bcb';
 
 function fakeFetch(body: unknown, ok = true): typeof fetch {
@@ -177,6 +178,82 @@ describe('bcb provider', () => {
       provider: 'bcb',
       id: 'cdi',
       reason: 'empty',
+    });
+  });
+
+  describe('getIndicatorHistory (ipcaMonth)', () => {
+    it('devolve 12 pontos mensais da fixture, em fração', async () => {
+      const p = createBcbProvider({ baseUrl: 'https://x', fetchImpl: fakeFetch(ipcaHistory), now });
+      const r = await p.getIndicatorHistory!('ipcaMonth', '2024-01');
+      if (r.status !== 'ok') throw new Error('esperava ok');
+      expect(r.data).toHaveLength(12);
+      expect(r.data[0]).toEqual({ month: '2024-01', value: Number(ipcaHistory[0]!.valor) / 100 });
+      expect(r.data[11]!.month).toBe('2024-12');
+      expect(r.meta).toMatchObject({ source: 'bcb', isDemo: false });
+    });
+
+    it('divide em blocos de 10 anos sem sobreposição', async () => {
+      const spy = vi.fn(fakeFetch([]));
+      await createBcbProvider({ baseUrl: 'https://x', fetchImpl: spy, now }).getIndicatorHistory!(
+        'ipcaMonth',
+        '1994-07',
+      );
+      const base = 'https://x/dados/serie/bcdata.sgs.433/dados?formato=json';
+      expect(spy.mock.calls.map((c) => c[0])).toEqual([
+        `${base}&dataInicial=01/07/1994&dataFinal=30/06/2004`,
+        `${base}&dataInicial=01/07/2004&dataFinal=30/06/2014`,
+        `${base}&dataInicial=01/07/2014&dataFinal=30/06/2024`,
+        `${base}&dataInicial=01/07/2024&dataFinal=07/11/2026`,
+      ]);
+      expect(spy.mock.calls[0]![1]).toMatchObject({
+        next: { revalidate: 86400 },
+        signal: expect.any(AbortSignal),
+      });
+    });
+
+    it('concatena blocos em ordem e remove meses duplicados', async () => {
+      let n = 0;
+      const bodies = [
+        [
+          { data: '01/05/2004', valor: '0.10' },
+          { data: '01/06/2004', valor: '0.20' },
+        ],
+        [
+          { data: '01/06/2004', valor: '0.20' },
+          { data: '01/07/2004', valor: '0.30' },
+        ],
+      ];
+      const f = (async () =>
+        ({
+          ok: true,
+          status: 200,
+          json: async () => bodies[n++] ?? [],
+        }) as Response) as unknown as typeof fetch;
+      const r = await createBcbProvider({ baseUrl: 'https://x', fetchImpl: f, now })
+        .getIndicatorHistory!('ipcaMonth', '1994-07');
+      if (r.status !== 'ok') throw new Error('esperava ok');
+      expect(r.data.map((x) => x.month)).toEqual(['2004-05', '2004-06', '2004-07']);
+    });
+
+    it('bloco com HTTP 500 torna tudo unavailable/fetch-failed', async () => {
+      let n = 0;
+      const f = (async () => {
+        n++;
+        return n === 2
+          ? ({ ok: false, status: 500, json: async () => [] } as Response)
+          : ({ ok: true, status: 200, json: async () => [] } as Response);
+      }) as unknown as typeof fetch;
+      const r = await createBcbProvider({ baseUrl: 'https://x', fetchImpl: f, now })
+        .getIndicatorHistory!('ipcaMonth', '1994-07');
+      expect(r).toMatchObject({ status: 'unavailable', reason: 'fetch-failed', source: 'bcb' });
+    });
+
+    it('corpo inválido é invalid-response', async () => {
+      const p = createBcbProvider({ baseUrl: 'https://x', fetchImpl: fakeFetch({ erro: 1 }), now });
+      expect(await p.getIndicatorHistory!('ipcaMonth', '2024-01')).toMatchObject({
+        status: 'unavailable',
+        reason: 'invalid-response',
+      });
     });
   });
 

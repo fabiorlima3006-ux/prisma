@@ -8,12 +8,14 @@ import type {
   IndicatorId,
   IndicatorValue,
   MarketDataProvider,
+  MonthlyPoint,
   PricePoint,
   Quote,
 } from './types';
 
 export type MarketDataService = {
   getIndicator(id: IndicatorId): Promise<DataResult<IndicatorValue>>;
+  getIndicatorHistory(id: 'ipcaMonth', fromMonth: string): Promise<DataResult<MonthlyPoint[]>>;
   getQuote(a: Asset): Promise<DataResult<Quote>>;
   getHistory(a: Asset, r: HistoryRange): Promise<DataResult<PricePoint[]>>;
   getFundamentals(a: Asset): Promise<DataResult<Fundamentals>>;
@@ -42,6 +44,10 @@ export function createMarketDataService(cfg: {
     async getIndicator(id) {
       const p = providers.bcb;
       return p?.getIndicator ? p.getIndicator(id) : notProvided('bcb');
+    },
+    async getIndicatorHistory(id, fromMonth) {
+      const p = providers.bcb;
+      return p?.getIndicatorHistory ? p.getIndicatorHistory(id, fromMonth) : notProvided('bcb');
     },
     async getQuote(a) {
       const s = providerFor(a);

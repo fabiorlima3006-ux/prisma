@@ -71,6 +71,25 @@ describe('market data service', () => {
     });
   });
 
+  it('histórico do IPCA delega ao BCB ou é not-provided', async () => {
+    const points = {
+      status: 'ok',
+      data: [],
+      meta: okIndicator.status === 'ok' ? okIndicator.meta : undefined,
+    };
+    const withHistory = createMarketDataService({
+      env: parseEnv({}),
+      providers: { bcb: { id: 'bcb', getIndicatorHistory: async () => points as never } },
+    });
+    expect(await withHistory.getIndicatorHistory('ipcaMonth', '2024-01')).toBe(points);
+    const none = createMarketDataService({ env: parseEnv({}), providers: {} });
+    expect(await none.getIndicatorHistory('ipcaMonth', '2024-01')).toMatchObject({
+      status: 'unavailable',
+      reason: 'not-provided',
+      source: 'bcb',
+    });
+  });
+
   it('demo atende cotação sem token', async () => {
     expect(await noToken.getQuote(petr4)).toMatchObject({ status: 'ok', meta: { isDemo: true } });
   });

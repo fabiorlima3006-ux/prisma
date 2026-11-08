@@ -5,6 +5,7 @@ import type {
   IndicatorId,
   IndicatorValue,
   MarketDataProvider,
+  MonthlyPoint,
   UnavailableReason,
 } from '../types';
 
@@ -51,13 +52,78 @@ export function createBcbProvider(opts: {
   const now = opts.now ?? (() => new Date());
   const baseUrl = opts.baseUrl.replace(/\/+$/, '');
 
-  function fail(id: IndicatorId, reason: UnavailableReason): DataResult<IndicatorValue> {
+  function fail<T = IndicatorValue>(id: IndicatorId, reason: UnavailableReason): DataResult<T> {
     log('warn', 'provider.unavailable', { provider: 'bcb', id, reason });
     return { status: 'unavailable', reason, source: 'bcb', attribution: ATTRIBUTION };
   }
 
+  // Blocos de no máximo 10 anos (limite da API do SGS para séries diárias; mantido por segurança),
+  // a partir do dia 1 de fromMonth; o último termina hoje. Datas em UTC.
+  function historyBlocks(fromMonth: string, today: Date): { from: string; to: string }[] | null {
+    const m = /^(\d{4})-(0[1-9]|1[0-2])$/.exec(fromMonth);
+    if (!m) return null;
+    const blocks: { from: string; to: string }[] = [];
+    const todayMs = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+    let start = Date.UTC(Number(m[1]), Number(m[2]) - 1, 1);
+    while (start <= todayMs) {
+      const s = new Date(start);
+      const nextStart = Date.UTC(s.getUTCFullYear() + 10, s.getUTCMonth(), 1);
+      const end = Math.min(nextStart - 86400000, todayMs);
+      blocks.push({ from: brDate(s), to: brDate(new Date(end)) });
+      start = nextStart;
+    }
+    return blocks;
+  }
+
   return {
     id: 'bcb',
+    async getIndicatorHistory(id, fromMonth): Promise<DataResult<MonthlyPoint[]>> {
+      const today = now();
+      const blocks = historyBlocks(fromMonth, today);
+      if (!blocks || blocks.length === 0) return fail(id, 'invalid-response');
+      const { code } = BCB_SERIES[id];
+      const bodies: unknown[] = [];
+      try {
+        const results = await Promise.all(
+          blocks.map(async (b) => {
+            const url = `${baseUrl}/dados/serie/bcdata.sgs.${code}/dados?formato=json&dataInicial=${b.from}&dataFinal=${b.to}`;
+            const res = await fetchImpl(url, {
+              next: { revalidate: 86400 },
+              signal: AbortSignal.timeout(10000),
+            } as RequestInit);
+            if (!res.ok) throw new Error('http');
+            return res.json() as Promise<unknown>;
+          }),
+        );
+        bodies.push(...results);
+      } catch {
+        return fail(id, 'fetch-failed');
+      }
+
+      const points: MonthlyPoint[] = [];
+      const seen = new Set<string>();
+      for (const body of bodies) {
+        const parsed = responseSchema.safeParse(body);
+        if (!parsed.success) return fail(id, 'invalid-response');
+        for (const row of parsed.data) {
+          const iso = parseDate(row.data);
+          const raw = row.valor.trim();
+          const num = raw === '' ? Number.NaN : Number(raw);
+          if (iso === null || !Number.isFinite(num)) return fail(id, 'invalid-response');
+          const month = iso.slice(0, 7);
+          if (seen.has(month)) continue;
+          seen.add(month);
+          points.push({ month, value: num / 100 });
+        }
+      }
+      if (points.length === 0) return fail(id, 'empty');
+      points.sort((a, b) => (a.month < b.month ? -1 : 1));
+      return {
+        status: 'ok',
+        data: points,
+        meta: { source: 'bcb', isDemo: false, asOf: now().toISOString(), attribution: ATTRIBUTION },
+      };
+    },
     async getIndicator(id): Promise<DataResult<IndicatorValue>> {
       const { code, unit, windowDays } = BCB_SERIES[id];
       // Datas em UTC (calendário UTC de now()), de forma consistente em todo o provedor.
