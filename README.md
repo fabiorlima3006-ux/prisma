@@ -134,7 +134,7 @@ Durante a medição anterior apareceu uma violação de CSP (`eval`) silenciosa 
 
 ## Limitações conhecidas
 
-- **brapi (plano gratuito):** a documentação não informa limite de requisições, tickers por requisição nem profundidade do histórico. Sem token, só `PETR4`, `MGLU3`, `VALE3` e `ITUB4`, um por requisição. O índice `^BVSP` não foi verificado ao vivo. O provedor é testado com respostas gravadas. Confirme os termos antes de publicar.
+- **brapi (plano gratuito):** observado no site publicado em 2026-11-08: históricos de 6 meses e 1 ano são recusados para a maioria dos tickers (funcionam em `PETR4`, `VALE3`, `ITUB4` e `MGLU3`, os tickers de teste). Nesses casos, semana e mês vêm de 3 meses, a variação anual fica vazia e as abas 6M e 1A do gráfico mostram "Dado indisponível no momento". Consultas repetidas em sequência levaram a falhas temporárias por ticker (provável limite de requisições). Os avisos `provider.unavailable` nos logs da Vercel trazem o status HTTP.
 - **Fundamentos:** pela brapi, só o P/L é mapeado. Os demais indicadores aparecem como "Dado não disponível". Cada ativo faz 3 requisições separadas por ticker.
 - **Rate limit das rotas `/api/market/*`:** em memória, por instância (não é global em serverless; zera a cada cold start). Plano: Upstash Redis na Fase 2.
 - **Comparador de renda fixa:** o estado não vai para a URL (o simulador de juros compostos vai). Voltar/avançar do navegador não ressincroniza o formulário do simulador.
