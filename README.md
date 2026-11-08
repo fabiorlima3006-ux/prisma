@@ -42,11 +42,11 @@ Sem nenhuma variável, o site funciona: o Banco Central não exige chave e os at
 
 ### Variáveis de ambiente
 
-| Variável               | Obrigatória      | Padrão                   | Para quê                                                                                                                                   |
-| ---------------------- | ---------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `BRAPI_TOKEN`          | Não              | vazio                    | Token da [brapi.dev](https://brapi.dev). Com ele, cotações e histórico de ativos da B3 passam a ser reais. Só no servidor; nunca versione. |
-| `BCB_BASE_URL`         | Não              | `https://api.bcb.gov.br` | URL base da API do Banco Central. Útil para testes (apontar para um endereço inacessível).                                                 |
-| `NEXT_PUBLIC_SITE_URL` | Em produção, sim | `http://localhost:3000`  | URL pública do site. Usada em canonical, sitemap, Open Graph e JSON-LD. Sem ela em produção, os links absolutos apontam para `localhost`.  |
+| Variável               | Obrigatória | Padrão                                                    | Para quê                                                                                                                                                          |
+| ---------------------- | ----------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `BRAPI_TOKEN`          | Não         | vazio                                                     | Token da [brapi.dev](https://brapi.dev). Com ele, cotações e histórico de ativos da B3 passam a ser reais. Só no servidor; nunca versione.                        |
+| `BCB_BASE_URL`         | Não         | `https://api.bcb.gov.br`                                  | URL base da API do Banco Central. Útil para testes (apontar para um endereço inacessível).                                                                        |
+| `NEXT_PUBLIC_SITE_URL` | Não         | domínio de produção da Vercel, ou `http://localhost:3000` | URL pública do site. Usada em canonical, sitemap, Open Graph e JSON-LD. Na Vercel, sem ela, vale `VERCEL_PROJECT_PRODUCTION_URL`; defina só para domínio próprio. |
 
 Os valores reais ficam em `.env.local` (fora do git). O `.env.example` documenta cada variável.
 
@@ -92,14 +92,14 @@ Regras (detalhes em [docs/API.md](docs/API.md)):
 
 ## Publicar (deploy)
 
-> **Pendente: depende das contas do Fabio.** O projeto está pronto para deploy; a publicação em si acontece quando as contas existirem.
+Publicado em **https://prisma-b8wz.vercel.app** (Vercel, plano Hobby), a partir de `main` em https://github.com/fabiorlima3006-ux/prisma. Cada push em `main` gera um novo deploy.
 
-1. **GitHub:** criar um repositório e enviar o código (`git remote add origin <url>` e `git push -u origin <branch>`). O perfil exibido em `/contato` fica em `siteConfig.links.github` (`src/lib/config/site.ts`).
-2. **Vercel:** em vercel.com, "Add New → Project" e importar o repositório. O Next.js é detectado sozinho (plano Hobby, gratuito).
+1. **GitHub:** repositório `fabiorlima3006-ux/prisma`. O perfil exibido em `/contato` fica em `siteConfig.links.github` (`src/lib/config/site.ts`).
+2. **Vercel:** em vercel.com, "Add New → Project" (ou vercel.com/new) e importar o repositório. O Next.js é detectado sozinho.
 3. **Variáveis de ambiente** (Settings → Environment Variables):
-   - `NEXT_PUBLIC_SITE_URL` = a URL final (por exemplo `https://seu-dominio.vercel.app`);
-   - `BRAPI_TOKEN` = opcional; sem ele os ativos ficam demonstrativos.
-4. **Redeploy** para que `NEXT_PUBLIC_SITE_URL` entre no build (a variável é embutida na compilação).
+   - `BRAPI_TOKEN` = opcional; sem ele os ativos ficam demonstrativos;
+   - `NEXT_PUBLIC_SITE_URL` = opcional; sem ela, o build usa o domínio de produção que a Vercel informa (`VERCEL_PROJECT_PRODUCTION_URL`). Defina só se usar um domínio próprio.
+4. **Redeploy** depois de mudar variáveis (elas entram no build).
 5. Conferir `/sitemap.xml`, `/robots.txt` e o canonical de uma página.
 
 ## Lighthouse

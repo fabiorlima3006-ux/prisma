@@ -26,8 +26,8 @@ Documento vivo. Baseado na seção 12 do spec (`docs/superpowers/specs/2026-11-0
 ## Pendências do MVP
 
 **Dependem do Fabio**
-- [ ] Criar o repositório no GitHub e importar na Vercel (passo a passo no README).
-- [ ] Definir `NEXT_PUBLIC_SITE_URL` (e, se quiser dados reais, `BRAPI_TOKEN`) e refazer o deploy.
+- [x] Repositório no GitHub e deploy na Vercel: https://prisma-b8wz.vercel.app (2026-11-08).
+- [ ] Cadastrar `BRAPI_TOKEN` na Vercel (dados reais de ações) e refazer o deploy. `NEXT_PUBLIC_SITE_URL` não é mais necessária (usa o domínio de produção da Vercel).
 - [x] Usuário do GitHub em `siteConfig.links.github` (aparece em `/contato`): `fabiorlima3006-ux`.
 - [ ] Confirmar na página de preços da brapi os limites e os termos do plano gratuito.
 - [ ] Remedir o Lighthouse na URL publicada (a Performance local oscila entre 84 e 99).

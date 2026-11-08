@@ -4,6 +4,20 @@ export function normalizeSiteUrl(raw: string | undefined): string {
   return url.replace(/\/+$/, '');
 }
 
+/**
+ * URL pública: NEXT_PUBLIC_SITE_URL, se definida; senão o domínio de produção que a Vercel
+ * injeta no build (VERCEL_PROJECT_PRODUCTION_URL, sem protocolo); senão localhost.
+ */
+export function resolveSiteUrl(env: {
+  NEXT_PUBLIC_SITE_URL?: string;
+  VERCEL_PROJECT_PRODUCTION_URL?: string;
+}): string {
+  const explicit = env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (explicit) return normalizeSiteUrl(explicit);
+  const vercel = env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+  return normalizeSiteUrl(vercel ? `https://${vercel}` : undefined);
+}
+
 export type NavItem = { label: string; href: string; children?: NavItem[] };
 
 export const siteConfig: {
@@ -17,7 +31,10 @@ export const siteConfig: {
   name: 'Prisma',
   description:
     'Plataforma para acompanhar mercados, estudar investimentos, analisar ativos e simular cenários.',
-  url: normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL),
+  url: resolveSiteUrl({
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+    VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
+  }),
   links: { github: 'https://github.com/fabiorlima3006-ux' },
   nav: [
     { label: 'Mercados', href: '/mercados' },
