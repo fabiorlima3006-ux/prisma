@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import '@/lib/zod-setup';
 import type { TaxRules } from '../config/tax-rules';
 import { PRODUCT_META, type ProductId } from './fixed-income-meta';
 import { businessDaysApprox, incomeTaxRate } from './tax';

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import '@/lib/zod-setup';
 import { annualToMonthly } from './rates';
 
 const MAX_VALUE = 1e12;
