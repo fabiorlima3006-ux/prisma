@@ -25,7 +25,7 @@ describe('buildSearchIndex', () => {
   });
 
   it('ferramenta planejada traz "Em breve" no subtítulo', () => {
-    const e = idx.find((x) => x.type === 'tool' && x.title === 'Simulador de aposentadoria');
+    const e = idx.find((x) => x.type === 'tool' && x.title === 'Renda passiva');
     expect(e?.subtitle).toContain('Em breve');
   });
 

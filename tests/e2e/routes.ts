@@ -13,6 +13,7 @@ export const ROUTES = [
   '/simuladores',
   '/simuladores/juros-compostos',
   '/simuladores/inflacao',
+  '/simuladores/independencia-financeira',
   '/ferramentas',
   '/ferramentas/comparador',
   '/educacao',
@@ -45,6 +46,7 @@ export const KEY_PAGES = [
   '/acoes/petr4',
   '/simuladores/juros-compostos',
   '/simuladores/inflacao',
+  '/simuladores/independencia-financeira',
   '/ferramentas/comparador',
   '/educacao',
 ] as const;
