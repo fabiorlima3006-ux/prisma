@@ -1,0 +1,50 @@
+/** Lista única das rotas do app (spec 4.2 + páginas "em construção"). */
+export const ROUTES = [
+  '/',
+  '/mercados',
+  '/acoes',
+  '/fiis',
+  '/etfs',
+  '/cripto',
+  '/acoes/petr4',
+  '/fiis/mxrf11',
+  '/etfs/bova11',
+  '/cripto/btc',
+  '/simuladores',
+  '/simuladores/juros-compostos',
+  '/ferramentas',
+  '/ferramentas/comparador',
+  '/educacao',
+  '/educacao/iniciante',
+  '/educacao/intermediario',
+  '/educacao/avancado',
+  '/educacao/iniciante/juros-compostos-e-inflacao',
+  '/educacao/intermediario/indicadores-fundamentalistas',
+  '/educacao/avancado/introducao-a-opcoes',
+  '/busca',
+  '/sobre',
+  '/contato',
+  '/termos',
+  '/privacidade',
+  '/renda-fixa',
+  '/fundos',
+  '/opcoes',
+  '/carteira',
+  '/analises',
+  '/noticias',
+  '/assistente',
+  '/perfil',
+  '/entrar',
+] as const;
+
+/** Páginas verificadas em celular e acessibilidade. */
+export const KEY_PAGES = [
+  '/',
+  '/mercados',
+  '/acoes/petr4',
+  '/simuladores/juros-compostos',
+  '/ferramentas/comparador',
+  '/educacao',
+] as const;
+
+export const ARTICLE = '/educacao/iniciante/juros-compostos-e-inflacao';
