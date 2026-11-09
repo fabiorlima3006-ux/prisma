@@ -136,7 +136,7 @@ describe('ComparatorForm', () => {
 
     it('com inflação de 5%, mostra o líquido em reais de hoje e o retorno real', async () => {
       const { user, q } = await setup({ percent: '', note: 'nota' });
-      await user.type(q.getByLabelText('Inflação estimada (% a.a.)'), '5');
+      await user.type(q.getByLabelText('Inflação anual esperada (premissa)'), '5');
       const row = await q.findByRole('row', { name: /CDB/ });
       expect(q.getByRole('columnheader', { name: 'Líquido em reais de hoje' })).toBeInTheDocument();
       expect(q.getByRole('columnheader', { name: 'Retorno real anualizado' })).toBeInTheDocument();
@@ -149,19 +149,25 @@ describe('ComparatorForm', () => {
     it('usa o padrão e a nota recebidos, com rótulo de premissa', async () => {
       const { q } = await setup({
         percent: '4,58',
-        note: 'IPCA 12 meses (premissa, não previsão)',
+        note: 'Padrão: IPCA 12 meses de 4,58% (ref. 09/2026); premissa, não previsão.',
       });
-      expect(q.getByLabelText('Inflação estimada (% a.a.)')).toHaveValue('4,58');
-      expect(q.getByText(/premissa, não previsão/)).toBeInTheDocument();
+      expect(q.getByLabelText('Inflação anual esperada (premissa)')).toHaveValue('4,58');
+      expect(
+        q.getByText('Padrão: IPCA 12 meses de 4,58% (ref. 09/2026); premissa, não previsão.'),
+      ).toBeInTheDocument();
       expect(
         await q.findByRole('columnheader', { name: 'Líquido em reais de hoje' }),
+      ).toBeInTheDocument();
+      expect(
+        q.getByText('Calculado com a inflação de 4,58% a.a. (premissa, não previsão).'),
       ).toBeInTheDocument();
     });
 
     it('com inflação vazia, as colunas novas não existem', async () => {
       const { q } = await setup(null);
       await q.findByRole('row', { name: /CDB/ });
-      expect(q.getByLabelText('Inflação estimada (% a.a.)')).toHaveValue('');
+      expect(q.queryByText(/Calculado com a inflação/)).toBeNull();
+      expect(q.getByLabelText('Inflação anual esperada (premissa)')).toHaveValue('');
       expect(
         q.queryByRole('columnheader', { name: 'Líquido em reais de hoje' }),
       ).not.toBeInTheDocument();
@@ -173,8 +179,8 @@ describe('ComparatorForm', () => {
 
     it('com inflação inválida, há erro de campo e as colunas novas somem', async () => {
       const { user, q } = await setup(null);
-      await user.type(q.getByLabelText('Inflação estimada (% a.a.)'), '150');
-      expect(q.getByLabelText('Inflação estimada (% a.a.)')).toHaveAttribute(
+      await user.type(q.getByLabelText('Inflação anual esperada (premissa)'), '150');
+      expect(q.getByLabelText('Inflação anual esperada (premissa)')).toHaveAttribute(
         'aria-invalid',
         'true',
       );

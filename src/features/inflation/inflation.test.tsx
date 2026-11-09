@@ -197,4 +197,60 @@ describe('InflationSimulator', () => {
     expect(ui.getByTestId('today-equivalent')).toHaveTextContent('907,03');
     expect(ui.getAllByText(/premissa, não previsão/).length).toBeGreaterThan(0);
   });
+
+  describe('aba Futuro: URL e inflação padrão', () => {
+    async function edit(inflacao: string, typed: string | null, defaultInflation?: string) {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      const ui = await setup({
+        initialTab: 'futuro',
+        future: { ...future, inflacao },
+        defaultInflation,
+      });
+      await user.clear(ui.getByLabelText('Prazo (anos)'));
+      await user.type(ui.getByLabelText('Prazo (anos)'), '3');
+      if (typed !== null) {
+        await user.clear(ui.getByLabelText('Inflação anual esperada (premissa)'));
+        if (typed !== '')
+          await user.type(ui.getByLabelText('Inflação anual esperada (premissa)'), typed);
+      }
+      act(() => {
+        vi.advanceTimersByTime(300);
+      });
+      vi.useRealTimers();
+      return String(replaceState.mock.calls.at(-1)?.[2]);
+    }
+
+    it('igual ao padrão: não grava inflacao', async () => {
+      expect(await edit('4,58', null, '4,58')).not.toContain('inflacao');
+    });
+
+    it('diferente do padrão: grava inflacao', async () => {
+      expect(await edit('4,58', '6,5', '4,58')).toContain('inflacao=6.5');
+    });
+
+    it('campo vazio com padrão disponível: grava inflacao= (desligado)', async () => {
+      expect(await edit('4,58', '', '4,58')).toMatch(/inflacao=(&|$)/);
+    });
+
+    it('campo vazio sem padrão: não grava', async () => {
+      expect(await edit('', null, undefined)).not.toContain('inflacao');
+    });
+  });
+
+  it('BCB fora e campo vazio: sem erro antes de mexer, com pedido neutro no resultado', async () => {
+    const user = userEvent.setup();
+    const ui = await setup({ initialTab: 'futuro', future: { ...future, inflacao: '' } });
+    expect(ui.queryByText('Informe uma premissa de inflação')).toBeNull();
+    expect(ui.getByLabelText('Inflação anual esperada (premissa)')).not.toHaveAttribute(
+      'aria-invalid',
+      'true',
+    );
+    expect(ui.getByText('Informe uma premissa de inflação para calcular')).toBeInTheDocument();
+    expect(ui.queryByTestId('needed-future')).toBeNull();
+    const field = ui.getByLabelText('Inflação anual esperada (premissa)');
+    await user.type(field, '5');
+    await user.clear(field);
+    expect(ui.getByText('Informe uma premissa de inflação')).toBeInTheDocument();
+  });
 });

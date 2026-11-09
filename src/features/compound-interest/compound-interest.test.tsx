@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CompoundInterestInput } from '@/lib/finance/compound-interest';
@@ -218,7 +218,7 @@ describe('CompoundInterestForm: montagem', () => {
 });
 
 describe('inflação (premissa)', () => {
-  const NOTE = 'IPCA 12 meses, ref. 09/2026 (premissa, não previsão)';
+  const NOTE = 'Padrão: IPCA 12 meses de 4,58% (ref. 09/2026); premissa, não previsão.';
 
   it('com inflação de 10%, mostra o valor final em reais de hoje e a taxa real anual', () => {
     render(
@@ -268,6 +268,55 @@ describe('inflação (premissa)', () => {
         'IPCA indisponível no momento; informe uma premissa se quiser ver o valor em reais de hoje',
       ),
     ).toBeInTheDocument();
+  });
+});
+
+describe('URL e a inflação padrão', () => {
+  const urlWith = async (type: string | null, initialInflacao: string) => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const { container } = render(
+      <CompoundInterestForm
+        initial={{ ...DEFAULT_VALUES, inflacao: initialInflacao }}
+        defaultInflation="4,58"
+      />,
+    );
+    const q = within(container);
+    await user.clear(q.getByLabelText('Aporte mensal'));
+    await user.type(q.getByLabelText('Aporte mensal'), '250');
+    if (type !== null) {
+      await user.clear(q.getByLabelText('Inflação anual esperada (premissa)'));
+      if (type !== '')
+        await user.type(q.getByLabelText('Inflação anual esperada (premissa)'), type);
+    }
+    vi.advanceTimersByTime(300);
+    vi.useRealTimers();
+    return String(replace.mock.calls.at(-1)?.[2]);
+  };
+
+  it('valor igual ao padrão: não grava inflacao', async () => {
+    expect(await urlWith(null, '4,58')).not.toContain('inflacao');
+    replace.mockClear();
+    expect(await urlWith('4,58', '4,58')).not.toContain('inflacao');
+  });
+
+  it('valor diferente do padrão grava inflacao', async () => {
+    expect(await urlWith('6,5', '4,58')).toContain('inflacao=6.5');
+  });
+
+  it('campo vazio com padrão disponível grava inflacao= (desligado)', async () => {
+    expect(await urlWith('', '4,58')).toMatch(/inflacao=(&|$)/);
+  });
+
+  it('campo vazio sem padrão não grava', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const { container } = render(<CompoundInterestForm initial={DEFAULT_VALUES} />);
+    await user.clear(within(container).getByLabelText('Aporte mensal'));
+    await user.type(within(container).getByLabelText('Aporte mensal'), '250');
+    vi.advanceTimersByTime(300);
+    vi.useRealTimers();
+    expect(String(replace.mock.calls.at(-1)?.[2])).not.toContain('inflacao');
   });
 });
 

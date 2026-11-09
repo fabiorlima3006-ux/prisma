@@ -77,7 +77,14 @@ export function fromSearchParams(
 /** Escreve só os parâmetros da aba ativa; números com ponto decimal. */
 export function toSearchParams(
   tab: InflationTab,
-  parts: { valor: number; de?: string; ate?: string; anos?: number; inflation?: number },
+  parts: {
+    valor: number;
+    de?: string;
+    ate?: string;
+    anos?: number;
+    /** Fração; null grava `inflacao=` (desligada); undefined não grava o parâmetro. */
+    inflation?: number | null;
+  },
 ): URLSearchParams {
   const sp = new URLSearchParams();
   sp.set('aba', tab);
@@ -87,7 +94,8 @@ export function toSearchParams(
     if (parts.ate) sp.set('ate', parts.ate);
   } else {
     if (parts.anos !== undefined) sp.set('anos', plainNumber(parts.anos));
-    if (parts.inflation !== undefined) sp.set('inflacao', plainNumber(parts.inflation * 100));
+    if (parts.inflation !== undefined)
+      sp.set('inflacao', parts.inflation === null ? '' : plainNumber(parts.inflation * 100));
   }
   return sp;
 }

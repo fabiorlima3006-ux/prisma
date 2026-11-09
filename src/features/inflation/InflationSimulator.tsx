@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import { Tabs } from '@/components/ui';
 import type { DataResult, MonthlyPoint } from '@/lib/data/types';
 import { CorrectionPanel, type ParsedCorrection } from './CorrectionPanel';
+import { inflationUrlValue } from '@/features/simulators-shared/inflation-input';
 import { evaluateFuture, PurchasingPowerForm } from './PurchasingPowerForm';
 import {
   toSearchParams,
@@ -20,6 +21,7 @@ export function InflationSimulator({
   correction,
   future: initialFuture,
   inflationNote,
+  defaultInflation,
 }: {
   /** Série do IPCA mensal (BCB), transmitida pelo servidor sem bloquear a página. */
   history: Promise<DataResult<MonthlyPoint[]>>;
@@ -27,6 +29,8 @@ export function InflationSimulator({
   correction: CorrectionValues;
   future: FutureValues;
   inflationNote: string;
+  /** Padrão do servidor (IPCA 12 meses, % pt-BR); a URL só grava `inflacao` se o campo diferir dele. */
+  defaultInflation?: string;
 }) {
   const [tab, setTab] = useState<InflationTab>(initialTab);
   const [future, setFuture] = useState(initialFuture);
@@ -37,15 +41,13 @@ export function InflationSimulator({
     if (tab === 'corrigir') {
       return parsedCorrection ? toSearchParams('corrigir', parsedCorrection).toString() : null;
     }
-    const parsed = evaluateFuture(future).parsed;
-    return parsed
-      ? toSearchParams('futuro', {
-          valor: parsed.valor,
-          anos: parsed.anos,
-          inflation: parsed.inflation,
-        }).toString()
-      : null;
-  }, [tab, parsedCorrection, future]);
+    const { base, errors } = evaluateFuture(future);
+    if (!base || errors.inflacao) return null;
+    return toSearchParams('futuro', {
+      ...base,
+      inflation: inflationUrlValue(future.inflacao, defaultInflation),
+    }).toString();
+  }, [tab, parsedCorrection, future, defaultInflation]);
 
   // O estado inicial já está na URL (ou é o padrão): a primeira consulta da aba inicial só serve
   // de referência. Depois, a URL é reescrita sem navegação (history.replaceState): o Server

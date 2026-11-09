@@ -52,6 +52,7 @@ export default async function InflacaoPage({ searchParams }: { searchParams: Sea
           correction={correction}
           future={future}
           inflationNote={fallback?.note ?? INFLATION_UNAVAILABLE_NOTE}
+          defaultInflation={fallback?.percent}
         />
         <Disclaimer variant="prominent" />
       </div>

@@ -17,3 +17,24 @@ export function parseInflation(text: string): {
     return { inflation: null, inflationError: INFLATION_RANGE };
   return { inflation: fraction };
 }
+
+/**
+ * O que a URL deve gravar em `inflacao` (fração), dado o texto do campo e o padrão do servidor
+ * (% pt-BR ou vazio/undefined quando não há IPCA real):
+ * - ilegível ou fora do intervalo → undefined (não grava);
+ * - igual ao padrão (comparado como número) → undefined: o link usa o IPCA do dia em que for aberto;
+ * - campo vazio com padrão disponível → null (grava `inflacao=`, desligado);
+ * - campo vazio sem padrão → undefined;
+ * - qualquer outro valor → a fração.
+ */
+export function inflationUrlValue(
+  text: string,
+  defaultPercent: string | undefined,
+): number | null | undefined {
+  const { inflation, inflationError } = parseInflation(text);
+  if (inflationError) return undefined;
+  const fallback = defaultPercent ? parseInflation(defaultPercent).inflation : null;
+  if (inflation === null) return fallback === null ? undefined : null;
+  if (fallback !== null && Math.abs(inflation - fallback) < 1e-12) return undefined;
+  return inflation;
+}

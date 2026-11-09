@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Adorned, Field, Input } from '@/components/ui';
 import { parseInflation } from '@/features/simulators-shared/inflation-input';
 import { futureInputSchema, purchasingPower } from '@/lib/finance/inflation';
@@ -12,6 +12,10 @@ const REQUIRED = 'Informe um número válido';
 export type FutureState = {
   errors: Partial<Record<'valor' | 'anos' | 'inflacao', string>>;
   parsed?: { valor: number; anos: number; inflation: number };
+  /** Valor e prazo válidos (a inflação pode faltar): base para a URL. */
+  base?: { valor: number; anos: number };
+  /** Campo de inflação vazio (a tela só acusa o erro depois que a pessoa mexe no campo). */
+  inflationMissing?: boolean;
   result?: { neededInFuture: number; todayEquivalent: number };
 };
 
@@ -32,14 +36,23 @@ export function evaluateFuture(v: FutureValues): FutureState {
       if (key) errors[key] ??= issue.message;
     }
     if (years === null) errors.anos = REQUIRED;
-    if (v.inflacao.trim() === '') errors.inflacao = 'Informe uma premissa de inflação';
+    // Campo vazio não é erro de formato: a tela só pede a premissa depois que a pessoa mexe nele.
+    if (v.inflacao.trim() === '') delete errors.inflacao;
     else if (inflationError) errors.inflacao = inflationError;
-    return { errors };
+    const baseCheck = futureInputSchema.safeParse({ amount, years, inflation: 0 });
+    return {
+      errors,
+      inflationMissing: v.inflacao.trim() === '',
+      ...(baseCheck.success
+        ? { base: { valor: baseCheck.data.amount, anos: baseCheck.data.years } }
+        : {}),
+    };
   }
   const { amount: valor, years: anos, inflation: infl } = parsed.data;
   return {
     errors,
     parsed: { valor, anos, inflation: infl },
+    base: { valor, anos },
     result: purchasingPower(valor, infl, anos),
   };
 }
@@ -53,8 +66,18 @@ export function PurchasingPowerForm({
   inflationNote: string;
   onChange: (next: FutureValues) => void;
 }) {
-  const { errors, parsed, result } = useMemo(() => evaluateFuture(values), [values]);
-  const set = (key: keyof FutureValues, value: string) => onChange({ ...values, [key]: value });
+  const { errors, parsed, result, inflationMissing } = useMemo(
+    () => evaluateFuture(values),
+    [values],
+  );
+  const [inflationTouched, setInflationTouched] = useState(false);
+  const set = (key: keyof FutureValues, value: string) => {
+    if (key === 'inflacao') setInflationTouched(true);
+    onChange({ ...values, [key]: value });
+  };
+  const inflationError =
+    errors.inflacao ??
+    (inflationMissing && inflationTouched ? 'Informe uma premissa de inflação' : undefined);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
@@ -88,7 +111,7 @@ export function PurchasingPowerForm({
         </Field>
         <Field
           label="Inflação anual esperada (premissa)"
-          error={errors.inflacao}
+          error={inflationError}
           hint={inflationNote}
         >
           {(p) => (
@@ -105,6 +128,11 @@ export function PurchasingPowerForm({
         </Field>
       </form>
       <div className="min-w-0 space-y-4" aria-live="polite">
+        {inflationMissing && !result && !errors.valor && !errors.anos && (
+          <p className="rounded-xl border border-line bg-surface p-4 text-sm text-muted">
+            Informe uma premissa de inflação para calcular
+          </p>
+        )}
         {result && parsed && (
           <div className="rounded-xl border border-line bg-surface p-4">
             <p className="text-sm text-muted">

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Adorned, Field, Input, Select } from '@/components/ui';
 import { INFLATION_UNAVAILABLE_NOTE } from '@/features/simulators-shared/inflation-default';
+import { inflationUrlValue } from '@/features/simulators-shared/inflation-input';
 import { CompoundInterestResult } from './CompoundInterestResult';
 import { toSearchParams, validateValues, type FormValues } from './url-state';
 
@@ -11,10 +12,13 @@ const DEBOUNCE_MS = 300;
 export function CompoundInterestForm({
   initial,
   inflationNote = INFLATION_UNAVAILABLE_NOTE,
+  defaultInflation,
 }: {
   initial: FormValues;
   /** Fonte e referência do padrão de inflação (ou aviso de indisponibilidade). */
   inflationNote?: string;
+  /** Padrão do servidor (IPCA 12 meses, % pt-BR); a URL só grava `inflacao` se o campo diferir dele. */
+  defaultInflation?: string;
 }) {
   const [values, setValues] = useState<FormValues>(initial);
   const set = <K extends keyof FormValues>(key: K, value: FormValues[K]) =>
@@ -29,22 +33,29 @@ export function CompoundInterestForm({
   const lastQuery = useRef<string | null>(null);
   if (lastQuery.current === null) {
     const first = validateValues(initial).input;
-    const firstInflation = validateValues(initial).inflation;
     lastQuery.current = first
-      ? toSearchParams(first, initial.unidade, firstInflation).toString()
+      ? toSearchParams(
+          first,
+          initial.unidade,
+          inflationUrlValue(initial.inflacao, defaultInflation),
+        ).toString()
       : '';
   }
 
   useEffect(() => {
     if (!input || inflationError) return;
-    const query = toSearchParams(input, unidade, inflation).toString();
+    const query = toSearchParams(
+      input,
+      unidade,
+      inflationUrlValue(values.inflacao, defaultInflation),
+    ).toString();
     if (query === lastQuery.current) return;
     const handle = setTimeout(() => {
       lastQuery.current = query;
       window.history.replaceState(null, '', `?${query}`);
     }, DEBOUNCE_MS);
     return () => clearTimeout(handle);
-  }, [input, unidade, inflation, inflationError]);
+  }, [input, unidade, values.inflacao, defaultInflation, inflationError]);
 
   return (
     <div className="grid gap-6 lg:grid-cols-[320px_1fr]">

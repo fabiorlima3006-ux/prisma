@@ -173,7 +173,7 @@ export function ComparatorForm({
         {numberField('lciPct', '% do CDI da LCI/LCA', { suffix: '%' })}
 
         <Field
-          label="Inflação estimada (% a.a.)"
+          label="Inflação anual esperada (premissa)"
           error={inflationError}
           hint={inflationDefault?.note ?? INFLATION_UNAVAILABLE_NOTE}
         >
@@ -238,6 +238,12 @@ export function ComparatorForm({
               inflation={inflation}
               calendarDays={debounced?.calendarDays ?? 0}
             />
+            {inflation !== null && (
+              <p className="text-xs text-muted">
+                Calculado com a inflação de {formatPercent(inflation)} a.a. (premissa, não
+                previsão).
+              </p>
+            )}
             <ComparatorChart rows={rows} />
           </>
         ) : (

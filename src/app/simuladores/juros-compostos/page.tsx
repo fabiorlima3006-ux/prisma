@@ -43,6 +43,7 @@ export default async function JurosCompostosPage({ searchParams }: { searchParam
         <CompoundInterestForm
           initial={values}
           inflationNote={fallback?.note ?? INFLATION_UNAVAILABLE_NOTE}
+          defaultInflation={fallback?.percent}
         />
         <Disclaimer variant="prominent" />
       </div>

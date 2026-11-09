@@ -14,8 +14,9 @@ export function inflationDefault(
   result: DataResult<IndicatorValue>,
 ): { percent: string; note: string } | null {
   if (result.status !== 'ok') return null;
+  const percent = formatNumber(result.data.value * 100, 2);
   return {
-    percent: formatNumber(result.data.value * 100, 2),
-    note: `IPCA 12 meses, ${referenceLabel(result.data)} (premissa, não previsão)`,
+    percent,
+    note: `Padrão: IPCA 12 meses de ${percent}% (${referenceLabel(result.data)}); premissa, não previsão.`,
   };
 }
