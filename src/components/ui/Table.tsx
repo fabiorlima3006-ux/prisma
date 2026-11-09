@@ -15,7 +15,14 @@ export function Table({
   rows: Record<string, ReactNode>[];
 }) {
   return (
-    <div className="overflow-x-auto rounded-xl border border-line bg-surface">
+    // Região rolável precisa de foco por teclado (axe: scrollable-region-focusable).
+    <div
+      role="region"
+      aria-label={caption}
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+      tabIndex={0}
+      className="overflow-x-auto rounded-xl border border-line bg-surface"
+    >
       <table className="w-full border-collapse text-sm">
         <caption className="px-3.5 py-2.5 text-left font-mono text-xs text-muted">
           {caption}

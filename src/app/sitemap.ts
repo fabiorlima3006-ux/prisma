@@ -14,6 +14,7 @@ const STATIC_PATHS = [
   '/simuladores/juros-compostos',
   '/simuladores/inflacao',
   '/simuladores/independencia-financeira',
+  '/simuladores/financiamento',
   '/ferramentas',
   '/ferramentas/comparador',
   '/educacao',
