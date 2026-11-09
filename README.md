@@ -15,11 +15,12 @@ Home no modo claro e no modo escuro (desktop, 1280 px) e no celular (375 px):
 
 Os prints foram capturados com Playwright contra `npm run start`. O selo **DADOS DEMONSTRATIVOS** nas cotações de Ibovespa, S&P 500 e Bitcoin é intencional (veja "Fontes de dados").
 
-## O que tem no MVP
+## O que tem na plataforma
 
 - Home com indicadores do Banco Central (Selic, CDI, IPCA, PTAX) e cotações demonstrativas.
 - Páginas de mercados e de ativos (ações, FIIs, ETFs, cripto e índices) com cotação, histórico e fonte exibida.
 - Simulador de juros compostos e comparador de renda fixa (CDB, Tesouro Selic, LCI/LCA e poupança, com IR e custos).
+- Simuladores da Fase 2A: inflação (poder de compra e correção pelo IPCA do Banco Central), aposentadoria e independência financeira (perpetuidade real, premissas rotuladas) e financiamento (SAC e Price lado a lado, com amortização extra). Juros compostos e comparador também mostram valores em reais de hoje.
 - Educação: 9 artigos em 3 trilhas (MDX). Busca global (Ctrl+K). Tema claro e escuro.
 - Páginas legais, SEO (metadados, sitemap, JSON-LD, imagens Open Graph) e cabeçalhos de segurança.
 - Rotas ainda não implementadas aparecem como "em construção" (carteira, opções, assistente etc.).
@@ -76,11 +77,11 @@ npm run lint && npm run typecheck && npm test && npm run test:e2e
 
 ## Fontes de dados e a política de DADOS DEMONSTRATIVOS
 
-| Fonte               | O que fornece                                                                  | Chave         |
-| ------------------- | ------------------------------------------------------------------------------ | ------------- |
-| Banco Central (SGS) | Selic, CDI, IPCA (mensal e 12 meses), PTAX, TR. Dados reais, com cache de 1 h. | Não           |
-| brapi.dev           | Cotação, histórico e P/L de ativos da B3. Opcional; cache de 15 min.           | `BRAPI_TOKEN` |
-| Demonstrativo       | Preço e histórico simulados (caminhada aleatória determinística).              | Não           |
+| Fonte               | O que fornece                                                                                                      | Chave         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------- |
+| Banco Central (SGS) | Selic, CDI, IPCA (mensal, 12 meses e histórico mensal), PTAX, TR. Dados reais, com cache de 1 h (histórico: 24 h). | Não           |
+| brapi.dev           | Cotação, histórico e P/L de ativos da B3. Opcional; cache de 15 min.                                               | `BRAPI_TOKEN` |
+| Demonstrativo       | Preço e histórico simulados (caminhada aleatória determinística).                                                  | Não           |
 
 Regras (detalhes em [docs/API.md](docs/API.md)):
 
@@ -140,9 +141,10 @@ Durante a medição anterior apareceu uma violação de CSP (`eval`) silenciosa 
 - **Comparador de renda fixa:** o estado não vai para a URL (o simulador de juros compostos vai). Voltar/avançar do navegador não ressincroniza o formulário do simulador.
 - **Regras tributárias** (`src/lib/config/tax-rules.ts`): a carência de LCI/LCA foi extraída de um comunicado da B3 (LCI 6 meses, Res. CMN 5.215/2025); `verifiedAt` é uma data fixa e a custódia do Tesouro tem data de vigência incerta. Confira sempre na fonte oficial.
 - **Colunas qualitativas** do comparador (liquidez, risco, FGC) vêm de uma tabela estática; a cobertura do FGC é descrita de forma qualitativa, sem limites em reais.
-- **Cálculos** em `number` (ponto flutuante duplo), com arredondamento só na exibição: aceitável para simulação educativa. Aportes no fim do mês, valores nominais (sem inflação), dias úteis aproximados por 252/365.
+- **Cálculos** em `number` (ponto flutuante duplo), com arredondamento só na exibição: aceitável para simulação educativa. Aportes no fim do mês, dias úteis aproximados por 252/365. Valores nominais por padrão; "em reais de hoje" usa uma premissa de inflação informada (padrão: IPCA 12 meses do BCB), não uma previsão.
 - **`/busca` é `noindex`** (diverge do spec, que a previa indexável): páginas de resultado interno são conteúdo raso e duplicado.
 - **Privacidade:** os valores digitados nos simuladores podem aparecer na URL (para compartilhar) e são usados só para calcular a página; não são armazenados.
+- **Fase 2A:** a independência financeira não modela IR nem custos; a correção pelo IPCA segue a convenção da ADR 17 e pode diferir levemente de outras calculadoras; o financiamento não inclui seguros, tarifas nem TR.
 - **Contraste:** o contraste não textual das áreas dos gráficos empilhados não foi verificado por ferramenta.
 
 ## Documentação

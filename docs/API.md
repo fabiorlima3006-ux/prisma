@@ -63,6 +63,13 @@ Aplicados a todas as páginas e rotas por `next.config.ts` (`src/lib/security/he
 - Datas vêm em `DD/MM/AAAA` e são convertidas para `AAAA-MM-DD`. Taxas são convertidas de percentual para fração (13,75 vira 0,1375).
 - Resposta vazia (`[]`), valor vazio ou data ilegível resultam em `unavailable` (`empty` ou `invalid-response`), nunca em erro de build.
 
+### 2.1.1 Histórico mensal do IPCA (`getIndicatorHistory`)
+
+- Operação do serviço de dados (`marketData.getIndicatorHistory('ipcaMonth', fromMonth)`), usada só no servidor; não há rota HTTP pública para ela. `fromMonth` vem no formato `AAAA-MM`. Devolve `DataResult<MonthlyPoint[]>`, com `MonthlyPoint = { month: 'AAAA-MM', value }`, `value` em fração (0,0042 = 0,42%) e meses em ordem crescente.
+- Usa a série **433** (IPCA, variação mensal), com consulta por período do dia 1 de `fromMonth` até hoje, dividida em blocos de no máximo 10 anos (um pedido por bloco, em paralelo). Revalidação de 86400 s (24 h); timeout de 10000 ms por pedido.
+- `fromMonth` inválido resulta em `unavailable` (`invalid-response`); falha de rede ou HTTP, em `fetch-failed`; resposta sem linhas, em `empty`. Se um mês aparecer duas vezes, vale a primeira linha. Segue a política "sem fallback": nunca cai para dado demonstrativo.
+- Consumidores: `/simuladores/inflacao` e as opções "em reais de hoje" dos simuladores. A regra de correção está na ADR 17 de `ARCHITECTURE.md`.
+
 ### 2.2 brapi (cotações, histórico e P/L)
 
 - Endpoint: `GET https://brapi.dev/api/quote/{simbolo}?range=&interval=`. Documentação: <https://brapi.dev/docs/acoes>.

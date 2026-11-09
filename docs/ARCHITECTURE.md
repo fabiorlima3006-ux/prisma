@@ -160,3 +160,29 @@ Estados de exibição: fonte não forneceu = "Dado não disponível" (`null`); s
 - **Contexto:** a Fase 4 terá planos Gratuito, Premium e Profissional.
 - **Decisão:** `src/lib/config/features.ts` registra cada funcionalidade com `minPlan`; `canAccess` devolve sempre `true` no MVP.
 - **Consequências:** a futura regra de acesso entra em um ponto só, sem espalhar `if` pela interface. Nada é bloqueado hoje.
+
+
+### ADR 17. Convenção do IPCA: razão entre números-índice de fim de mês, desde 07/1994
+- **Contexto:** a inflação em reais de hoje precisa de uma regra única para corrigir um valor entre duas datas usando a série 433 (IPCA mensal) do Banco Central.
+- **Decisão:** o fator de correção é o produto de `(1 + IPCA)` dos meses **posteriores** ao mês inicial, até o mês final **inclusive** (equivale à razão entre os números-índice de fim de mês). A série começa em 07/1994 (Plano Real). Está em `src/lib/finance/inflation.ts` (`correctByIpca`), função pura, com o "hoje" passado como parâmetro. Não afirmamos que o resultado seja igual ao da "Calculadora do Cidadão" do BCB, que pode usar outra convenção de mês de partida.
+- **Consequências:** regra explícita e testada. Pequenas diferenças em relação a outras calculadoras são possíveis, e a tela deixa claro que é uma simulação.
+
+### ADR 18. Independência financeira como perpetuidade real
+- **Contexto:** o simulador precisa mostrar quanto patrimônio seria necessário para viver de renda, sem prometer rentabilidade.
+- **Decisão:** modelo de perpetuidade real: patrimônio necessário = renda desejada / taxa real mensal, vivendo só do rendimento real, sem consumir o principal. Todos os valores ficam em reais de hoje. A taxa real padrão (4% a.a.) é uma premissa ilustrativa, rotulada como tal: não é dado de mercado nem previsão. Imposto de renda e custos não são modelados, e a tela avisa. Código em `src/lib/finance/retirement.ts` (meses até a meta e aporte mensal para uma idade-alvo).
+- **Consequências:** conta simples e fácil de explicar. O resultado tende a ser otimista por ignorar IR e custos. Nenhum dado de mercado é simulado.
+
+### ADR 19. Estado dos simuladores na URL via `history.replaceState`
+- **Contexto:** com `router.replace`, cada tecla gerava uma ida ao servidor para renderizar a página de novo, o que travava quando o Banco Central demorava a responder (timeout).
+- **Decisão:** os simuladores atualizam a URL com `window.history.replaceState`, com debounce e **nunca na montagem**. O cálculo roda no cliente, sem nova renderização no servidor.
+- **Consequências:** digitação fluida e link compartilhável. Voltar/avançar do navegador continua sem ressincronizar o formulário (pendência já registrada).
+
+### ADR 20. Histórico do IPCA em streaming (promessa + `use()` dentro de `Suspense`)
+- **Contexto:** `/simuladores/inflacao` depende de uma série longa do BCB (blocos de até 10 anos, timeout de 10 s). Esperar por ela atrasaria a página inteira.
+- **Decisão:** a página inicia a busca sem `await`, passa a promessa a um componente de cliente que a lê com `use()` dentro de `Suspense`. O resto da página renderiza de imediato, e a área do histórico mostra um estado de carregamento. Se o BCB falhar, aparece "indisponível", nunca dado demonstrativo (ADR 3).
+- **Consequências:** a página abre mesmo com o BCB lento. A correção pelo IPCA só fica disponível quando o histórico chega.
+
+### ADR 21. Cache das instâncias de `Intl.NumberFormat`
+- **Contexto:** criar um `Intl.NumberFormat` a cada chamada é caro e pesava em tabelas grandes (o financiamento gera centenas de linhas).
+- **Decisão:** `src/lib/format` guarda as instâncias em cache, uma por conjunto de opções, e as reutiliza.
+- **Consequências:** tabelas mais leves de renderizar; a API de formatação não mudou.

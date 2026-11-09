@@ -7,7 +7,9 @@ Documento vivo. Baseado na seção 12 do spec (`docs/superpowers/specs/2026-11-0
 | Fase | Entra | Critério de saída | Estado |
 |---|---|---|---|
 | **MVP (Fase 1)** | Tudo da seção 9 do spec; páginas legais e "em construção"; testes e documentação; projeto **pronto para deploy** na Vercel | Suíte verde, metas do Lighthouse medidas no build de produção local, passo a passo de publicação (GitHub + Vercel) no README. A publicação em si acontece quando Fabio tiver as contas | **Concluído e publicado em 2026-11-08** (https://prisma-b8wz.vercel.app) |
-| **Fase 2: conta e dados** | Auth.js + Postgres/Drizzle; preferências (nível, tema); watchlist, favoritos e histórico; carteira manual com distribuição; perfil de investidor orientativo; simuladores de aposentadoria, independência financeira, renda passiva, inflação, financiamento/amortização (SAC e Price) e dividendos; FIIs, fundos e ETFs com dados da CVM; cripto via CoinGecko; Tesouro Direto real; candles + indicadores técnicos (lightweight-charts); notícias por RSS; rate limit via Upstash | Usuário cria conta, monta carteira e watchlist; LGPD documentada | Planejado (esquema em `DATABASE.md`) |
+| **Fase 2A: simuladores** | Inflação ("em reais de hoje") nos simuladores existentes; simulador de inflação com histórico do IPCA; aposentadoria e independência financeira; financiamento SAC e Price com amortização extra | Suíte verde; cálculos testados; premissas rotuladas; nenhum dado inventado | **Concluído** (2026-11-08) |
+| **Fase 2B: notícias** | Notícias por RSS, com fonte e data exibidas | A definir | **Próximo passo** |
+| **Fase 2: conta e dados** | Auth.js + Postgres/Drizzle; preferências (nível, tema); watchlist, favoritos e histórico; carteira manual com distribuição; perfil de investidor orientativo; simuladores de renda passiva e de dividendos (aposentadoria, independência financeira, inflação e financiamento já saíram na Fase 2A); FIIs, fundos e ETFs com dados da CVM; cripto via CoinGecko; Tesouro Direto real; candles + indicadores técnicos (lightweight-charts); notícias por RSS; rate limit via Upstash | Usuário cria conta, monta carteira e watchlist; LGPD documentada | Planejado (esquema em `DATABASE.md`) |
 | **Fase 3: análise avançada** | Opções: Black-Scholes, gregas e simulador de payoff (compra de call/put, venda coberta, protective put, trava de alta/baixa, straddle, strangle, collar) com gráfico, break-even, risco e ganho máximos e alertas de risco; screener e rankings com critérios explícitos; comparador avançado (FII × ação, ETF × fundo); alertas e notificações; **Assistente de Investimentos** (Claude API, com respostas baseadas no conteúdo da plataforma e nos cálculos de `lib/finance` como ferramentas, citando fontes e se recusando a recomendar compra ou venda) | Cálculos de opções testados contra valores de referência | Planejado |
 | **Fase 4: plataforma** | Planos Gratuito, Premium e Profissional (cobrança via Stripe, usando `features.ts`); relatórios em PDF; API pública com chave; comunidade e comentários com moderação; observabilidade (Sentry); cache distribuído | A definir quando chegar lá | Planejado |
 
@@ -22,6 +24,15 @@ Documento vivo. Baseado na seção 12 do spec (`docs/superpowers/specs/2026-11-0
 - [x] Testes unitários, E2E (desktop e celular, axe) e Lighthouse medido.
 - [x] Documentação: README, ARCHITECTURE, API, DATABASE, ROADMAP.
 - [x] `features.ts` com o registro de planos (sempre liberado no MVP).
+
+## Fase 2A: o que foi entregue
+
+- [x] Inflação em "reais de hoje" no simulador de juros compostos e no comparador (padrão: IPCA 12 meses do BCB, rotulado como premissa).
+- [x] Simulador de inflação (`/simuladores/inflacao`): poder de compra e correção pelo IPCA, com o histórico do BCB em streaming.
+- [x] Aposentadoria e independência financeira (`/simuladores/independencia-financeira`): perpetuidade real, 4% real como premissa ilustrativa.
+- [x] Financiamento (`/simuladores/financiamento`): SAC e Price lado a lado, com amortização extra mensal, sem ranking de "melhor".
+- [x] `getIndicatorHistory` (série 433) na camada de dados e ADRs 17 a 21.
+- [ ] Ainda planejados: simuladores de renda passiva e de dividendos.
 
 ## Pendências do MVP
 
@@ -50,4 +61,4 @@ Documento vivo. Baseado na seção 12 do spec (`docs/superpowers/specs/2026-11-0
 
 ## Próximo passo recomendado
 
-Publicar (GitHub + Vercel) e remedir o Lighthouse; depois iniciar a Fase 2 pelas preferências e watchlist, que exigem o banco descrito em `DATABASE.md`.
+Fase 2B (notícias por RSS). Depois, renda passiva e dividendos e, então, as preferências e a watchlist, que exigem o banco descrito em `DATABASE.md`.
