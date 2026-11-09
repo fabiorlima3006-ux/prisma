@@ -88,6 +88,25 @@ describe('simulateFinancing', () => {
   });
 });
 
+describe('simulateFinancing: invariantes', () => {
+  it('Price com extra: a soma de parcela + extra das linhas é o total pago', () => {
+    const r = simulateFinancing({ ...base, months: 24, extraMonthly: 500 }, 'price');
+    const sum = r.rows.reduce((acc, row) => acc + row.installment + row.extra, 0);
+    expect(sum).toBeCloseTo(r.totalPaid, 6);
+  });
+
+  it('SAC com extra antecipa o fim: economia de prazo positiva', () => {
+    const r = compareSystems({ ...base, months: 24, extraMonthly: 500 });
+    expect(r.savings!.sac.months).toBeGreaterThan(0);
+  });
+
+  it('Price sem extra: a última linha zera o saldo e o prazo é n', () => {
+    const r = simulateFinancing(base, 'price');
+    expect(r.rows.at(-1)!.balance).toBe(0);
+    expect(r.months).toBe(base.months);
+  });
+});
+
 describe('financingInputSchema', () => {
   it('valida limites', () => {
     expect(financingInputSchema.safeParse(base).success).toBe(true);

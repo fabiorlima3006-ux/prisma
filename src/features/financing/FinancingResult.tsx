@@ -18,13 +18,20 @@ const SCOPE_TEXT =
 type SystemKey = 'sac' | 'price';
 type Savings = { interest: number; months: number };
 
-const YEARLY_COLUMNS: TableColumn[] = [
-  { key: 'year', label: 'Ano' },
-  { key: 'paid', label: 'Pago no ano', align: 'right' },
-  { key: 'interest', label: 'Juros', align: 'right' },
-  { key: 'amortization', label: 'Amortização', align: 'right' },
-  { key: 'balance', label: 'Saldo final', align: 'right' },
-];
+/** A coluna anual soma a amortização regular e o extra; o rótulo avisa quando há extra. */
+function yearlyColumns(withExtra: boolean): TableColumn[] {
+  return [
+    { key: 'year', label: 'Ano' },
+    { key: 'paid', label: 'Pago no ano', align: 'right' },
+    { key: 'interest', label: 'Juros', align: 'right' },
+    {
+      key: 'amortization',
+      label: withExtra ? 'Amortização (inclui extra)' : 'Amortização',
+      align: 'right',
+    },
+    { key: 'balance', label: 'Saldo final', align: 'right' },
+  ];
+}
 
 function monthlyColumns(withExtra: boolean): TableColumn[] {
   return [
@@ -189,7 +196,11 @@ function SystemColumn({
         data={installments}
         formatValue={(v) => formatCurrency(v)}
       />
-      <Table caption={`Resumo anual, sistema ${name}`} columns={YEARLY_COLUMNS} rows={yearly} />
+      <Table
+        caption={`Resumo anual, sistema ${name}`}
+        columns={yearlyColumns(withExtra)}
+        rows={yearly}
+      />
       <details
         className="rounded-xl border border-line bg-surface"
         onToggle={(e) => {

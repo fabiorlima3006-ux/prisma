@@ -189,6 +189,13 @@ describe('FinancingForm', () => {
     expect(r.installment).toBeCloseTo(r.interest + r.amortization, 6);
   });
 
+  it('com extra, a coluna anual de amortização avisa que inclui o extra; sem extra, não', () => {
+    const withExtra = setup({ valor: '100000', prazo: '24', extra: '500' });
+    expect(withExtra.getAllByText('Amortização (inclui extra)').length).toBeGreaterThan(0);
+    const without = setup({ valor: '100000', prazo: '24', extra: '0' });
+    expect(without.queryByText('Amortização (inclui extra)')).toBeNull();
+  });
+
   it('URL: replaceState não é chamado na montagem e é chamado após editar + debounce', async () => {
     const spy = vi.spyOn(window.history, 'replaceState');
     const ui = setup({ prazo: '24' });
