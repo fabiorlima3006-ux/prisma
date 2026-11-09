@@ -1,4 +1,4 @@
-import { act, render, within } from '@testing-library/react';
+import { act, fireEvent, render, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { TOOLS } from '@/lib/config/tools';
@@ -123,6 +123,70 @@ describe('FinancingForm', () => {
     await user.clear(valor);
     await user.type(valor, 'abc');
     expect(ui.getByText('Informe um número válido')).toBeInTheDocument();
+  });
+
+  it('no padrão de 360 meses, digitar atualiza o resultado', async () => {
+    const user = userEvent.setup();
+    const ui = setup();
+    const before = ui.getByTestId('sac-total-interest').textContent;
+    const valor = ui.getByLabelText('Valor financiado');
+    await user.clear(valor);
+    await user.type(valor, '200000');
+    await waitFor(() => expect(ui.getByTestId('sac-total-interest').textContent).not.toBe(before));
+    const input = validateValues({ ...DEFAULT_VALUES, valor: '200000' }).input!;
+    expect(ui.getByTestId('sac-first')).toHaveTextContent(
+      nbsp(formatCurrency(compareSystems(input).sac.firstInstallment)),
+    );
+  });
+
+  it('o gráfico usa um ponto por ano, não por mês', () => {
+    const ui = setup();
+    const tables = ui.getAllByRole('table', { hidden: true });
+    const chartTable = tables.find((t) =>
+      t.querySelector('caption')?.textContent?.startsWith('Evolução'),
+    )!;
+    expect(chartTable.querySelectorAll('tbody tr')).toHaveLength(30);
+  });
+
+  it('a tabela mensal só é montada depois de abrir o details', async () => {
+    const ui = setup({ prazo: '24' });
+    const caption = /Parcelas mês a mês, sistema SAC/;
+    expect(ui.queryByText(caption)).toBeNull();
+    fireEvent.click(ui.getByText('Tabela mensal (SAC)'));
+    await waitFor(() => expect(ui.getByText(caption)).toBeInTheDocument());
+  });
+
+  it('com extra, a tabela mensal fecha as contas: Parcela = Juros + Amortização e Pago = Parcela + Extra', async () => {
+    const ui = setup({ valor: '100000', prazo: '24', extra: '500' });
+    fireEvent.click(ui.getByText('Tabela mensal (SAC)'));
+    const table = await waitFor(() => {
+      const t = ui
+        .getAllByRole('table', { hidden: true })
+        .find((x) => x.querySelector('caption')?.textContent?.includes('mês a mês, sistema SAC'));
+      expect(t).toBeTruthy();
+      return t!;
+    });
+    const headers = [...table.querySelectorAll('thead th')].map((h) => h.textContent);
+    expect(headers).toEqual([
+      'Mês',
+      'Parcela',
+      'Juros',
+      'Amortização',
+      'Extra',
+      'Pago no mês',
+      'Saldo',
+    ]);
+    const r = compareSystems(
+      validateValues({ ...DEFAULT_VALUES, valor: '100000', prazo: '24', extra: '500' }).input!,
+    ).sac.rows[0]!;
+    const cells = [...table.querySelectorAll('tbody tr')[0]!.querySelectorAll('td')].map((c) =>
+      nbsp(c.textContent ?? ''),
+    );
+    expect(cells[1]).toBe(nbsp(formatCurrency(r.installment)));
+    expect(cells[3]).toBe(nbsp(formatCurrency(r.amortization)));
+    expect(cells[4]).toBe(nbsp(formatCurrency(r.extra)));
+    expect(cells[5]).toBe(nbsp(formatCurrency(r.installment + r.extra)));
+    expect(r.installment).toBeCloseTo(r.interest + r.amortization, 6);
   });
 
   it('URL: replaceState não é chamado na montagem e é chamado após editar + debounce', async () => {

@@ -1,10 +1,17 @@
 const LOCALE = 'pt-BR';
 
+const formatters = new Map<number, Intl.NumberFormat>();
+
 export function formatNumber(value: number, decimals = 2): string {
-  return new Intl.NumberFormat(LOCALE, {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(value);
+  let f = formatters.get(decimals);
+  if (!f) {
+    f = new Intl.NumberFormat(LOCALE, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+    formatters.set(decimals, f);
+  }
+  return f.format(value);
 }
 
 /**

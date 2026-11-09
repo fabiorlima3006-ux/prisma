@@ -1,3 +1,6 @@
+'use client';
+
+import { useDeferredValue, useMemo, useState } from 'react';
 import { AreaChart } from '@/components/charts';
 import { Card, Table, type TableColumn } from '@/components/ui';
 import {
@@ -23,13 +26,21 @@ const YEARLY_COLUMNS: TableColumn[] = [
   { key: 'balance', label: 'Saldo final', align: 'right' },
 ];
 
-const MONTHLY_COLUMNS: TableColumn[] = [
-  { key: 'month', label: 'Mês' },
-  { key: 'installment', label: 'Parcela', align: 'right' },
-  { key: 'interest', label: 'Juros', align: 'right' },
-  { key: 'amortization', label: 'Amortização', align: 'right' },
-  { key: 'balance', label: 'Saldo', align: 'right' },
-];
+function monthlyColumns(withExtra: boolean): TableColumn[] {
+  return [
+    { key: 'month', label: 'Mês' },
+    { key: 'installment', label: 'Parcela', align: 'right' },
+    { key: 'interest', label: 'Juros', align: 'right' },
+    { key: 'amortization', label: 'Amortização', align: 'right' },
+    ...(withExtra
+      ? ([
+          { key: 'extra', label: 'Extra', align: 'right' },
+          { key: 'paid', label: 'Pago no mês', align: 'right' },
+        ] as TableColumn[])
+      : []),
+    { key: 'balance', label: 'Saldo', align: 'right' },
+  ];
+}
 
 function plural(n: number, one: string, many: string): string {
   return `${n} ${n === 1 ? one : many}`;
@@ -69,35 +80,67 @@ function Row({ label, value, testId }: { label: string; value: string; testId?: 
   );
 }
 
+/** Montada só depois da primeira abertura do <details>; some do caminho de cada digitação. */
+function MonthlyTable({
+  name,
+  result,
+  withExtra,
+}: {
+  name: string;
+  result: SystemResult;
+  withExtra: boolean;
+}) {
+  const rows = useMemo(
+    () =>
+      result.rows.map((r) => ({
+        month: String(r.month),
+        installment: formatCurrency(r.installment),
+        interest: formatCurrency(r.interest),
+        amortization: formatCurrency(r.amortization),
+        extra: formatCurrency(r.extra),
+        paid: formatCurrency(r.installment + r.extra),
+        balance: formatCurrency(r.balance),
+      })),
+    [result],
+  );
+  return (
+    <Table
+      caption={`Parcelas mês a mês, sistema ${name}`}
+      columns={monthlyColumns(withExtra)}
+      rows={rows}
+    />
+  );
+}
+
 function SystemColumn({
   system,
   name,
   result,
   savings,
+  withExtra,
 }: {
   system: SystemKey;
   name: string;
   result: SystemResult;
   savings: Savings | null;
+  withExtra: boolean;
 }) {
-  const installments = result.rows.map((r) => ({
-    label: `Mês ${r.month}`,
-    value: r.installment,
-  }));
-  const monthly = result.rows.map((r) => ({
-    month: String(r.month),
-    installment: formatCurrency(r.installment),
-    interest: formatCurrency(r.interest),
-    amortization: formatCurrency(r.amortization + r.extra),
-    balance: formatCurrency(r.balance),
-  }));
+  const [opened, setOpened] = useState(false);
+  const installments = useMemo(
+    () =>
+      result.rows
+        .filter((r, i) => r.month % 12 === 0 || i === result.rows.length - 1)
+        .map((r) => ({ label: `Ano ${Math.ceil(r.month / 12)}`, value: r.installment })),
+    [result],
+  );
+  const yearly = useMemo(() => yearlyRows(result), [result]);
   return (
     <section aria-labelledby={`${system}-title`} className="min-w-0 space-y-4">
       <h2 id={`${system}-title`} className="text-lg font-bold text-text">
         {name}
       </h2>
       <Card>
-        <dl className="divide-y divide-line">
+        <dl aria-live="polite" className="divide-y divide-line">
           <Row
             label="Primeira parcela"
             value={formatCurrency(result.firstInstallment)}
@@ -141,26 +184,23 @@ function SystemColumn({
       </Card>
       <AreaChart
         title={`Evolução da parcela no ${name}`}
-        description={`Parcela mensal ao longo do prazo, sistema ${name}.`}
-        labelHeader="Mês"
+        description={`Parcela ao fim de cada ano, sistema ${name}.`}
+        labelHeader="Ano"
         data={installments}
         formatValue={(v) => formatCurrency(v)}
       />
-      <Table
-        caption={`Resumo anual, sistema ${name}`}
-        columns={YEARLY_COLUMNS}
-        rows={yearlyRows(result)}
-      />
-      <details className="rounded-xl border border-line bg-surface">
+      <Table caption={`Resumo anual, sistema ${name}`} columns={YEARLY_COLUMNS} rows={yearly} />
+      <details
+        className="rounded-xl border border-line bg-surface"
+        onToggle={(e) => {
+          if (e.currentTarget.open) setOpened(true);
+        }}
+      >
         <summary className="cursor-pointer px-3.5 py-2.5 text-sm font-semibold text-text">
           Tabela mensal ({name})
         </summary>
         <div className="max-h-96 overflow-y-auto">
-          <Table
-            caption={`Parcelas mês a mês, sistema ${name}`}
-            columns={MONTHLY_COLUMNS}
-            rows={monthly}
-          />
+          {opened && <MonthlyTable name={name} result={result} withExtra={withExtra} />}
         </div>
       </details>
     </section>
@@ -168,19 +208,34 @@ function SystemColumn({
 }
 
 export function FinancingResult({ input }: { input: FinancingInput | null }) {
-  if (!input) {
+  const deferred = useDeferredValue(input);
+  const compared = useMemo(() => (deferred ? compareSystems(deferred) : null), [deferred]);
+  if (!input || !deferred || !compared) {
     return (
       <p className="rounded-xl border border-line bg-surface p-4 text-sm text-muted">
         Corrija os campos destacados para ver o resultado da simulação.
       </p>
     );
   }
-  const { sac, price, savings } = compareSystems(input);
+  const { sac, price, savings } = compared;
+  const withExtra = deferred.extraMonthly > 0;
   return (
     <div className="space-y-4">
-      <div aria-live="polite" className="grid gap-6 sm:grid-cols-2">
-        <SystemColumn system="sac" name="SAC" result={sac} savings={savings?.sac ?? null} />
-        <SystemColumn system="price" name="Price" result={price} savings={savings?.price ?? null} />
+      <div className="grid gap-6 sm:grid-cols-2">
+        <SystemColumn
+          system="sac"
+          name="SAC"
+          result={sac}
+          savings={savings?.sac ?? null}
+          withExtra={withExtra}
+        />
+        <SystemColumn
+          system="price"
+          name="Price"
+          result={price}
+          savings={savings?.price ?? null}
+          withExtra={withExtra}
+        />
       </div>
       <p className="text-sm text-text">{SYSTEM_TEXT}</p>
       <p className="text-xs text-muted">{SCOPE_TEXT}</p>
