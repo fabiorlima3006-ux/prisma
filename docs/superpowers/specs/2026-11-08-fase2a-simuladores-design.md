@@ -42,8 +42,8 @@ Fabio delegou as decisões ("prossiga conforme achar melhor"). Todas as escolhas
 ### 5.1 Inflação nos simuladores existentes
 
 **Juros compostos (`/simuladores/juros-compostos`):**
-- Campo novo "Inflação estimada (% a.a.)", com parâmetro de URL `inflacao`.
-- Padrão: IPCA acumulado em 12 meses (BCB, série 13522), arredondado a 2 casas e rotulado "IPCA 12 meses, ref. MM/aaaa (premissa, não previsão)". Se o BCB estiver indisponível, o campo fica vazio e a seção real não aparece até o usuário digitar um valor.
+- Campo novo "Inflação anual esperada (premissa)", com parâmetro de URL `inflacao`. A URL só grava `inflacao` quando o valor difere do padrão do servidor; campo vazio com padrão disponível grava `inflacao=` (desligado). Assim, um link sem edição usa o IPCA do dia em que é aberto (ruling R13).
+- Padrão: IPCA acumulado em 12 meses (BCB, série 13522), arredondado a 2 casas. A nota descreve o padrão, e não o valor do campo: "Padrão: IPCA 12 meses de X% (ref. MM/aaaa); premissa, não previsão." (ruling R13). Se o BCB estiver indisponível, o campo fica vazio e a seção real não aparece até o usuário digitar um valor.
 - Resultado: "Valor final em reais de hoje" = `saldo / (1 + inflação)^(meses/12)`, e a "taxa real" equivalente `(1 + i_nominal)/(1 + i_inflação) − 1`, mensal e anual.
 - A tabela anual ganha a coluna "Em reais de hoje", com cada linha deflacionada pelo próprio prazo.
 - Inflação vazia desliga a parte real. É permitido de −50% a 100% a.a.
@@ -97,7 +97,7 @@ Junta as entradas `aposentadoria` e `independencia-financeira` do `TOOLS` numa s
 **Saídas:**
 1. **Patrimônio necessário** = `renda / i_m`, com `i_m = (1 + real)^(1/12) − 1`. Se `real = 0`, a mensagem é "Com rentabilidade real zero, não é possível viver só dos rendimentos" e não há número.
 2. **Tempo até o patrimônio necessário:** o menor `n`, em meses, em que `FV(patrimônio, aporte, i_m, n) ≥ necessário`, com aporte no fim do mês, como no simulador de juros compostos. Apresentado em anos e meses e na idade correspondente. Se não chegar em 100 anos, a mensagem é "Com esses valores, o patrimônio necessário não é atingido em 100 anos".
-3. **Com idade-alvo:** o aporte mensal necessário para chegar lá, resolvido pela fórmula de PMT. Se o patrimônio atual já bastar, mostrar "O patrimônio atual já cobre a renda desejada nesta simulação".
+3. **Com idade-alvo:** o aporte mensal necessário para chegar lá, resolvido pela fórmula de PMT. Se o patrimônio atual já bastar hoje (tempo 0), mostrar "O patrimônio atual já cobre a renda desejada nesta simulação". Se ele só chegaria ao necessário com o tempo, sem novos aportes, mostrar "Sem novos aportes, o patrimônio atual chegaria ao necessário até os {alvo} anos nesta simulação." (ruling R12).
 4. Gráfico da evolução do patrimônio (`StackedAreaChart`/`ChartFrame`, com uma linha de referência no patrimônio necessário) e tabela anual acessível. *Decisão do plano:* a linha de referência no gráfico foi trocada pelo patrimônio necessário citado no texto e na legenda da tabela.
 
 **Avisos específicos:** rentabilidade real constante é uma simplificação; IR e custos não estão incluídos; resultados reais variam.
