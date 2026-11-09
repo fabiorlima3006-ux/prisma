@@ -161,10 +161,9 @@ Estados de exibição: fonte não forneceu = "Dado não disponível" (`null`); s
 - **Decisão:** `src/lib/config/features.ts` registra cada funcionalidade com `minPlan`; `canAccess` devolve sempre `true` no MVP.
 - **Consequências:** a futura regra de acesso entra em um ponto só, sem espalhar `if` pela interface. Nada é bloqueado hoje.
 
-
 ### ADR 17. Convenção do IPCA: razão entre números-índice de fim de mês, desde 07/1994
 - **Contexto:** a inflação em reais de hoje precisa de uma regra única para corrigir um valor entre duas datas usando a série 433 (IPCA mensal) do Banco Central.
-- **Decisão:** o fator de correção é o produto de `(1 + IPCA)` dos meses **posteriores** ao mês inicial, até o mês final **inclusive** (equivale à razão entre os números-índice de fim de mês). A série começa em 07/1994 (Plano Real). Está em `src/lib/finance/inflation.ts` (`correctByIpca`), função pura, com o "hoje" passado como parâmetro. Não afirmamos que o resultado seja igual ao da "Calculadora do Cidadão" do BCB, que pode usar outra convenção de mês de partida.
+- **Decisão:** o fator de correção é o produto de `(1 + IPCA)` dos meses **posteriores** ao mês inicial, até o mês final **inclusive** (equivale à razão entre os números-índice de fim de mês). A série começa em 07/1994 (Plano Real). Está em `src/lib/finance/inflation.ts` (`correctByIpca`), função pura, que recebe a série como parâmetro. Não afirmamos que o resultado seja igual ao da "Calculadora do Cidadão" do BCB, que pode usar outra convenção de mês de partida.
 - **Consequências:** regra explícita e testada. Pequenas diferenças em relação a outras calculadoras são possíveis, e a tela deixa claro que é uma simulação.
 
 ### ADR 18. Independência financeira como perpetuidade real
@@ -184,5 +183,5 @@ Estados de exibição: fonte não forneceu = "Dado não disponível" (`null`); s
 
 ### ADR 21. Cache das instâncias de `Intl.NumberFormat`
 - **Contexto:** criar um `Intl.NumberFormat` a cada chamada é caro e pesava em tabelas grandes (o financiamento gera centenas de linhas).
-- **Decisão:** `src/lib/format` guarda as instâncias em cache, uma por conjunto de opções, e as reutiliza.
+- **Decisão:** `src/lib/format` guarda as instâncias em cache, uma por moeda (`currency.ts`) e por número de casas decimais (`number.ts`), e as reutiliza.
 - **Consequências:** tabelas mais leves de renderizar; a API de formatação não mudou.

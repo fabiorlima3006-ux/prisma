@@ -98,7 +98,7 @@ Junta as entradas `aposentadoria` e `independencia-financeira` do `TOOLS` numa s
 1. **Patrimônio necessário** = `renda / i_m`, com `i_m = (1 + real)^(1/12) − 1`. Se `real = 0`, a mensagem é "Com rentabilidade real zero, não é possível viver só dos rendimentos" e não há número.
 2. **Tempo até o patrimônio necessário:** o menor `n`, em meses, em que `FV(patrimônio, aporte, i_m, n) ≥ necessário`, com aporte no fim do mês, como no simulador de juros compostos. Apresentado em anos e meses e na idade correspondente. Se não chegar em 100 anos, a mensagem é "Com esses valores, o patrimônio necessário não é atingido em 100 anos".
 3. **Com idade-alvo:** o aporte mensal necessário para chegar lá, resolvido pela fórmula de PMT. Se o patrimônio atual já bastar, mostrar "O patrimônio atual já cobre a renda desejada nesta simulação".
-4. Gráfico da evolução do patrimônio (`StackedAreaChart`/`ChartFrame`, com uma linha de referência no patrimônio necessário) e tabela anual acessível.
+4. Gráfico da evolução do patrimônio (`StackedAreaChart`/`ChartFrame`, com uma linha de referência no patrimônio necessário) e tabela anual acessível. *Decisão do plano:* a linha de referência no gráfico foi trocada pelo patrimônio necessário citado no texto e na legenda da tabela.
 
 **Avisos específicos:** rentabilidade real constante é uma simplificação; IR e custos não estão incluídos; resultados reais variam.
 
