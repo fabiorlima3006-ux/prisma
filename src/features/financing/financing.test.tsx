@@ -116,12 +116,14 @@ describe('FinancingForm', () => {
     const ui = setup({ prazo: '24' });
     const prazo = ui.getByLabelText('Prazo (meses)');
     await user.clear(prazo);
-    await user.type(prazo, '500');
+    await user.click(prazo);
+    await user.paste('500');
     expect(ui.queryByTestId('sac-first')).toBeNull();
     expect(ui.getByText(/entre 1 e 420 meses/)).toBeInTheDocument();
     const valor = ui.getByLabelText('Valor financiado');
     await user.clear(valor);
-    await user.type(valor, 'abc');
+    await user.click(valor);
+    await user.paste('abc');
     expect(ui.getByText('Informe um número válido')).toBeInTheDocument();
   });
 
@@ -131,7 +133,8 @@ describe('FinancingForm', () => {
     const before = ui.getByTestId('sac-total-interest').textContent;
     const valor = ui.getByLabelText('Valor financiado');
     await user.clear(valor);
-    await user.type(valor, '200000');
+    await user.click(valor);
+    await user.paste('200000');
     await waitFor(() => expect(ui.getByTestId('sac-total-interest').textContent).not.toBe(before));
     const input = validateValues({ ...DEFAULT_VALUES, valor: '200000' }).input!;
     expect(ui.getByTestId('sac-first')).toHaveTextContent(
@@ -206,7 +209,8 @@ describe('FinancingForm', () => {
     const user = userEvent.setup();
     const prazo = ui.getByLabelText('Prazo (meses)');
     await user.clear(prazo);
-    await user.type(prazo, '120');
+    await user.click(prazo);
+    await user.paste('120');
     await act(async () => {
       await new Promise((r) => setTimeout(r, 450));
     });

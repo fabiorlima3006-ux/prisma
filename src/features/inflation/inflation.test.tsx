@@ -200,6 +200,7 @@ describe('InflationSimulator', () => {
 
   describe('aba Futuro: URL e inflação padrão', () => {
     async function edit(inflacao: string, typed: string | null, defaultInflation?: string) {
+      replaceState.mockClear();
       vi.useFakeTimers({ shouldAdvanceTime: true });
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       const ui = await setup({
@@ -218,6 +219,7 @@ describe('InflationSimulator', () => {
         vi.advanceTimersByTime(300);
       });
       vi.useRealTimers();
+      expect(replaceState).toHaveBeenCalled();
       return String(replaceState.mock.calls.at(-1)?.[2]);
     }
 

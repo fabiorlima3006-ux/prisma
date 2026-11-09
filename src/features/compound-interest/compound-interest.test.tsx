@@ -273,6 +273,7 @@ describe('inflação (premissa)', () => {
 
 describe('URL e a inflação padrão', () => {
   const urlWith = async (type: string | null, initialInflacao: string) => {
+    replace.mockClear();
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const { container } = render(
@@ -291,6 +292,7 @@ describe('URL e a inflação padrão', () => {
     }
     vi.advanceTimersByTime(300);
     vi.useRealTimers();
+    expect(replace).toHaveBeenCalled();
     return String(replace.mock.calls.at(-1)?.[2]);
   };
 
@@ -316,6 +318,7 @@ describe('URL e a inflação padrão', () => {
     await user.type(within(container).getByLabelText('Aporte mensal'), '250');
     vi.advanceTimersByTime(300);
     vi.useRealTimers();
+    expect(replace).toHaveBeenCalled();
     expect(String(replace.mock.calls.at(-1)?.[2])).not.toContain('inflacao');
   });
 });
