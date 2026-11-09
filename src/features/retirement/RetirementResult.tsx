@@ -64,6 +64,7 @@ export function RetirementResult({ input }: { input: RetirementInput | null }) {
   }
 
   const showContribution = input.targetAge !== null && monthsToTarget !== 0;
+  // "Já cobre" só vale quando a meta já está atingida hoje (monthsToTarget === 0).
   const points = plan.yearly.map((p) => ({ label: `${p.age} anos`, value: p.wealth }));
 
   return (
@@ -92,7 +93,7 @@ export function RetirementResult({ input }: { input: RetirementInput | null }) {
           />
         )}
         {showContribution && contributionForTargetAge === 'already-covered' && (
-          <Message>O patrimônio atual já cobre a renda desejada nesta simulação</Message>
+          <Message>{`Sem novos aportes, o patrimônio atual chegaria ao necessário até os ${input.targetAge} anos nesta simulação.`}</Message>
         )}
         <p className="text-xs text-muted">
           O patrimônio necessário é o valor cujos rendimentos reais pagam a renda desejada sem

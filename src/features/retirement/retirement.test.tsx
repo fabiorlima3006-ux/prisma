@@ -115,6 +115,28 @@ describe('RetirementForm', () => {
     ).toBeInTheDocument();
   });
 
+  it('já cobre até o alvo, mas ainda precisa de tempo: não diz que já cobre hoje', () => {
+    const values = {
+      idade: '30',
+      alvo: '60',
+      patrimonio: '500000',
+      aporte: '1000',
+      renda: '5000',
+      real: '4',
+    };
+    const plan = retirementPlan(validateValues({ ...DEFAULT_VALUES, ...values }).input!);
+    expect(plan.monthsToTarget).toBeGreaterThan(0);
+    expect(plan.contributionForTargetAge).toBe('already-covered');
+    const ui = setup(values);
+    expect(ui.getByTestId('time-to-target')).toBeInTheDocument();
+    expect(
+      ui.getByText(
+        'Sem novos aportes, o patrimônio atual chegaria ao necessário até os 60 anos nesta simulação.',
+      ),
+    ).toBeInTheDocument();
+    expect(ui.queryByText(/já cobre a renda desejada/)).toBeNull();
+  });
+
   it('mostra o aviso de simplificação e a premissa', () => {
     const ui = setup();
     expect(

@@ -35,6 +35,12 @@ describe('retirementPlan', () => {
     expect(r.contributionForTargetAge).toBe('already-covered');
   });
 
+  it('alvo atingido depois da idade-alvo: a evolução vai até a idade em que atinge', () => {
+    const r = retirementPlan({ ...base, targetAge: 40 });
+    expect(r.ageAtTarget!.years).toBeGreaterThan(40);
+    expect(r.yearly.at(-1)?.age).toBe(r.ageAtTarget!.years);
+  });
+
   it('sem patrimônio nem aporte nunca atinge', () => {
     const r = retirementPlan({ ...base, monthlyContribution: 0 });
     expect(r.monthsToTarget).toBeNull();
