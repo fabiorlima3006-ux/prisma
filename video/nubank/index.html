@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Nubank — vídeo demonstrativo</title>
+<style>
+:root{--roxo:#820AD1;--roxo-esc:#4B0A87;--roxo-prof:#2A0550;--lilas:#F4ECFA;--lilas2:#E3CCF5;--rosa:#C77DFF;--branco:#fff;--preto:#14041F}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:#000;font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden}
+.scene{position:absolute;inset:0;display:none;overflow:hidden}
+.purple{background:radial-gradient(120% 80% at 50% 20%,#9B2FE8 0%,var(--roxo) 45%,var(--roxo-esc) 100%);color:#fff}
+.light{background:radial-gradient(100% 70% at 50% 0%,#fff 0%,var(--lilas) 60%,var(--lilas2) 100%);color:var(--roxo-prof)}
+.deep{background:radial-gradient(110% 80% at 50% 30%,#6A12B5 0%,var(--roxo-esc) 50%,var(--roxo-prof) 100%);color:#fff}
+.abs{position:absolute}
+.center{left:0;right:0;text-align:center}
+.mask{overflow:hidden;padding:10px 0}
+.in{display:block;will-change:transform}
+.h1{font-size:128px;font-weight:800;letter-spacing:-4px;line-height:1.02}
+.h2{font-size:56px;font-weight:500;letter-spacing:-.5px;opacity:.92}
+.chip{display:inline-block;padding:18px 40px;border-radius:999px;font-weight:700;font-size:44px}
+.mono{font-family:'Inter',monospace;letter-spacing:6px;font-size:30px;font-weight:600}
+.blob{position:absolute;border-radius:50%;filter:blur(70px)}
+.ring{position:absolute;border-radius:50%;border:6px solid}
+.phone{width:540px;height:960px;border-radius:84px;background:#fff;border:16px solid var(--preto);box-shadow:0 60px 120px rgba(42,5,80,.45);overflow:hidden;color:var(--roxo-prof)}
+.phone .top{background:var(--roxo);color:#fff;padding:60px 36px 40px;height:300px}
+.row{display:flex;align-items:center;gap:22px;padding:24px 30px;margin:14px 24px;border-radius:26px;background:var(--lilas);font-size:30px;font-weight:600}
+.dot{width:56px;height:56px;border-radius:50%;background:var(--roxo);flex:none}
+.card{width:800px;height:500px;border-radius:44px;background:linear-gradient(135deg,#9B2FE8 0%,var(--roxo-esc) 45%,var(--preto) 100%);box-shadow:0 70px 120px rgba(0,0,0,.45);padding:50px;position:relative;overflow:hidden;color:#fff}
+.shine{position:absolute;top:-50%;bottom:-50%;width:160px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);transform:rotate(20deg)}
+.caixa{width:860px;padding:34px 44px;border-radius:40px;background:#fff;color:var(--roxo-prof);box-shadow:0 30px 70px rgba(0,0,0,.28)}
+.bar{height:18px;border-radius:99px;background:var(--lilas2);overflow:hidden;margin-top:22px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--roxo),var(--rosa));border-radius:99px;width:0}
+.av{width:190px;height:190px;border-radius:50%;background:var(--roxo);color:#fff;font-size:76px;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 30px 60px rgba(130,10,209,.4)}
+.foot{font-size:26px;opacity:.7;padding:0 70px;line-height:1.4}
+#grain{position:absolute;inset:0;pointer-events:none;mix-blend-mode:overlay;opacity:.10;z-index:99}
+</style></head><body><div id="stage">
+
+<!-- CENA 1: abertura -->
+<section class="scene purple" id="s1">
+  <div class="blob" id="b1" style="width:700px;height:700px;background:#C77DFF;opacity:.5;left:-200px;top:200px"></div>
+  <div class="blob" id="b2" style="width:600px;height:600px;background:#4B0A87;opacity:.8;right:-180px;bottom:200px"></div>
+  <div id="rings1"></div>
+  <div id="parts1"></div>
+  <div class="abs center" style="top:760px"><div class="mask"><div class="in h1" id="t1" style="font-size:210px;letter-spacing:-8px">Nubank</div></div></div>
+  <div class="abs center" style="top:1030px"><div class="mask"><div class="in h2" id="t1b">Um banco 100% digital</div></div></div>
+  <div class="abs center mono" id="t1c" style="top:1180px;opacity:.8">CONTA · CARTÃO · PIX · CAIXINHAS</div>
+</section>
+
+<!-- CENA 2: conta digital -->
+<section class="scene light" id="s2">
+  <div class="blob" style="width:800px;height:800px;background:#C77DFF;opacity:.35;right:-300px;top:-100px"></div>
+  <div class="abs center mono" id="l2" style="top:130px;color:var(--roxo)">// 01 · CONTA</div>
+  <div class="abs center" style="top:200px"><div class="mask"><div class="in h1" id="t2" style="color:var(--roxo)">Conta digital</div></div></div>
+  <div class="abs center" style="top:370px"><span class="chip" id="c2" style="background:var(--roxo);color:#fff">sem mensalidade</span></div>
+  <div class="abs" id="ph" style="left:270px;top:560px">
+    <div class="phone">
+      <div class="top"><div style="font-size:28px;opacity:.85">Olá! (ilustração)</div><div style="font-size:30px;margin-top:40px;opacity:.85">Saldo</div><div style="font-size:64px;font-weight:800">R$ 0.000,00</div></div>
+      <div class="row" id="r1"><span class="dot"></span>Pix recebido</div>
+      <div class="row" id="r2"><span class="dot" style="background:var(--roxo-esc)"></span>Pagamento de conta</div>
+      <div class="row" id="r3"><span class="dot" style="background:var(--rosa)"></span>Transferência</div>
+      <div style="text-align:center;font-size:22px;opacity:.5;margin-top:34px">Imagem ilustrativa</div>
+    </div>
+  </div>
+</section>
+
+<!-- CENA 3: cartão -->
+<section class="scene purple" id="s3">
+  <div class="blob" id="b3" style="width:760px;height:760px;background:#C77DFF;opacity:.45;left:-260px;bottom:-100px"></div>
+  <div class="abs center mono" style="top:130px" id="l3">// 02 · CARTÃO</div>
+  <div class="abs center" style="top:200px"><div class="mask"><div class="in h1" id="t3">Cartão de crédito</div></div></div>
+  <div class="abs center" style="top:480px"><span class="chip" id="c3" style="background:#fff;color:var(--roxo)">sem anuidade*</span></div>
+  <div class="abs" id="cardw" style="left:140px;top:820px;perspective:1800px">
+    <div class="card" id="card">
+      <div class="shine" id="shine"></div>
+      <div style="font-size:64px;font-weight:800;letter-spacing:-2px">Nubank</div>
+      <div style="width:90px;height:68px;border-radius:14px;background:linear-gradient(135deg,#F2D7FF,#C77DFF);margin-top:80px"></div>
+      <div class="mono" style="position:absolute;left:50px;bottom:100px;font-size:40px">•••• •••• •••• 0000</div>
+      <div style="position:absolute;left:50px;bottom:44px;font-size:28px;opacity:.8">NOME DO CLIENTE (ilustração)</div>
+    </div>
+  </div>
+  <div class="abs center foot" style="bottom:90px">*Sujeito a análise de crédito e às condições vigentes.</div>
+</section>
+
+<!-- CENA 4: Pix -->
+<section class="scene light" id="s4">
+  <div class="abs center mono" style="top:130px;color:var(--roxo)" id="l4">// 03 · PIX</div>
+  <div class="abs center" style="top:200px"><div class="mask"><div class="in h1" id="t4" style="color:var(--roxo)">Pix em segundos</div></div></div>
+  <div class="abs center" style="top:480px"><div class="mask"><div class="in h2" id="t4b" style="color:var(--roxo-esc)">Pague e receba a qualquer hora</div></div></div>
+  <div id="rings4"></div>
+  <div class="abs av" id="a1" style="left:110px;top:1000px">A</div>
+  <div class="abs av" id="a2" style="right:110px;top:1000px;background:var(--roxo-esc)">B</div>
+  <div class="abs" id="line4" style="left:300px;right:300px;top:1093px;height:0;border-top:8px dashed var(--roxo);opacity:.5"></div>
+  <div class="abs" id="coin" style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#C77DFF,var(--roxo));box-shadow:0 0 50px rgba(130,10,209,.7);top:1048px;left:120px"></div>
+  <div class="abs center" style="top:1330px"><span class="chip" id="ok4" style="background:var(--roxo);color:#fff">✓ Enviado</span></div>
+</section>
+
+<!-- CENA 5: caixinhas e mais -->
+<section class="scene purple" id="s5">
+  <div class="blob" style="width:700px;height:700px;background:#4B0A87;opacity:.7;right:-250px;top:300px"></div>
+  <div class="abs center mono" style="top:130px" id="l5">// 04 · ORGANIZAÇÃO</div>
+  <div class="abs center" style="top:200px"><div class="mask"><div class="in h1" id="t5">Organize seu dinheiro</div></div></div>
+  <div class="abs center" style="top:560px"><div class="mask"><div class="in h2" id="t5b">Caixinhas para cada objetivo</div></div></div>
+  <div class="abs" style="left:110px;top:760px">
+    <div class="caixa" id="k1"><div style="display:flex;justify-content:space-between;font-size:44px;font-weight:700"><span>Viagem</span><span id="p1">0%</span></div><div class="bar"><i id="f1"></i></div></div>
+    <div class="caixa" id="k2" style="margin-top:34px"><div style="display:flex;justify-content:space-between;font-size:44px;font-weight:700"><span>Reserva</span><span id="p2">0%</span></div><div class="bar"><i id="f2"></i></div></div>
+    <div class="caixa" id="k3" style="margin-top:34px"><div style="display:flex;justify-content:space-between;font-size:44px;font-weight:700"><span>Casa</span><span id="p3">0%</span></div><div class="bar"><i id="f3"></i></div></div>
+  </div>
+  <div class="abs center" style="top:1520px;display:flex;gap:22px;justify-content:center;flex-wrap:wrap;padding:0 60px">
+    <span class="chip" id="x1" style="background:#fff;color:var(--roxo);font-size:38px">Empréstimo*</span>
+    <span class="chip" id="x2" style="background:#fff;color:var(--roxo);font-size:38px">Seguros*</span>
+    <span class="chip" id="x3" style="background:#fff;color:var(--roxo);font-size:38px">Investimentos*</span>
+  </div>
+  <div class="abs center foot" style="bottom:90px">Metas ilustrativas. *Produtos sujeitos a análise e condições.</div>
+</section>
+
+<!-- CENA 6: encerramento -->
+<section class="scene deep" id="s6">
+  <div class="blob" id="b6" style="width:900px;height:900px;background:#820AD1;opacity:.7;left:90px;top:400px"></div>
+  <div id="parts6"></div>
+  <div class="abs center" style="top:600px"><div class="mask"><div class="in h1" id="t6" style="font-size:190px;letter-spacing:-7px">Tudo<br>no app.</div></div></div>
+  <div class="abs center" style="top:1130px"><div class="mask"><div class="in h2" id="t6b">Menos burocracia, mais controle.</div></div></div>
+  <div class="abs center" style="top:1330px"><span class="chip" id="btn" style="background:#fff;color:var(--roxo);font-size:52px;padding:30px 70px">Baixe o app</span></div>
+  <div class="abs center foot" style="bottom:90px">Vídeo demonstrativo, não oficial. Produtos e serviços sujeitos a análise, condições e riscos.</div>
+</section>
+
+<canvas id="grain" width="540" height="960" style="width:1080px;height:1920px"></canvas>
+</div>
+<script>
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const E={lin:x=>x,o3:x=>1-Math.pow(1-x,3),o4:x=>1-Math.pow(1-x,4),io:x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,
+  back:x=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(x-1,3)+c1*Math.pow(x-1,2)}};
+const $=s=>document.querySelector(s);
+const DEF={x:0,y:0,s:1,r:0,o:1,rx:0,ry:0};
+function T(sel,t,start,dur,from,to,ease=E.o3,extra=''){
+  const el=typeof sel==='string'?$(sel):sel;if(!el)return;
+  const raw=clamp((t-start)/dur),p=ease(raw);
+  const v={};for(const k in DEF){const a=from[k]??DEF[k],b=to[k]??DEF[k];v[k]=a+(b-a)*p}
+  el.style.opacity=clamp(from.o!==undefined||to.o!==undefined?(from.o??1)+((to.o??1)-(from.o??1))*clamp(raw*1.4):1);
+  el.style.transform=`translate(${v.x}px,${v.y}px) rotateX(${v.rx}deg) rotateY(${v.ry}deg) rotate(${v.r}deg) scale(${v.s}) ${extra}`;
+}
+// geração determinística de rings/partículas
+function rnd(i){const x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x)}
+function mk(id,html){$(id).innerHTML=html}
+mk('#rings1',[0,1,2].map(i=>`<div class="ring r1" style="border-color:rgba(255,255,255,.5);left:540px;top:900px;width:10px;height:10px"></div>`).join(''));
+mk('#rings4',[0,1,2].map(i=>`<div class="ring r4" style="border-color:rgba(130,10,209,.6);left:540px;top:1095px;width:10px;height:10px"></div>`).join(''));
+const mkParts=(id,n,col)=>mk(id,Array.from({length:n},(_,i)=>{const s=8+rnd(i)*26;return `<div class="abs pt" data-i="${i}" style="left:${rnd(i+9)*1080}px;top:0;width:${s}px;height:${s}px;border-radius:50%;background:${col};opacity:.5"></div>`}).join(''));
+mkParts('#parts1',30,'#fff');mkParts('#parts6',30,'#C77DFF');
+function parts(id,t){document.querySelectorAll(id+' .pt').forEach(e=>{const i=+e.dataset.i,sp=60+rnd(i+3)*140;const y=1920-((t*sp+rnd(i)*2400)%2100);e.style.transform=`translateY(${y}px) translateX(${Math.sin(t*1.3+i)*30}px)`})}
+const starts=[0,3.2,6.4,9.6,12.8,16.0],END=19.5;
+const R=0.8; // duração da transição circular
+function show(t){
+  starts.forEach((s,i)=>{
+    const el=$('#s'+(i+1));
+    el.style.display=t>=s?'block':'none';
+    if(i>0){const p=E.io(clamp((t-s)/R));el.style.clipPath=`circle(${p*1800}px at 50% 52%)`}else el.style.clipPath='none';
+    el.style.zIndex=i+1;
+  });
+}
+function render(t){
+  show(t);
+  // ---- Cena 1
+  {const L=t-starts[0];
+   $('#b1').style.transform=`translate(${Math.sin(L)*60}px,${Math.cos(L*.8)*60}px)`;
+   $('#b2').style.transform=`translate(${Math.cos(L)*60}px,${Math.sin(L*.8)*60}px)`;
+   document.querySelectorAll('.r1').forEach((e,i)=>{const ph=((L*.45+i/3)%1);const d=200+ph*1500;e.style.width=e.style.height=d+'px';e.style.marginLeft=e.style.marginTop=(-d/2)+'px';e.style.opacity=(1-ph)*.9*clamp(L/.3)});
+   parts('#parts1',L);
+   T('#t1',L,.2,1.1,{y:260,s:.7},{y:0,s:1},E.back);
+   T('#t1b',L,1.0,.7,{y:90},{y:0});
+   T('#t1c',L,1.5,.7,{y:30,o:0},{y:0,o:.8});
+  }
+  // ---- Cena 2
+  {const L=t-starts[1];
+   T('#l2',L,.3,.5,{o:0,y:20},{o:1,y:0});
+   T('#t2',L,.35,.8,{y:200},{y:0});
+   T('#c2',L,.9,.7,{s:.2,o:0},{s:1,o:1},E.back);
+   T('#ph',L,.5,1.1,{y:900,r:6},{y:0,r:0},E.o4,`translateY(${Math.sin(L*2)*10}px)`);
+   ['#r1','#r2','#r3'].forEach((s,i)=>T(s,L,1.2+i*.35,.6,{x:400,o:0},{x:0,o:1},E.back));
+  }
+  // ---- Cena 3
+  {const L=t-starts[2];
+   $('#b3').style.transform=`translate(${Math.sin(L*.9)*70}px,${Math.cos(L)*50}px)`;
+   T('#l3',L,.3,.5,{o:0,y:20},{o:1,y:0});
+   T('#t3',L,.35,.8,{y:200},{y:0});
+   T('#c3',L,.9,.7,{s:.2,o:0},{s:1,o:1},E.back);
+   T('#cardw',L,.4,1.3,{y:700,o:0},{y:0,o:1},E.o4);
+   const flip=E.o4(clamp((L-.4)/1.4));
+   $('#card').style.transform=`rotateY(${(-100*(1-flip))+Math.sin(L*1.6)*10-8}deg) rotateX(${Math.cos(L*1.4)*5}deg)`;
+   $('#shine').style.left=(-300+clamp((L-1.5)/1.0)*1300)+'px';
+  }
+  // ---- Cena 4
+  {const L=t-starts[3];
+   T('#l4',L,.3,.5,{o:0,y:20},{o:1,y:0});
+   T('#t4',L,.35,.8,{y:200},{y:0});
+   T('#t4b',L,.8,.7,{y:100},{y:0});
+   document.querySelectorAll('.r4').forEach((e,i)=>{const ph=((L*.6+i/3)%1);const d=200+ph*1300;e.style.width=e.style.height=d+'px';e.style.marginLeft=e.style.marginTop=(-d/2)+'px';e.style.opacity=(1-ph)*.8*clamp((L-.5)/.3)});
+   T('#a1',L,.7,.6,{x:-300,o:0},{x:0,o:1},E.back);
+   T('#a2',L,.8,.6,{x:300,o:0},{x:0,o:1},E.back);
+   $('#line4').style.opacity=.5*clamp((L-1.2)/.3);
+   const m=E.io(clamp((L-1.3)/1.0));
+   $('#coin').style.transform=`translateX(${m*(1080-110*2-190-0)}px) scale(${1+Math.sin(m*Math.PI)*.35})`;
+   $('#coin').style.opacity=clamp((L-1.25)/.1)*(1-clamp((L-2.35)/.1));
+   T('#ok4',L,2.3,.6,{s:.2,o:0},{s:1,o:1},E.back);
+  }
+  // ---- Cena 5
+  {const L=t-starts[4];
+   T('#l5',L,.3,.5,{o:0,y:20},{o:1,y:0});
+   T('#t5',L,.35,.8,{y:220},{y:0});
+   T('#t5b',L,.8,.7,{y:100},{y:0});
+   [[ '#k1',1.0,78,'#f1','#p1'],['#k2',1.3,54,'#f2','#p2'],['#k3',1.6,36,'#f3','#p3']].forEach(([k,s,v,f,p])=>{
+     T(k,L,s,.7,{x:700,o:0},{x:0,o:1},E.back);
+     const q=E.o4(clamp((L-s-.4)/1.2));$(f).style.width=(v*q)+'%';$(p).textContent=Math.round(v*q)+'%';});
+   ['#x1','#x2','#x3'].forEach((s,i)=>T(s,L,2.0+i*.2,.5,{s:.2,o:0,y:60},{s:1,o:1,y:0},E.back));
+  }
+  // ---- Cena 6
+  {const L=t-starts[5];
+   $('#b6').style.transform=`scale(${1+Math.sin(L*2)*.08})`;
+   parts('#parts6',L+3);
+   T('#t6',L,.3,1.0,{y:400,s:.8},{y:0,s:1},E.back);
+   T('#t6b',L,1.1,.7,{y:100},{y:0});
+   T('#btn',L,1.7,.7,{s:.3,o:0},{s:1,o:1},E.back,`scale(${1+Math.max(0,Math.sin((L-2.4)*5))*.05})`);
+  }
+  // grão sutil
+  const c=$('#grain'),g=c.getContext('2d'),id=g.createImageData(540,960);
+  for(let i=0;i<id.data.length;i+=4){const v=Math.floor(rnd(i*.37+Math.floor(t*30)*91)*255);id.data[i]=id.data[i+1]=id.data[i+2]=v;id.data[i+3]=255}
+  g.putImageData(id,0,0);
+}
+window.render=render;window.END=END;render(0);
+</script></body></html>
